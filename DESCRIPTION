@@ -1,0 +1,30 @@
+Package: biocUniTools
+Title: Tools for Bioconductor Universe
+Version: 0.0.0.9001
+Authors@R: c(
+    person("Andres", "Wokaty", role = c("aut", "cre"),
+           email = "andres.wokaty@sph.cuny.edu")
+    )
+Description: A package of tools for working Bioconductor universes.
+License: Artistic-2.0
+Imports:
+    BiocPkgTools,
+    dplyr,
+    readr,
+    stringr,
+    tibble,
+    universe,
+    yaml
+Suggests:
+    curl,
+    knitr,
+    kable,
+    kableExtra,
+    quarto,
+    tidyr,
+    testthat (>= 3.0.0)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+VignetteBuilder: quarto
+Config/testthat/edition: 3
