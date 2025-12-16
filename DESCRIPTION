@@ -20,6 +20,7 @@ Suggests:
     knitr,
     kable,
     kableExtra,
+    logger,
     quarto,
     tidyr,
     testthat (>= 3.0.0)
