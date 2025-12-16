@@ -367,19 +367,3 @@ remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NULL,
     }
     old_binaries$full_path
 }
-
-#' Wrapper for get_uni_pkgs, pass information for correct R Universe associated
-#' with a Bioductor version for a specific OS
-#' 
-#' @param os character
-#' @param version character Bioconductor version
-#'
-#' @export
-get_candidate_pkgs_for_bioc_version <- function(version, os, macosx_name,
-                                                arch) {
-    bioc_info <- get_uni_for_bioc_version(version)
-    pkgs <- get_uni_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
-                         bioc_info$r_version, bioc_version = version, os = os,
-                         macosx_name = macosx_name, arch = arch)
-    get_candidates(pkgs, commit = TRUE, version = TRUE)
-}
