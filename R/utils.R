@@ -13,22 +13,24 @@ r_xy_ver <- function(version) {
     paste(xyz[[1]][1], xyz[[1]][2], sep=".")
 }
 
-#' Check if the version in a file is greater than another
+#' Check if the first version is greater the second 
 #'
 #' @examples
-#' is_greater_than("bedbaser_0.10.3.tar.gz", "bedbaser_1.0.20.tar.gz")
+#' is_greater_than("0.10.3", "1.0.20")
 #'
 #' @export
-is_greater_than <- function(file1, file2) {
-    fs <- c()
-    for (f in c(file1, file2)) {
-        xyz <- stringr::str_extract(f, "[0-9]+.[0-9]+.[0-9]+")
-        fs[length(fs)+1] <- strsplit(xyz, "\\.")
+is_greater_than <- function(version1, version2) {
+    vs <- c()
+    for (v in c(version1, version2)) {
+        xyz <- stringr::str_extract(v, "[0-9]+.[0-9]+.[0-9]+")
+        vs[length(vs)+1] <- strsplit(xyz, "\\.")
     }
   
     for (i in seq(1, 3)) {
-        if (as.integer(fs[[1]][i]) < as.integer(fs[[2]][i]))
+        if (as.integer(vs[[1]][i]) < as.integer(vs[[2]][i]))
             return(FALSE)
+        else if (as.integer(vs[[1]][i]) > as.integer(vs[[2]][i]))
+            return(TRUE)
     }
     TRUE
 }
@@ -40,13 +42,53 @@ is_greater_than <- function(file1, file2) {
 #'
 #' @export
 uni_pkg_file <- function(pkg, os, version) {
-    if (os == "windows")
+    if (stringr::str_detect(os, "win"))
         ext <- "zip"
-    else if (os == "macosx")
+    else if (stringr::str_detect(os, "mac"))
         ext <- "tgz"
     else
         ext <- "tar.gz"
     paste0(pkg, "_", version, ".", ext)
+}
+
+#' Get repo path
+#'
+#' @param r_version character
+#' @param bioc_version character
+#' @param os character
+#' @param macosx_name big-sur or sequoia
+#' @param arch character x86_64 or arm64
+#'
+#' @return character
+#'
+#' @export
+get_repository_path <- function(repo_root, r_version, os, macosx_name = NULL,
+                                arch = NULL) {
+    if (stringr::str_detect(os, "mac")) {
+            if (is.null(arch) | is.null(macosx_name))
+                stop("macosx_name and arch must not be NULL for os == macosx")
+            else if (!stringr::str_detect(macosx_name, "^(big-sur|sequoia)$"))
+                stop("macosx_name must be big-sur or sequoia")
+            else if (!stringr::str_detect(arch, "^(x86_64|arm64)$"))
+                stop("arch must be x86_64 or arm64")
+    }
+
+    if (stringr::str_detect(os, "mac"))
+        os <- "macosx"
+    else if (stringr::str_detect(os, "mac"))
+        os <- "windows"
+
+    subpath <- ""
+    if (stringr::str_detect(os, "win|mac")) {
+        subpath <- file.path("bin", os)
+        if (stringr::str_detect(os, "mac") && !is.null(arch) &&
+            !is.null(macosx_name))
+            subpath <- file.path(subpath, paste0(macosx_name, "-", arch))
+        subpath <- file.path(subpath, "contrib", r_xy_ver(r_version))
+    } else
+        subpath <- file.path("src/contrib")
+    subpath
+    file.path(repo_root, subpath)
 }
 
 #' Get universe URL for an os and R version
@@ -55,17 +97,9 @@ uni_pkg_file <- function(pkg, os, version) {
 #' uni_repo_url("bioc", "4.5.3", "windows"))
 #'
 #' @export
-uni_repo_url <- function(uni, r_version, os, arch = NULL) {
-    if (os == "macosx" && arch == "x86_64")
-        repo_path <- paste(c("bin", os, "big-sur-x86_64"), collapse = "/")
-    else if (os == "macosx" && arch == "arm64")
-      repo_path <- paste(c("bin", os, "big-sur-arm64"), collapse = "/")
-    else if (os == "windows")
-        repo_path <- paste(c("bin", os), collapse = "/")
-    else
-        repo_path <- "src"
-    root <- paste0("https://", uni, ".r-universe.dev")
-    paste(c(root, repo_path, "contrib", r_xy_ver(r_version), ""), collapse = "/")
+uni_repo_url <- function(uni, r_version, os, macosx_name = NULL, arch = NULL) {
+    universe <- paste0("https://", uni, ".r-universe.dev")
+    get_repository_path(universe, r_version, os, macosx_name, arch)
 }
 
 #' Get OS abbreviation
@@ -92,6 +126,7 @@ get_binary_os <- function(os) {
 #' @param r_version character
 #' @param bioc_version character
 #' @param os character
+#' @param macosx_name big-sur or sequoia
 #' @param arch character x86_64 or arm64
 #' 
 #' @return character abbreviation
@@ -101,7 +136,7 @@ get_binary_os <- function(os) {
 #'
 #' @export
 get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
-                         arch = NA, verbose = FALSE) {
+                         macosx_name = NULL, arch = NULL, verbose = FALSE) {
   r_xy <- r_xy_ver(r_version)
   # if macosx, adjust "macos", the term jobs use in the API
   if (stringr::str_detect(os, "mac"))
@@ -129,7 +164,7 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
                           File = "",
                           Url = "")
   
-  uni_repo <- uni_repo_url(uni, r_version, os, arch)
+  uni_repo <- uni_repo_url(uni, r_version, os, macosx_name, arch)
   
   for (i in seq_along(ru_info)) {
     jobid <- ""
@@ -144,7 +179,7 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
     for (j in seq_along(ru_info[[i]]$`_jobs`)) {
       job <- ru_info[[i]]$`_jobs`[[j]]
       os_branch <- paste(os, uni_os_branch, sep = "-")
-      if (!is.na(arch))
+      if (!is.null(arch))
         os_branch <- paste(os_branch, arch, sep = "-")
       if (job$config == os_branch && r_xy_ver(job$r) == r_xy) {
         jobid <- as.character(job$job)
@@ -169,7 +204,7 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
     pkg_file <- uni_pkg_file(ru_info[[i]]$Package, os, binaries_version)
     ru_url <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
                      binaries_status == "success",
-                     paste0(uni_repo, pkg_file), "")
+                     file.path(uni_repo, pkg_file), "")
     ru_file <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
                       binaries_status == "success", pkg_file, "")
     ru_builds <- tibble::add_row(ru_builds,
@@ -244,7 +279,8 @@ get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
 #' @export
 get_uni_for_bioc_version <- function(version) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
-    bioc_branch <- ifelse(bioc_yaml$devel_version == version, "devel", "release")
+    bioc_branch <- ifelse(bioc_yaml$devel_version == version, "devel",
+                          "release")
     ru_uni <- ifelse(bioc_branch == "devel", "bioc", "bioc-release")
     if (bioc_branch == "devel")
         r_version <- bioc_yaml$r_version_associated_with_devel
@@ -258,40 +294,78 @@ get_uni_for_bioc_version <- function(version) {
 
 #' Remove old binaries if a new binary exists
 #'
-#' @param pkgs Data.Frame of packages that includes new binaries
 #' @param repo_root path that includes repo type--e.g.,
 #'     "/home/biocpush/PACKAGES/3.22/bioc"
 #' @param os name, full or abbreviation
+#' @param macosx_name big-sur or sequoia
+#' @param arch x86_64 or arm64
 #' @param test logical (default TRUE) don't remove, only print packages marked
 #'     for removal
 #'
-#' @return An invisible \code{NULL}
+#' @return vector of the full path of binaries removed
 #'
 #' @examples
-#' allpkgs <- get_uni_pkgs("bioc", "devel", "3.23", "windows")
-#' pkgs <- get_candidates(allpkgs)
-#' remove_binaries(pkgs, "/home/biocpush/PACKAGES/3.22/bioc", "windows")
+#' remove_old_binaries("/home/biocpush/PACKAGES/3.22/bioc", "4.6.0", "windows")
 #'
 #' @export
-remove_binaries <- function(pkgs, repo_root, os, test = TRUE) {
-    r_version <- R.Version()
-    r_version <- paste0(r_version, strsplit(r_version$minor, "\\.")[[1]][1])
-    sub_path <- ifthen(os %in% c("windows", "macosx"), "bin", "src")
-    binaries_path <- file.path(repo_root, sub_path, get_binary_os(os),
-                               "contrib", r_version)
-    binaries <- list.files(binaries_path)
-    names(binaries) <- sapply(binaries,
-                              function(x) { stringr::str_split_1(x, "_")[1] }) |>
-        unname()
-    for (b in names(binaries)) {
-        if (b %in% pkgs$Package & is_greater_than(pkg$File, binaries[b])) {
-            full_path <- tools::file_path_as_absolute(binaries_path,
-                                                      binaries[b])
-            print(paste("Removing", full_path))
-            if (!test)
-                file.remove(full_path)
-        }
+remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NULL,
+                                arch = NULL, test = TRUE) {
+    binaries_path <- get_repository_path(repo_root, r_xy_ver(r_version), os,
+                                         macosx_name, arch)
+    files <- list.files(binaries_path, pattern=".*._[0-9]+.[0-9]+.[0-9]+..*")
+    binaries <- data.frame(file = files,
+                           latest = NA)
+    binaries <- binaries |>
+        dplyr::mutate(pkg = sub("_[^_]*$", "", file),
+                      full_path = file.path(binaries_path, file),
+                      version = stringr::str_extract(file, "\\d+(\\.\\d+)*")) |>
+        dplyr::arrange(pkg)
+
+    latest <- NULL
+    for (i in seq_len(nrow(binaries))) {
+
+       if (is.null(latest)) {
+           latest <- i
+           next
+       }
+
+       if (binaries$pkg[latest] != binaries$pkg[i]) {
+           latest <- i
+           binaries$latest[latest] <- TRUE
+           next
+       }
+
+       if (binaries$pkg[latest] == binaries$pkg[i]) {
+           if (is_greater_than(binaries$version[latest],
+                               binaries$version[i])) {
+               binaries$latest[latest] <- TRUE
+               binaries$latest[i] <- FALSE
+           } else if (is_greater_than(binaries$version[i],
+                                      binaries$version[latest])) {
+               binaries$latest[i] <- TRUE
+               binaries$latest[latest] <- FALSE
+               latest <- i
+           }
+       }
     }
+
+    if (!is.na(latest)) {
+        binaries$latest[latest] <- TRUE
+    }
+
+   if (any(is.na(binaries$latest))) {
+         warning("Some packages were not properly marked as latest/old")
+         print(binaries[is.na(binaries$latest), ])
+   }
+
+    old_binaries <- binaries |>
+        dplyr::filter(latest == FALSE)
+
+    for (b in old_binaries$full_path) {
+        if (!test)
+            file.remove(b)
+    }
+    old_binaries$full_path
 }
 
 #' Wrapper for get_uni_pkgs, pass information for correct R Universe associated
@@ -301,9 +375,11 @@ remove_binaries <- function(pkgs, repo_root, os, test = TRUE) {
 #' @param version character Bioconductor version
 #'
 #' @export
-get_candidate_pkgs_for_bioc_version <- function(os, version) {
+get_candidate_pkgs_for_bioc_version <- function(version, os, macosx_name,
+                                                arch) {
     bioc_info <- get_uni_for_bioc_version(version)
     pkgs <- get_uni_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
-                         bioc_info$r_version, version, os)
+                         bioc_info$r_version, bioc_version = version, os = os,
+                         macosx_name = macosx_name, arch = arch)
     get_candidates(pkgs, commit = TRUE, version = TRUE)
 }

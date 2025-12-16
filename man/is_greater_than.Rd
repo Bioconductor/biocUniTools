@@ -2,14 +2,14 @@
 % Please edit documentation in R/utils.R
 \name{is_greater_than}
 \alias{is_greater_than}
-\title{Check if the version in a file is greater than another}
+\title{Check if the first version is greater the second}
 \usage{
-is_greater_than(file1, file2)
+is_greater_than(version1, version2)
 }
 \description{
-Check if the version in a file is greater than another
+Check if the first version is greater the second
 }
 \examples{
-is_greater_than("bedbaser_0.10.3.tar.gz", "bedbaser_1.0.20.tar.gz")
+is_greater_than("0.10.3", "1.0.20")
 
 }

@@ -5,12 +5,12 @@
 \title{Wrapper for get_uni_pkgs, pass information for correct R Universe associated
 with a Bioductor version for a specific OS}
 \usage{
-get_candidate_pkgs_for_bioc_version(os, version)
+get_candidate_pkgs_for_bioc_version(version, os, macosx_name, arch)
 }
 \arguments{
-\item{os}{character}
-
 \item{version}{character Bioconductor version}
+
+\item{os}{character}
 }
 \description{
 Wrapper for get_uni_pkgs, pass information for correct R Universe associated

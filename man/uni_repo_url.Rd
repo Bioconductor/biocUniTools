@@ -4,7 +4,7 @@
 \alias{uni_repo_url}
 \title{Get universe URL for an os and R version}
 \usage{
-uni_repo_url(uni, r_version, os, arch = NULL)
+uni_repo_url(uni, r_version, os, macosx_name = NULL, arch = NULL)
 }
 \description{
 Get universe URL for an os and R version

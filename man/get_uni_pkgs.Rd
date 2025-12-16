@@ -4,12 +4,31 @@
 \alias{get_uni_pkgs}
 \title{Get information about comparable builds in R Universe and the BBS}
 \usage{
-get_uni_pkgs(uni, uni_os_branch, r_version, os, bioc_version, arch = NULL)
+get_uni_pkgs(
+  uni,
+  uni_os_branch,
+  r_version,
+  bioc_version,
+  os,
+  macosx_name = NULL,
+  arch = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{uni}{character universe name}
 
 \item{uni_os_branch}{character release or devel}
+
+\item{r_version}{character}
+
+\item{bioc_version}{character}
+
+\item{os}{character}
+
+\item{macosx_name}{big-sur or sequoia}
+
+\item{arch}{character x86_64 or arm64}
 }
 \value{
 character abbreviation
@@ -19,6 +38,6 @@ Collects information from the BBS for a Bioconductor version and finds
 information about corresponding package versions in R Universe
 }
 \examples{
-get_uni_pkgs("bioc", "devel", "4.6.0", "windows", "3.23")
+get_uni_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
 
 }
