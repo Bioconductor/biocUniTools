@@ -4,8 +4,9 @@ library(dplyr)
 # Set the following: 
 #
 # OS <- "windows"
+# MACOSX_NAME <- NULL
+# ARCH <- NULL
 # BIOC_VERSION <- "3.23"
-# REMOVE_OLD_BINARIES <- TRUE
 # REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
 # REMOVE_OLD_BINARIES_TEST <- TRUE
 # LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION,
