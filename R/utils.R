@@ -20,17 +20,18 @@ r_xy_ver <- function(version) {
 #'
 #' @export
 is_greater_than <- function(version1, version2) {
-    vs <- c()
-    for (v in c(version1, version2)) {
-        xyz <- stringr::str_extract(v, "[0-9]+.[0-9]+.[0-9]+")
-        vs[length(vs)+1] <- strsplit(xyz, "\\.")
+    parse_version <- function(v) {
+        xyz <- stringr::str_extract(v, "[0-9]+\\.[0-9]+\\.[0-9]+")
+        if (is.na(xyz)) stop(paste("Invalid version format:", v))
+        as.integer(strsplit(xyz, "\\.")[[1]])
     }
   
-    for (i in seq(1, 3)) {
-        if (as.integer(vs[[1]][i]) < as.integer(vs[[2]][i]))
-            return(FALSE)
-        else if (as.integer(vs[[1]][i]) > as.integer(vs[[2]][i]))
-            return(TRUE)
+    v1 <- parse_version(version1)
+    v2 <- parse_version(version2)
+  
+    for (i in 1:3) {
+        if (v1[i] < v2[i]) return(FALSE)
+        if (v1[i] > v2[i]) return(TRUE)
     }
     TRUE
 }
@@ -312,7 +313,7 @@ remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NULL,
                                 arch = NULL, test = TRUE) {
     binaries_path <- get_repository_path(repo_root, r_xy_ver(r_version), os,
                                          macosx_name, arch)
-    files <- list.files(binaries_path, pattern=".*._[0-9]+.[0-9]+.[0-9]+..*")
+    files <- list.files(binaries_path, pattern=".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
     binaries <- data.frame(file = files,
                            latest = NA)
     binaries <- binaries |>

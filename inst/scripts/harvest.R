@@ -1,6 +1,7 @@
 library(curl)
 library(dplyr)
 library(logger)
+library(biocUniTools)
 
 # Set the following: 
 #
@@ -27,20 +28,21 @@ LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION,
 options(max.print = 3000L)
 
 logger::log_appender(logger::appender_file(LOG_PATH))
-logger::log_info((Sys.time(), "Start"))
+logger::log_info("{Sys.time()} Start")
 
 bioc_info <- get_uni_for_bioc_version(BIOC_VERSION)
 repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS)
-binaries <- list.files(repo_path, pattern = ".*._[0-9]+.[0-9]+.[0-9]+..*")
+binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 pkgs <- get_uni_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
                      bioc_info$r_version, bioc_version = BIOC_VERSION,
                      os = OS, macosx_name = MACOSX_NAME, arch = ARCH)
 candidates <- pkgs |>
-    dplyr::filter(!File %in% binaries)
+    dplyr::filter(File != "" & !File %in% binaries)
 
 downloaded <- curl::multi_download(candidates$Url)
 logger::log_info("Download {downloaded}")
-removed <- remove_old_binaries(REPO_ROOT, OS, test = REMOVE_OLD_BINARIES_TEST)
+removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS,
+                               test = REMOVE_OLD_BINARIES_TEST)
 logger::log_info("Removed {removed}")
 
-logger::log_info((Sys.time(), "End"))
+logger::log_info("{Sys.time()} End")
