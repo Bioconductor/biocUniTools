@@ -1,5 +1,6 @@
 library(curl)
 library(dplyr)
+library(logger)
 
 # Set the following: 
 #
@@ -25,7 +26,8 @@ LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION,
 # set max.print to get all packages
 options(max.print = 3000L)
 
-print(paste(Sys.time(), "Start"))
+logger::log_appender(logger::appender_file(LOG_PATH))
+logger::log_info((Sys.time(), "Start"))
 
 bioc_info <- get_uni_for_bioc_version(BIOC_VERSION)
 repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS)
@@ -36,10 +38,9 @@ pkgs <- get_uni_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
 candidates <- pkgs |>
     dplyr::filter(!File %in% binaries)
 
-print("Downloaded")
-curl::multi_download(candidates$Url)
-print("Removed")
-remove_old_binaries(REPO_ROOT, OS, test = REMOVE_OLD_BINARIES_TEST)
+downloaded <- curl::multi_download(candidates$Url)
+logger::log_info("Download {downloaded}")
+removed <- remove_old_binaries(REPO_ROOT, OS, test = REMOVE_OLD_BINARIES_TEST)
+logger::log_info("Removed {removed}")
 
-print(paste(Sys.time(), "End"))
-
+logger::log_info((Sys.time(), "End"))
