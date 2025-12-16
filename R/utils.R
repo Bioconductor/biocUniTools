@@ -319,7 +319,7 @@ remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NULL,
     binaries <- binaries |>
         dplyr::mutate(pkg = sub("_[^_]*$", "", file),
                       full_path = file.path(binaries_path, file),
-                      version = stringr::str_extract(file, "\\d+(\\.\\d+)*")) |>
+                      version = stringr::str_extract(file, "(?<=_)\\d+\\.\\d+\\.\\d+(?=\\.)")) |>
         dplyr::arrange(pkg)
 
     latest <- NULL

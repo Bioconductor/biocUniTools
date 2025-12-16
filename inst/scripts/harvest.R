@@ -40,7 +40,8 @@ candidates <- pkgs |>
     dplyr::filter(File != "" & !File %in% binaries)
 
 downloaded <- curl::multi_download(candidates$Url)
-logger::log_info("Download {downloaded}")
+logger::log_info("{downloaded}")
+logger::log_info("Downloaded {downloaded$destfile}")
 removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS,
                                test = REMOVE_OLD_BINARIES_TEST)
 logger::log_info("Removed {removed}")
