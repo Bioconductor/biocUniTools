@@ -21,7 +21,8 @@ BIOC_VERSION <- ""
 REMOVE_OLD_BINARIES_TEST <- TRUE 
 REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
 LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION,
-                      paste0("harvest-", OS,".log"))
+                      paste0("harvest-", OS, "-",
+                             format(Sys.Date(), format="%Y%m%d"), ".log"))
 
 
 # set max.print to get all packages
@@ -40,8 +41,7 @@ candidates <- pkgs |>
     dplyr::filter(File != "" & !File %in% binaries)
 
 downloaded <- curl::multi_download(candidates$Url)
-logger::log_info("{downloaded}")
-logger::log_info("Downloaded {downloaded$destfile}")
+logger::log_info("Downloaded {downloaded$success} {downloaded$status_code} {downloaded$destfile}")
 removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS,
                                test = REMOVE_OLD_BINARIES_TEST)
 logger::log_info("Removed {removed}")
