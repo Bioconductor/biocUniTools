@@ -280,6 +280,8 @@ get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
 #' @export
 get_uni_for_bioc_version <- function(version) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
+    
+    stopifnot(version %in% bioc_yaml$versions)
     bioc_branch <- ifelse(bioc_yaml$devel_version == version, "devel",
                           "release")
     ru_uni <- ifelse(bioc_branch == "devel", "bioc", "bioc-release")
@@ -287,6 +289,7 @@ get_uni_for_bioc_version <- function(version) {
         r_version <- bioc_yaml$r_version_associated_with_devel
     else
         r_version <- bioc_yaml$r_version_associated_with_release
+    
     list(bioc_version = version,
          bioc_branch = bioc_branch,
          ru_uni = ru_uni,
