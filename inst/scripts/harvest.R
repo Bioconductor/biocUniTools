@@ -34,6 +34,9 @@ if (OS == "macosx" && length(args) != 5) {
     MACOSX_NAME <- args[4]
     stopifnot(args[5] %in% c("x86_64", "arm64"))
     ARCH <- args[5]
+} else {
+    MACOSX_NAME <- NULL
+    ARCH <- NULL
 }
 
 REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
