@@ -51,7 +51,7 @@ options(max.print = 3000L)
 logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
-repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS)
+repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH)
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 pkgs <- get_uni_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
                      bioc_info$r_version, bioc_version = BIOC_VERSION,
