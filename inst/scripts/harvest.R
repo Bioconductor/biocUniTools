@@ -34,16 +34,16 @@ if (OS == "macosx" && length(args) != 5) {
     MACOSX_NAME <- args[4]
     stopifnot(args[5] %in% c("x86_64", "arm64"))
     ARCH <- args[5]
+    LOG_FILE_BASE <- paste0("harvest-", OS, "-", MACOSX_NAME, "-", ARCH)
 } else {
     MACOSX_NAME <- NULL
     ARCH <- NULL
+    LOG_FILE_BASE <- paste0("harvest-", OS, "-")
 }
 
 REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
-LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION,
-                      paste0("harvest-", OS, "-",
-                             format(Sys.Date(), format="%Y%m%d"), ".log"))
-
+LOG_FILE <- paste0(LOG_FILE_BASE, format(Sys.Date(), format="%Y%m%d"), ".log")
+LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION, LOG_FILE)
 
 # set max.print to get all packages
 options(max.print = 3000L)
@@ -61,7 +61,7 @@ candidates <- pkgs |>
 
 downloaded <- curl::multi_download(candidates$Url)
 logger::log_info("Downloaded {downloaded$success} {downloaded$status_code} {downloaded$destfile}")
-removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS,
+removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH,
                                test = TEST_REMOVAL)
 logger::log_info("Removed {removed}")
 
