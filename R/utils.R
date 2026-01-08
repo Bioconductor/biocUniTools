@@ -149,21 +149,21 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
       dplyr::mutate(BBS_commit = git_last_commit) |>
       dplyr::select(Package, Version, BBS_commit)
   
-  ru_builds <- data.frame(Package = "",
-                          Version = "",
-                          JobUrl = "",
-                          JobCheck = "",
-                          BinariesCheck = "",
-                          BinariesUrl = "",
-                          BinariesBuildDate = "",
-                          BinariesStatus = "",
-                          RU_commit = "",
-                          MD5sum = "",
-                          RemoteSha = "",
-                          RemoteUrl = "",
-                          Published = "",
-                          File = "",
-                          Url = "")
+  ru_builds <- data.frame(Package = character(),
+                          Version = character(),
+                          JobUrl = character(),
+                          JobCheck = character(),
+                          BinariesCheck = character(),
+                          BinariesUrl = character(),
+                          BinariesBuildDate = character(),
+                          BinariesStatus = character(),
+                          RU_commit = character(),
+                          MD5sum = character(),
+                          RemoteSha = character(),
+                          RemoteUrl = character(),
+                          Published = character(),
+                          File = character(),
+                          Url = character())
   
   uni_repo <- uni_repo_url(uni, r_version, os, macosx_name, arch)
   
