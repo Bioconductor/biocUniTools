@@ -138,6 +138,8 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, os, macosx_name = NULL,
     # if macosx, adjust "macos", the term jobs use in the API
     if (stringr::str_detect(os, "mac"))
         os <- "macos"
+    if (stringr::str_detect(os, "linux"))
+        arch <- "x86_64"
     ru_info <- universe::universe_all_packages(uni, limit = .LIMIT)
 
     ru_builds <- data.frame(Package = character(),
@@ -194,11 +196,13 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, os, macosx_name = NULL,
         }
 
         pkg_file <- uni_pkg_file(ru_info[[i]]$Package, os, binaries_version)
-        ru_url <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
-                         binaries_status == "success",
-                         file.path(uni_repo, pkg_file), "")
-        ru_file <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
-                          binaries_status == "success", pkg_file, "")
+        ru_url <- ifelse((binaries_check %in% c("FAIL", "ERROR", "CANCELLED")) |
+                         binaries_status != "success", "",
+                         file.path(uni_repo, pkg_file))
+        ru_url <- as.character(ru_url)
+        ru_file <- ifelse((binaries_check %in% c("FAIL", "ERROR", "CANCELLED")) |
+                          binaries_status != "success", "", pkg_file)
+        ru_file <- as.character(ru_file)
         ru_builds <- tibble::add_row(ru_builds,
                                      Package = ru_info[[i]]$Package,
                                      Version = ru_info[[i]]$Version,

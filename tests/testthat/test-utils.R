@@ -19,10 +19,10 @@
  })
  
  test_that("uni_repo_url gets the universe url", {
-     macx86 <- "https://bioc.r-universe.dev/bin/macosx/sequoia-x86_64/contrib/4.6"
+     macx86 <- "https://bioc.r-universe.dev/bin/macosx/sonoma-x86_64/contrib/4.6"
      macx64 <- "https://bioc.r-universe.dev/bin/macosx/big-sur-arm64/contrib/4.6"
      win <- "https://bioc.r-universe.dev/bin/windows/contrib/4.6"
-     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sequoia", "x86_64"), macx86)
+     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sonoma", "x86_64"), macx86)
      expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "big-sur", "arm64"), macx64)
      expect_equal(uni_repo_url("bioc", "4.6.0", "windows"), win)
  })
