@@ -25,10 +25,10 @@ is_greater_than <- function(version1, version2) {
         if (is.na(xyz)) stop(paste("Invalid version format:", v))
         as.integer(strsplit(xyz, "\\.")[[1]])
     }
-  
+
     v1 <- parse_version(version1)
     v2 <- parse_version(version2)
-  
+
     for (i in 1:3) {
         if (v1[i] < v2[i]) return(FALSE)
         if (v1[i] > v2[i]) return(TRUE)
@@ -57,7 +57,7 @@ uni_pkg_file <- function(pkg, os, version) {
 #' @param r_version character
 #' @param bioc_version character
 #' @param os character
-#' @param macosx_name big-sur or sequoia
+#' @param macosx_name big-sur or sonoma
 #' @param arch character x86_64 or arm64
 #'
 #' @return character
@@ -68,8 +68,8 @@ get_repository_path <- function(repo_root, r_version, os, macosx_name = NULL,
     if (stringr::str_detect(os, "mac")) {
             if (is.null(arch) | is.null(macosx_name))
                 stop("macosx_name and arch must not be NULL for os == macosx")
-            else if (!stringr::str_detect(macosx_name, "^(big-sur|sequoia)$"))
-                stop("macosx_name must be big-sur or sequoia")
+            else if (!stringr::str_detect(macosx_name, "^(big-sur|sonoma)$"))
+                stop("macosx_name must be big-sur or sonoma")
             else if (!stringr::str_detect(arch, "^(x86_64|arm64)$"))
                 stop("arch must be x86_64 or arm64")
     }
@@ -117,6 +117,111 @@ get_binary_os <- function(os) {
     os
 }
 
+#' Get information about an R Universe build
+#'
+#' @param uni character universe name
+#' @param uni_os_branch character release or devel
+#' @param r_version character
+#' @param os character
+#' @param macosx_name big-sur or sonoma
+#' @param arch character x86_64 or arm64
+#'
+#' @return character abbreviation
+#'
+#' @examples
+#' get_uni_pkgs("bioc", "devel", "4.6.0", "windows")
+#'
+#' @export
+get_uni_pkgs <- function(uni, uni_os_branch, r_version, os, macosx_name = NULL,
+                         arch = NULL, verbose = FALSE) {
+    r_xy <- r_xy_ver(r_version)
+    # if macosx, adjust "macos", the term jobs use in the API
+    if (stringr::str_detect(os, "mac"))
+        os <- "macos"
+    ru_info <- universe::universe_all_packages(uni, limit = .LIMIT)
+
+    ru_builds <- data.frame(Package = character(),
+                            Version = character(),
+                            JobUrl = character(),
+                            JobCheck = character(),
+                            BinariesCheck = character(),
+                            BinariesUrl = character(),
+                            BinariesBuildDate = character(),
+                            BinariesStatus = character(),
+                            RU_commit = character(),
+                            MD5sum = character(),
+                            RemoteSha = character(),
+                            RemoteUrl = character(),
+                            Published = character(),
+                            File = character(),
+                            Url = character())
+
+    uni_repo <- uni_repo_url(uni, r_version, os, macosx_name, arch)
+
+    for (i in seq_along(ru_info)) {
+        jobid <- ""
+        jobcheck <- ""
+        binaries_buildurl <- ""
+        binaries_status <- ""
+        binaries_check <- ""
+        binaries_builddate <- ""
+        binaries_version <- ""
+        ru_commit <- ""
+
+        for (j in seq_along(ru_info[[i]]$`_jobs`)) {
+            job <- ru_info[[i]]$`_jobs`[[j]]
+            os_branch <- paste(os, uni_os_branch, sep = "-")
+            if (!is.null(arch))
+                os_branch <- paste(os_branch, arch, sep = "-")
+            if (job$config == os_branch && r_xy_ver(job$r) == r_xy) {
+                jobid <- as.character(job$job)
+                jobcheck <- job$check
+                break
+            }
+        }
+
+        for (k in seq_along(ru_info[[i]]$`_binaries`)) {
+            binary <- ru_info[[i]]$`_binaries`[[k]]
+            if (binary$os == get_binary_os(os) && r_xy_ver(binary$r) == r_xy) {
+                ru_commit <- as.character(binary$commit)
+                binaries_buildurl <- binary$buildurl
+                binaries_status <- binary$status
+                binaries_check <- binary$check
+                binaries_builddate <- binary$date
+                binaries_version <- binary$version
+                break
+            }
+        }
+
+        pkg_file <- uni_pkg_file(ru_info[[i]]$Package, os, binaries_version)
+        ru_url <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
+                         binaries_status == "success",
+                         file.path(uni_repo, pkg_file), "")
+        ru_file <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
+                          binaries_status == "success", pkg_file, "")
+        ru_builds <- tibble::add_row(ru_builds,
+                                     Package = ru_info[[i]]$Package,
+                                     Version = ru_info[[i]]$Version,
+                                     JobUrl = paste0(ru_info[[i]]$`_buildurl`,
+                                                     "/job/", jobid),
+                                     JobCheck = jobcheck,
+                                     BinariesCheck = binaries_check,
+                                     BinariesUrl = binaries_buildurl,
+                                     RU_commit = substr(ru_commit, 1, 7),
+                                     MD5sum = substr(ru_info[[i]]$MD5sum, 1, 7),
+                                     RemoteSha = substr(ru_info[[i]]$RemoteSha, 1, 7),
+                                     RemoteUrl = ru_info[[i]]$RemoteUrl,
+                                     Published = ru_info[[i]]$`_published`,
+                                     BinariesBuildDate = binaries_builddate,
+                                     BinariesStatus = binaries_status,
+                                     Url = ru_url,
+                                     File = ru_file)
+    }
+
+    ru_builds |>
+        dplyr::arrange(Package)
+}
+
 #' Get information about comparable builds in R Universe and the BBS
 #'
 #' Collects information from the BBS for a Bioconductor version and finds
@@ -127,106 +232,28 @@ get_binary_os <- function(os) {
 #' @param r_version character
 #' @param bioc_version character
 #' @param os character
-#' @param macosx_name big-sur or sequoia
+#' @param macosx_name big-sur or sonoma
 #' @param arch character x86_64 or arm64
-#' 
+#'
 #' @return character abbreviation
-#' 
+#'
 #' @examples
-#' get_uni_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
+#' get_comparable_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
 #'
 #' @export
-get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
-                         macosx_name = NULL, arch = NULL, verbose = FALSE) {
-  r_xy <- r_xy_ver(r_version)
-  # if macosx, adjust "macos", the term jobs use in the API
-  if (stringr::str_detect(os, "mac"))
-      os <- "macos"
-  ru_info <- universe::universe_all_packages(uni, limit = .LIMIT)
-  bbs_info <- BiocPkgTools::biocPkgList(version = bioc_version,
-                                        repo="BioCsoft")
-  bbs_builds <- bbs_info |>
-      dplyr::mutate(BBS_commit = git_last_commit) |>
-      dplyr::select(Package, Version, BBS_commit)
-  
-  ru_builds <- data.frame(Package = character(),
-                          Version = character(),
-                          JobUrl = character(),
-                          JobCheck = character(),
-                          BinariesCheck = character(),
-                          BinariesUrl = character(),
-                          BinariesBuildDate = character(),
-                          BinariesStatus = character(),
-                          RU_commit = character(),
-                          MD5sum = character(),
-                          RemoteSha = character(),
-                          RemoteUrl = character(),
-                          Published = character(),
-                          File = character(),
-                          Url = character())
-  
-  uni_repo <- uni_repo_url(uni, r_version, os, macosx_name, arch)
-  
-  for (i in seq_along(ru_info)) {
-    jobid <- ""
-    jobcheck <- ""
-    binaries_buildurl <- ""
-    binaries_status <- ""
-    binaries_check <- ""
-    binaries_builddate <- ""
-    binaries_version <- ""
-    ru_commit <- ""
-    
-    for (j in seq_along(ru_info[[i]]$`_jobs`)) {
-      job <- ru_info[[i]]$`_jobs`[[j]]
-      os_branch <- paste(os, uni_os_branch, sep = "-")
-      if (!is.null(arch))
-        os_branch <- paste(os_branch, arch, sep = "-")
-      if (job$config == os_branch && r_xy_ver(job$r) == r_xy) {
-        jobid <- as.character(job$job)
-        jobcheck <- job$check
-        break
-      }
-    }
-    
-    for (k in seq_along(ru_info[[i]]$`_binaries`)) {
-      binary <- ru_info[[i]]$`_binaries`[[k]]
-      if (binary$os == get_binary_os(os) && r_xy_ver(binary$r) == r_xy) {
-        ru_commit <- as.character(binary$commit)
-        binaries_buildurl <- binary$buildurl
-        binaries_status <- binary$status
-        binaries_check <- binary$check
-        binaries_builddate <- binary$date
-        binaries_version <- binary$version
-        break
-      }
-    }
-    
-    pkg_file <- uni_pkg_file(ru_info[[i]]$Package, os, binaries_version)
-    ru_url <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
-                     binaries_status == "success",
-                     file.path(uni_repo, pkg_file), "")
-    ru_file <- ifelse(!(binaries_check %in% c("FAIL", "ERROR")) &
-                      binaries_status == "success", pkg_file, "")
-    ru_builds <- tibble::add_row(ru_builds,
-                                 Package = ru_info[[i]]$Package,
-                                 Version = ru_info[[i]]$Version,
-                                 JobUrl = paste0(ru_info[[i]]$`_buildurl`,
-                                                 "/job/", jobid),
-                                 JobCheck = jobcheck,
-                                 BinariesCheck = binaries_check,
-                                 BinariesUrl = binaries_buildurl,
-                                 RU_commit = substr(ru_commit, 1, 7),
-                                 MD5sum = substr(ru_info[[i]]$MD5sum, 1, 7),
-                                 RemoteSha = substr(ru_info[[i]]$RemoteSha, 1, 7),
-                                 RemoteUrl = ru_info[[i]]$RemoteUrl,
-                                 Published = ru_info[[i]]$`_published`,
-                                 BinariesBuildDate = binaries_builddate,
-                                 BinariesStatus = binaries_status,
-                                 Url = ru_url,
-                                 File = ru_file)
-  }
-  
+get_comparable_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
+                                macosx_name = NULL, arch = NULL,
+                                verbose = FALSE) {
+    ru_builds <- get_uni_pkgs(uni, uni_os_branch, r_version, os, macosx_name,
+                              arch, verbose)
+    bbs_info <- BiocPkgTools::biocBuildReport(version = bioc_version,
+                                              pkgType = "software")
+    bbs_builds <- bbs_info |>
+        dplyr::rename(Package = pkg, Version = version,
+                      BBS_commit = git_last_commit) |>
+        dplyr::select(Package, Version, BBS_commit, Deprecated) |>
+        dplyr::distinct()
+
     builds <- merge(bbs_builds, ru_builds, by = c("Package", "Version"))
 
     if (verbose) {
@@ -235,7 +262,7 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
         print(paste("R Universe:", dim(ru_builds)[1]))
         print(paste("Merged:", dim(builds)[1]))
     }
-    
+
     builds |>
         dplyr::arrange(Package)
 }
@@ -245,12 +272,13 @@ get_uni_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
 #' @param commit logical Check commit hash in RU and BBS?
 #' @param version logical Check package version in RU and BBS?
 #' @param check character vector of acceptable R CMD check statuses
-#' 
+#'
 #' @return data.frame of filtered candidate packages
-#' 
+#'
 #' @examples
-#' uni_pkgs <- get_uni_pkgs("bioc", "devel", "4.6.0", "windows", "3.23")
-#' pkgs <- get_candiates(uni_pkgs, commit = TRUE, version = TRUE)
+#' comparable_pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "windows",
+#'                                        "3.23")
+#' pkgs <- get_candiates(comparable_pkgs, commit = TRUE, version = TRUE)
 #'
 #' @export
 get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
@@ -259,22 +287,22 @@ get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
         dplyr::filter(BinariesCheck %in% check,
                       JobCheck %in% check,
                       BinariesStatus == "success")
-  
+
     if (commit) {
         candidates <- pkgs |>
-            dplyr::filter(BBS_commit == RU_commit)      
+            dplyr::filter(BBS_commit == RU_commit)
     }
-    
+
     if (version) {
       candidates <- pkgs |>
-        dplyr::filter(BBS_version == RU_version)      
+        dplyr::filter(BBS_version == RU_version)
     }
-    
+
     candidates
 }
 
 #' Get information about R Universe building a Bioconductor version
-#' 
+#'
 #' @param version character Bioconductor version
 #'
 #' @export
@@ -289,7 +317,7 @@ get_uni_for_bioc_version <- function(version) {
         r_version <- bioc_yaml$r_version_associated_with_devel
     else
         r_version <- bioc_yaml$r_version_associated_with_release
-    
+
     list(bioc_version = version,
          bioc_branch = bioc_branch,
          ru_uni = ru_uni,
@@ -301,7 +329,7 @@ get_uni_for_bioc_version <- function(version) {
 #' @param repo_root path that includes repo type--e.g.,
 #'     "/home/biocpush/PACKAGES/3.22/bioc"
 #' @param os name, full or abbreviation
-#' @param macosx_name big-sur or sequoia
+#' @param macosx_name big-sur or sonoma
 #' @param arch x86_64 or arm64
 #' @param test logical (default TRUE) don't remove, only print packages marked
 #'     for removal

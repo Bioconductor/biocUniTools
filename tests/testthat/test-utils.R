@@ -33,9 +33,9 @@
      expect_equal(get_binary_os("macosx"), "mac")
  })
  
- test_that("get_uni_pkgs gets R Universe data", {
+ test_that("get_comparable_pkgs gets R Universe data", {
      # We'll check the path of file for windows
-     pkgs <- get_uni_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
+     pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
      pkg <- pkgs |>
          dplyr::filter(Package == "UCSC.utils")
      version <- pkg |>
@@ -45,8 +45,8 @@
      expect_equal(pkg |> dplyr::pull(Url), url)
  
      # We'll check the path of a file for mac x86_64
-     pkgs <- get_uni_pkgs("bioc-release", "release", "4.5.0", "3.22", "macosx",
-                          "big-sur", "x86_64")
+     pkgs <- get_comparable_pkgs("bioc-release", "release", "4.5.0", "3.22",
+                                 "macosx", "big-sur", "x86_64")
      pkg <- pkgs |>
          dplyr::filter(Package == "Biobase")
      version <- pkg |>
