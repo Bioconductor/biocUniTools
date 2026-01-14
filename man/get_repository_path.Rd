@@ -11,7 +11,7 @@ get_repository_path(repo_root, r_version, os, macosx_name = NULL, arch = NULL)
 
 \item{os}{character}
 
-\item{macosx_name}{big-sur or sequoia}
+\item{macosx_name}{big-sur or sonoma}
 
 \item{arch}{character x86_64 or arm64}
 

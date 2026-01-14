@@ -25,7 +25,8 @@ data.frame of filtered candidate packages
 Get packages matching criteria
 }
 \examples{
-uni_pkgs <- get_uni_pkgs("bioc", "devel", "4.6.0", "windows", "3.23")
-pkgs <- get_candiates(uni_pkgs, commit = TRUE, version = TRUE)
+comparable_pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "windows",
+                                       "3.23")
+pkgs <- get_candiates(comparable_pkgs, commit = TRUE, version = TRUE)
 
 }
