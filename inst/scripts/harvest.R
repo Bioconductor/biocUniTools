@@ -6,7 +6,7 @@ library(biocUniTools)
 
 # Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [MACOSX_NAME] [ARCH]
 # MACOSX_NAME and ARCH are only for macosx
-# Example: Rscript harvest.R 3.22 macosx sequoia arm64
+# Example: Rscript harvest.R 3.22 macosx sonoma arm64
 
 msg <- "Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [MACOSX_NAME] [ARCH]"
 args <- commandArgs(trailingOnly=TRUE)
@@ -30,7 +30,7 @@ OS <- args[3]
 if (OS == "macosx" && length(args) != 5) {
     stop(msg, call.=FALSE)
 } else if (OS == "macosx" && length(args) == 5) {
-    stopifnot(args[4] %in% c("big-sur", "sequoia"))
+    stopifnot(args[4] %in% c("big-sur", "sonoma"))
     MACOSX_NAME <- args[4]
     stopifnot(args[5] %in% c("x86_64", "arm64"))
     ARCH <- args[5]
