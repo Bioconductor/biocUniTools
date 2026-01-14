@@ -34,15 +34,16 @@ if (OS == "macosx" && length(args) != 5) {
     MACOSX_NAME <- args[4]
     stopifnot(args[5] %in% c("x86_64", "arm64"))
     ARCH <- args[5]
-    LOG_FILE_BASE <- paste0("harvest-", OS, "-", MACOSX_NAME, "-", ARCH)
+    LOG_FILE_BASE <- paste("harvest", OS, MACOSX_NAME, ARCH, sep = "-")
 } else {
     MACOSX_NAME <- NULL
     ARCH <- NULL
-    LOG_FILE_BASE <- paste0("harvest-", OS, "-")
+    LOG_FILE_BASE <- paste("harvest", OS, sep = "-")
 }
 
 REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
-LOG_FILE <- paste0(LOG_FILE_BASE, format(Sys.Date(), format="%Y%m%d"), ".log")
+LOG_FILE <- paste0(LOG_FILE_BASE, "-", format(Sys.Date(), format="%Y%m%d"),
+                   ".log")
 LOG_PATH <- file.path("/home/biocpush/cron.log", BIOC_VERSION, LOG_FILE)
 
 # set max.print to get all packages
