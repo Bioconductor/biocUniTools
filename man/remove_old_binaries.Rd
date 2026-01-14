@@ -19,7 +19,7 @@ remove_old_binaries(
 
 \item{os}{name, full or abbreviation}
 
-\item{macosx_name}{big-sur or sequoia}
+\item{macosx_name}{big-sur or sonoma}
 
 \item{arch}{x86_64 or arm64}
 
