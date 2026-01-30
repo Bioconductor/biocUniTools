@@ -19,11 +19,14 @@
  })
  
  test_that("uni_repo_url gets the universe url", {
-     macx86 <- "https://bioc.r-universe.dev/bin/macosx/sonoma-x86_64/contrib/4.6"
-     macx64 <- "https://bioc.r-universe.dev/bin/macosx/big-sur-arm64/contrib/4.6"
+     bs45 <- "https://bioc.r-universe.dev/bin/macosx/big-sur-arm64/contrib/4.5"
+     bs46 <- "https://bioc.r-universe.dev/bin/macosx/big-sur-x86_64/contrib/4.6"
+     sa46 <- "https://bioc.r-universe.dev/bin/macosx/sonoma-arm64/contrib/4.6"
      win <- "https://bioc.r-universe.dev/bin/windows/contrib/4.6"
-     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sonoma", "x86_64"), macx86)
-     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "big-sur", "arm64"), macx64)
+     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "ventura", "x86_64"), bs46)
+     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sonoma", "arm64"), sa46)
+     expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sequoia", "arm64"), sa46)
+     expect_equal(uni_repo_url("bioc", "4.5.0", "macosx", "ventura", "arm64"), bs45)
      expect_equal(uni_repo_url("bioc", "4.6.0", "windows"), win)
  })
  
@@ -63,6 +66,13 @@
      expect_equal(bioc_ru_info$bioc_branch, "release")
      expect_equal(bioc_ru_info$ru_uni, "bioc-release")
  })
+
+test_that("get_macosx_subpath returns correct paths", {
+    expect_equal(get_macosx_subpath("4.6", "arm64"), "sonoma-arm64")
+    expect_equal(get_macosx_subpath("4.6", "x86_64"), "big-sur-x86_64")
+    expect_equal(get_macosx_subpath("4.5", "x86_64"), "big-sur-x86_64")
+    expect_equal(get_macosx_subpath("4.5", "arm64"), "big-sur-arm64")
+})
 
 test_that("remove_binaries only removes older binaries", {
     # Set up test repo

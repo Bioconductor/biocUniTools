@@ -52,6 +52,22 @@ uni_pkg_file <- function(pkg, os, version) {
     paste0(pkg, "_", version, ".", ext)
 }
 
+#' Get macosx repo subpath by R version
+#'
+#' @param r_version R X.Y character
+#' @param arch character x86_64 or arm64
+#'
+#' @return character
+#'
+#' @export
+get_macosx_subpath <- function(r_version, arch) {
+    if (as.double(r_version) >= 4.6 && arch == "arm64")
+        subpath <- paste0("sonoma", "-", arch)
+    else
+        subpath <- paste0("big-sur", "-", arch)
+    subpath
+}
+
 #' Get repo path
 #'
 #' @param r_version character
@@ -68,8 +84,8 @@ get_repository_path <- function(repo_root, r_version, os, macosx_name = NULL,
     if (stringr::str_detect(os, "mac")) {
             if (is.null(arch) | is.null(macosx_name))
                 stop("macosx_name and arch must not be NULL for os == macosx")
-            else if (!stringr::str_detect(macosx_name, "^(big-sur|sonoma)$"))
-                stop("macosx_name must be big-sur or sonoma")
+            else if (!stringr::str_detect(macosx_name, "^(big-sur|ventura|sonoma|sequoia)$"))
+                stop("macosx_name must be big-sur, sonoma, or sequoia")
             else if (!stringr::str_detect(arch, "^(x86_64|arm64)$"))
                 stop("arch must be x86_64 or arm64")
     }
@@ -82,10 +98,11 @@ get_repository_path <- function(repo_root, r_version, os, macosx_name = NULL,
     subpath <- ""
     if (stringr::str_detect(os, "win|mac")) {
         subpath <- file.path("bin", os)
+        r_xy <- r_xy_ver(r_version)
         if (stringr::str_detect(os, "mac") && !is.null(arch) &&
             !is.null(macosx_name))
-            subpath <- file.path(subpath, paste0(macosx_name, "-", arch))
-        subpath <- file.path(subpath, "contrib", r_xy_ver(r_version))
+            subpath <- file.path(subpath, get_macosx_subpath(r_xy, arch))
+        subpath <- file.path(subpath, "contrib", r_xy)
     } else
         subpath <- file.path("src/contrib")
     subpath
