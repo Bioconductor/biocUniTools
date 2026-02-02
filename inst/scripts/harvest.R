@@ -63,11 +63,17 @@ candidates <- pkgs |>
 if (length(candidates$Url) >= 1) {
     downloaded <- curl::multi_download(candidates$Url)
     logger::log_info("Downloaded {downloaded$success} {downloaded$status_code} {downloaded$destfile}")
-    removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH,
-                                   test = TEST_REMOVAL)
-    logger::log_info("Removed {removed}")
 } else {
     logger::log_info("No new binaries available.")
+}
+
+prefix <- ifelse(TEST_REMOVAL, "[TEST] ", "")
+removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH,
+                               test = TEST_REMOVAL)
+if (length(removed) >= 1) {
+    logger::log_info("{prefix}Removed {removed}")
+} else {
+    logger::log_info("No binaries to remove.")
 }
 
 logger::log_info("{Sys.time()} End")
