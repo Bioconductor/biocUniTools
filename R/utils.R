@@ -291,7 +291,6 @@ get_comparable_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
 #' Get packages matching criteria
 #' 
 #' @param commit logical Check commit hash in RU and BBS?
-#' @param version logical Check package version in RU and BBS?
 #' @param check character vector of acceptable R CMD check statuses
 #'
 #' @return data.frame of filtered candidate packages
@@ -299,10 +298,10 @@ get_comparable_pkgs <- function(uni, uni_os_branch, r_version, bioc_version, os,
 #' @examples
 #' comparable_pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "windows",
 #'                                        "3.23")
-#' pkgs <- get_candiates(comparable_pkgs, commit = TRUE, version = TRUE)
+#' pkgs <- get_candidates(comparable_pkgs, commit = TRUE)
 #'
 #' @export
-get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
+get_candidates <- function(pkgs, commit = FALSE,
                            check = c("NOTE", "WARNING", "OK")) {
     candidates <- pkgs |>
         dplyr::filter(BinariesCheck %in% check,
@@ -310,13 +309,8 @@ get_candidates <- function(pkgs, commit = FALSE, version = FALSE,
                       BinariesStatus == "success")
 
     if (commit) {
-        candidates <- pkgs |>
+        candidates <- candidates |>
             dplyr::filter(BBS_commit == RU_commit)
-    }
-
-    if (version) {
-      candidates <- pkgs |>
-        dplyr::filter(BBS_version == RU_version)
     }
 
     candidates
