@@ -57,8 +57,7 @@ binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 pkgs <- get_comparable_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
                             bioc_info$r_version, bioc_version = BIOC_VERSION,
                             os = OS, macosx_name = MACOSX_NAME, arch = ARCH)
-candidates <- pkgs |>
-    dplyr::filter(File != "" & !File %in% binaries)
+candidates <- get_candidates(pkgs, commit = TRUE)
 
 if (length(candidates$Url) >= 1) {
     downloaded <- curl::multi_download(candidates$Url)

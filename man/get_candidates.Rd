@@ -4,17 +4,10 @@
 \alias{get_candidates}
 \title{Get packages matching criteria}
 \usage{
-get_candidates(
-  pkgs,
-  commit = FALSE,
-  version = FALSE,
-  check = c("NOTE", "WARNING", "OK")
-)
+get_candidates(pkgs, commit = FALSE, check = c("NOTE", "WARNING", "OK"))
 }
 \arguments{
 \item{commit}{logical Check commit hash in RU and BBS?}
-
-\item{version}{logical Check package version in RU and BBS?}
 
 \item{check}{character vector of acceptable R CMD check statuses}
 }
@@ -27,6 +20,6 @@ Get packages matching criteria
 \examples{
 comparable_pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "windows",
                                        "3.23")
-pkgs <- get_candiates(comparable_pkgs, commit = TRUE, version = TRUE)
+pkgs <- get_candidates(comparable_pkgs, commit = TRUE)
 
 }
