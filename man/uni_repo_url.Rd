@@ -6,10 +6,24 @@
 \usage{
 uni_repo_url(uni, r_version, os, macosx_name = NULL, arch = NULL)
 }
+\arguments{
+\item{uni}{character universe name}
+
+\item{r_version}{character}
+
+\item{os}{character}
+
+\item{macosx_name}{big-sur or sonoma}
+
+\item{arch}{character x86_64 or arm64}
+}
+\value{
+character
+}
 \description{
 Get universe URL for an os and R version
 }
 \examples{
-uni_repo_url("bioc", "4.5.3", "windows"))
+uni_repo_url("bioc", "4.5.3", "windows")
 
 }

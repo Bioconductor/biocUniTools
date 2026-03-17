@@ -10,6 +10,8 @@ get_candidates(pkgs, commit = FALSE, check = c("NOTE", "WARNING", "OK"))
 \item{commit}{logical Check commit hash in RU and BBS?}
 
 \item{check}{character vector of acceptable R CMD check statuses}
+
+\item{data.frame}{of R Universe packages}
 }
 \value{
 data.frame of filtered candidate packages

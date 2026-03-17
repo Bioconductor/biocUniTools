@@ -17,3 +17,8 @@ character
 \description{
 Get macosx repo subpath by R version
 }
+\examples{
+get_macosx_subpath("4.6", "arm64")
+
+
+}

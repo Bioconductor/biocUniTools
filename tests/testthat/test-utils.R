@@ -39,32 +39,32 @@ test_that("get_comparable_pkgs gets R Universe data", {
     # We'll check the path of file for windows
     pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "3.23", "windows")
     pkg <- pkgs |>
-        dplyr::filter(Package == "UCSC.utils")
+        dplyr::filter(Package == "BiocGenerics")
     version <- pkg |>
         dplyr::pull(Version)
     url <- file.path(uni_repo_url("bioc", "4.6.0", "windows"),
-                     uni_pkg_file("UCSC.utils", "windows", version))
-    expect_equal(pkg |> dplyr::pull(Url), url)
+                     uni_pkg_file("BiocGenerics", "windows", version))
+    expect_equal(pkg |> dplyr::pull(Artifact), url)
 
     # We'll check the path of a file for mac x86_64
     pkgs <- get_comparable_pkgs("bioc-release", "release", "4.5.0", "3.22",
                                 "macosx", "big-sur", "x86_64")
     pkg <- pkgs |>
-        dplyr::filter(Package == "Biobase")
+        dplyr::filter(Package == "BiocGenerics")
     version <- pkg |>
         dplyr::pull(Version)
     url <- file.path(uni_repo_url("bioc-release", "4.5.0", "macosx", "big-sur",
                                   "x86_64"),
-                     uni_pkg_file("Biobase", "macosx", version))
-    expect_equal(pkg |> dplyr::pull(Url), url)
+                     uni_pkg_file("BiocGenerics", "macosx", version))
+    expect_equal(pkg |> dplyr::pull(Artifact), url)
 })
 
 test_that("get_candidates for sonoma does not include nonarm64 packages", {
     arm_binaries <- get_comparable_pkgs("bioc", "devel", "4.6.0", "3.23",
                                         "macosx", "sonoma", "arm64")
     arm_candidates <- get_candidates(arm_binaries, commit = TRUE)
-    expect_false("SUITOR" %in% arm_candidates$Package)
-    expect_false("CGEN" %in% arm_candidates$Package)
+    expect_false("BiocVersion" %in% arm_candidates$Package)
+    expect_true("rtracklayer" %in% arm_candidates$Package)
 })
 
 test_that("get_uni_for_bioc_version gets correct universe", {

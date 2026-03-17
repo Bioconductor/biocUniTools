@@ -23,3 +23,7 @@ character
 \description{
 Get repo path
 }
+\examples{
+get_repository_path("/home/biocpush/PACKAGES/3.22/bioc", "4.6.0", "windows")
+
+}

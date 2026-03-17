@@ -6,10 +6,20 @@
 \usage{
 uni_pkg_file(pkg, os, version)
 }
+\arguments{
+\item{pkg}{character package name}
+
+\item{os}{character OS name}
+
+\item{version}{character package version}
+}
+\value{
+character file with extension
+}
 \description{
 Construct binary file name
 }
 \examples{
-uni_pkg_file("bedbaser", "windows", "1.0.12"))
+uni_pkg_file("bedbaser", "windows", "1.0.12")
 
 }

@@ -6,6 +6,14 @@
 \usage{
 is_greater_than(version1, version2)
 }
+\arguments{
+\item{version1}{character}
+
+\item{version2}{character}
+}
+\value{
+logical
+}
 \description{
 Check if the first version is greater the second
 }

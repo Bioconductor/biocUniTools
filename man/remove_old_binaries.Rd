@@ -17,6 +17,8 @@ remove_old_binaries(
 \item{repo_root}{path that includes repo type--e.g.,
 "/home/biocpush/PACKAGES/3.22/bioc"}
 
+\item{r_version}{R x.y.z version}
+
 \item{os}{name, full or abbreviation}
 
 \item{macosx_name}{big-sur or sonoma}

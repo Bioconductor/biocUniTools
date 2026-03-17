@@ -6,6 +6,9 @@
 \usage{
 get_binary_os(os)
 }
+\arguments{
+\item{os}{character}
+}
 \value{
 character abbreviation
 }
