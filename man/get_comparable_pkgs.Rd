@@ -29,6 +29,8 @@ get_comparable_pkgs(
 \item{macosx_name}{big-sur or sonoma}
 
 \item{arch}{character x86_64 or arm64}
+
+\item{verbose}{}
 }
 \value{
 character abbreviation

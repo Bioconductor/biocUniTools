@@ -6,6 +6,9 @@
 \usage{
 r_xy_ver(version)
 }
+\arguments{
+\item{version}{character}
+}
 \description{
 Get x.y version of R given x.y.z
 }
