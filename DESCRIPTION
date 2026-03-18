@@ -1,6 +1,6 @@
 Package: biocUniTools
 Title: Tools for Bioconductor Universe
-Version: 0.0.9003
+Version: 0.0.99
 Authors@R: c(
     person("Andres", "Wokaty", role = c("aut", "cre"),
            email = "andres.wokaty@sph.cuny.edu")
