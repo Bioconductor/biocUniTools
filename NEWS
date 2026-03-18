@@ -1,0 +1,6 @@
+# biocUniTools
+
+0.0.99
+
+- Replaced universe package with jsonlite
+- Fix bug that only grabbed subset of universal binaries
