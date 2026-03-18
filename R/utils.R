@@ -278,7 +278,7 @@ get_binaries_by_os <- function(uni, uni_os_branch, r_version, bioc_version, os,
         dplyr::filter(
             `_jobs_r_xy` == r_xy_ver(r_version),
             `_jobs_os_` == get_binary_os(os),
-            if (arch == "arm64")
+            if (!is.null(arch) && arch == "arm64")
                 `_binaries_arch` == "aarch64"
             else
                 `_binaries_arch` != "aarch64" | is.na(`_binaries_arch`)
