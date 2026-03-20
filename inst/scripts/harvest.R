@@ -59,7 +59,7 @@ pkgs <- get_comparable_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
 candidates <- get_candidates(pkgs, commit = TRUE)
 # Remove any candidates from the list that are currently in the repository
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
-candatates <- candidates |>
+candidates <- candidates |>
     dplyr::mutate(File = uni_pkg_file(Package, OS, Version)) |>
     dplyr::filter(!File %in% binaries)
 
