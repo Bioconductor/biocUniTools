@@ -53,14 +53,18 @@ logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
 repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH)
-binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 pkgs <- get_comparable_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
                             bioc_info$r_version, bioc_version = BIOC_VERSION,
                             os = OS, macosx_name = MACOSX_NAME, arch = ARCH)
 candidates <- get_candidates(pkgs, commit = TRUE)
+# Remove any candidates from the list that are currently in the repository
+binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
+candatates <- candidates |>
+    dplyr::mutate(File = uni_pkg_file(Package, OS, Version)) |>
+    dplyr::filter(!File %in% binaries)
 
-if (length(candidates$Url) >= 1) {
-    downloaded <- curl::multi_download(candidates$Url)
+if (length(candidates$Artifact) >= 1) {
+    downloaded <- curl::multi_download(candidates$Artifact)
     logger::log_info("Downloaded {downloaded$success} {downloaded$status_code} {downloaded$destfile}")
 } else {
     logger::log_info("No new binaries available.")
