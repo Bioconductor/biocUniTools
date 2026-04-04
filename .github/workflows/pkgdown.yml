@@ -30,7 +30,6 @@ jobs:
 
       - name: Install package
         run: |
-          install.packages("BiocManager", repository = "https://cloud.r-project.org") 
           BiocManager::install("Bioconductor/biocUniTools")
         shell: Rscript {0}
 
