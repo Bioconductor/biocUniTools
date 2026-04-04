@@ -3,6 +3,9 @@ on:
     branches: [devel]
   pull_request:
     branches: [devel]
+  schedule:
+    - cron: "30 16 * * *" # 2:30pm ET 
+  workflow_dispatch:
 
 name: pkgdown
 
@@ -26,6 +29,12 @@ jobs:
         with:
           extra-packages: any::pkgdown
           needs: website
+
+      - name: Install package
+        run: |
+          install.packages("BiocManager", repository = "https://cloud.r-project.org") 
+          BiocManager::install("Bioconductor/biocUniTools")
+        shell: Rscript {0}
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
