@@ -16,6 +16,6 @@ data.frame packages in a universe
 Get packages in an R Universe
 }
 \examples{
-get_raw_uni_df("bioc", "devel", "4.6.0")
+get_raw_uni_df("bioc")
 
 }

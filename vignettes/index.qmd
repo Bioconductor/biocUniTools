@@ -1,0 +1,241 @@
+---
+title: "Bioconductor in R Universe: Linux and Vignettes"
+format:
+  html:
+    code-fold: true
+editor: visual
+engine: knitr
+---
+
+```{r install_universe, echo = FALSE, message = FALSE}
+library(BiocPkgTools)
+library(dplyr)
+library(biocUniTools)
+library(httr2)
+library(reactable)
+library(purrr)
+```
+
+```{r get_buildurl, echo = FALSE}
+# When a package fails early in the build, we don't get a _buildurl but we can
+# construct it
+get_buildurl <- function(pkg, uni) {
+    buildurl <- tryCatch({
+        u <-paste0("https://", uni, ".r-universe.dev/api/packages/", pkg)
+        pkglist <- httr2::request(u) |>
+            httr2::req_timeout(10) |>  # timeout after 10 seconds
+            httr2::req_perform() |>
+            httr2::resp_body_json()
+        pkglist$`_buildurl`
+        
+    }, error = function(e) {
+            if (is.null(e$resp)) return(NA_character_)
+            body <- httr2::resp_body_string(e$resp)
+            buildurl <- stringr::str_extract(body, 
+                                             paste0("https://github.com/r-universe/",
+                                                    uni, "/actions/runs/[0-9]+"))
+            buildurl
+    })
+    buildurl
+}
+```
+
+## R Universe and Bioconductor 3.23
+
+https://bioc.r-universe.dev
+
+```{r devel-settings, echo = FALSE, message = FALSE}
+r_version <- "4.6.0"
+bioc_version <- "3.23"
+uni <- "bioc"
+uni_os_branch <- "devel"
+os <- "linux"
+node <- "nebbiolo1"
+ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
+bbs_pkgs_i <- BiocPkgTools::biocBuildReport(version = bioc_version,
+                                            pkgType = "software")
+```
+
+::: column-screen-inset
+```{r devel-data, echo = FALSE}
+bbs_builds <- bbs_pkgs_i |>
+    dplyr::filter(node == node, stage == "checksrc") |>
+    dplyr::select(pkg, version, Deprecated, git_last_commit, result) |>
+    dplyr::rename(Package = pkg, Version = version, `BBS Commit` = git_last_commit,
+                  Check = result) |>
+    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7))
+
+filtered_ru_builds <- ru_builds |>
+    dplyr::filter(`_jobs_os_` == os) |>
+    biocUniTools::filter_by_arch(os)
+vignettes_ru_builds <- ru_builds |>
+    dplyr::filter(`_jobs_type` == "source") |>
+    dplyr::select(Package, Version, `_jobs_check`, `_buildurl`) |>
+    dplyr::rename(`Vignettes Check` = `_jobs_check`,
+                  vignettes_buildurl = `_buildurl`)
+
+builds <- merge(bbs_builds, filtered_ru_builds, by = c("Package", "Version"),
+                all.x = TRUE)
+builds <- merge(builds, vignettes_ru_builds, by = c("Package", "Version"),
+                all.x = TRUE)
+
+# Get _buildurl if not available
+needs_url <- builds |>
+    dplyr::filter(!Deprecated & is.na(`_buildurl`)) |>
+    dplyr::distinct(Package, .keep_all = TRUE)
+
+needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, uni)
+
+builds <- builds |>
+    dplyr::rows_update(needs_url |> dplyr::select(Package, `_buildurl`),
+                       by = "Package",
+                       unmatched = "ignore")
+
+condensed_builds <- builds |>
+    dplyr::rename(`Job Check` = `_jobs_check`, `Binaries Check` = `_binaries_check`,
+                  `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
+                  `Job Url` = JobUrl) |>
+    dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
+    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`) |>
+    dplyr::select(Package, Version, `BBS Commit`, Deprecated, `Commit Match`,
+                  Check, `Job Check`, `Binaries Check`, `Job Url`, `Build Url`,
+                  `Vignettes Check`, vignettes_buildurl)
+
+condensed_builds_display <- condensed_builds |>
+    dplyr::mutate(
+        Check = ifelse(!is.na(Check),
+            paste0('<a href="https://bioconductor.org/checkResults/', bioc_version,
+                   '/bioc-LATEST/', Package, '" target="_blank">', Check, '</a>'),
+            as.character(Check)),
+        `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),
+            paste0('<a href="', `Job Url`, '" target="_blank">', `Job Check`, '</a>'),
+            as.character(`Job Check`)),
+        `Binaries Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binaries Check`),
+            paste0('<a href="', `Build Url`, '" target="_blank">', `Binaries Check`,
+                   '</a>'),
+            as.character(`Binaries Check`)),
+        `Vignettes Check` = ifelse(!is.na(vignettes_buildurl) & !is.na(`Vignettes Check`),
+            paste0('<a href="', vignettes_buildurl, '" target="_blank">',
+                   `Vignettes Check`, '</a>'),
+            as.character(`Vignettes Check`)),
+
+    ) |>
+    dplyr::select(-`Job Url`, -`Build Url`, -vignettes_buildurl)
+
+reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
+                     showPageSizeOptions = TRUE, compact = TRUE,
+                     columns = list(
+                       Check = reactable::colDef(html = TRUE),
+                       `Job Check` = reactable::colDef(html = TRUE),
+                       `Binaries Check` = reactable::colDef(html = TRUE),
+                       `Vignettes Check` = reactable::colDef(html = TRUE)
+                     ),
+                     defaultColDef = reactable::colDef(
+                       minWidth = 150,
+                       style = list(whiteSpace = "nowrap"),
+                       headerStyle = list(whiteSpace = "nowrap")
+                     )
+)
+```
+:::
+
+## R Universe and Bioconductor 3.22
+
+https://bioc-release.r-universe.dev
+
+```{r release-settings, echo = FALSE, message = FALSE}
+r_version <- "4.5.0"
+bioc_version <- "3.22"
+uni_os_branch <- "release"
+uni <- "bioc-release"
+node <- "nebbiolo2"
+ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
+bbs_pkgs_i <- BiocPkgTools::biocBuildReport(version = bioc_version,
+                                            pkgType = "software")
+```
+
+::: column-screen-inset
+```{r release-data, echo = FALSE}
+bbs_builds <- bbs_pkgs_i |>
+    dplyr::filter(node == node, stage == "checksrc") |>
+    dplyr::select(pkg, version, Deprecated, git_last_commit, result) |>
+    dplyr::rename(Package = pkg, Version = version, `BBS Commit` = git_last_commit,
+                  Check = result) |>
+    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7))
+
+filtered_ru_builds <- ru_builds |>
+    dplyr::filter(`_jobs_os_` == os) |>
+    biocUniTools::filter_by_arch(os)
+vignettes_ru_builds <- ru_builds |>
+    dplyr::filter(`_jobs_type` == "source") |>
+    dplyr::select(Package, Version, `_jobs_check`, `_buildurl`) |>
+    dplyr::rename(`Vignettes Check` = `_jobs_check`,
+                  vignettes_buildurl = `_buildurl`)
+
+builds <- merge(bbs_builds, filtered_ru_builds, by = c("Package", "Version"),
+                all.x = TRUE)
+builds <- merge(builds, vignettes_ru_builds, by = c("Package", "Version"),
+                all.x = TRUE)
+
+# Get _buildurl if not available
+needs_url <- builds |>
+    dplyr::filter(!Deprecated & is.na(`_buildurl`)) |>
+    dplyr::distinct(Package, .keep_all = TRUE)
+
+needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, uni)
+
+builds <- builds |>
+    dplyr::rows_update(needs_url |> dplyr::select(Package, `_buildurl`),
+                       by = "Package",
+                       unmatched = "ignore")
+condensed_builds <- builds |>
+    dplyr::rename(`Job Check` = `_jobs_check`, `Binaries Check` = `_binaries_check`,
+                  `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
+                  `Job Url` = JobUrl) |>
+    dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
+    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`) |>
+    dplyr::select(Package, Version, Deprecated, `BBS Commit`, `Commit Match`,
+                  Check, `Job Check`, `Binaries Check`, `Job Url`, `Build Url`,
+                  `Vignettes Check`, vignettes_buildurl)
+
+condensed_builds_display <- condensed_builds |>
+    dplyr::mutate(
+        Check = ifelse(!is.na(Check),
+            paste0('<a href="https://bioconductor.org/checkResults/', bioc_version,
+                   '/bioc-LATEST/', Package, '" target="_blank">', Check, '</a>'),
+            as.character(Check)),
+        `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),
+            paste0('<a href="', `Job Url`, '" target="_blank">', `Job Check`, '</a>'),
+            as.character(`Job Check`)),
+        `Binaries Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binaries Check`),
+            paste0('<a href="', `Build Url`, '" target="_blank">', `Binaries Check`,
+                   '</a>'),
+            as.character(`Binaries Check`)),
+        `Vignettes Check` = ifelse(!is.na(vignettes_buildurl) & !is.na(`Vignettes Check`),
+            paste0('<a href="', vignettes_buildurl, '" target="_blank">',
+                   `Vignettes Check`, '</a>'),
+            as.character(`Vignettes Check`)),
+
+    ) |>
+    dplyr::select(-`Job Url`, -`Build Url`, -vignettes_buildurl)
+
+reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
+                     showPageSizeOptions = TRUE, compact = TRUE,
+                     columns = list(
+                       Check = reactable::colDef(html = TRUE),
+                       `Job Check` = reactable::colDef(html = TRUE),
+                       `Binaries Check` = reactable::colDef(html = TRUE),
+                       `Vignettes Check` = reactable::colDef(html = TRUE)
+                     ),
+                     defaultColDef = reactable::colDef(
+                       minWidth = 150,
+                       style = list(whiteSpace = "nowrap"),
+                       headerStyle = list(whiteSpace = "nowrap")
+                     )
+)
+```
+:::
+
+```{r sessionInfo}
+sessionInfo()
+```

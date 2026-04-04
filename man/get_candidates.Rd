@@ -2,26 +2,50 @@
 % Please edit documentation in R/utils.R
 \name{get_candidates}
 \alias{get_candidates}
-\title{Get packages matching criteria}
+\title{Get candidate packages in R Universe based on criteria}
 \usage{
-get_candidates(pkgs, commit = FALSE, check = c("NOTE", "WARNING", "OK"))
+get_candidates(
+  uni,
+  uni_os_branch,
+  r_version,
+  bioc_version,
+  os,
+  arch = NA,
+  vignettes = TRUE,
+  commit = FALSE,
+  check = c("NOTE", "WARNING", "OK")
+)
 }
 \arguments{
-\item{commit}{logical Check commit hash in RU and BBS?}
+\item{uni}{character universe name}
+
+\item{uni_os_branch}{character release or devel}
+
+\item{r_version}{character}
+
+\item{bioc_version}{character}
+
+\item{os}{character}
+
+\item{arch}{character x86_64 or arm64}
+
+\item{vignettes}{logical (default TRUE) Check status of source / vignettes}
+
+\item{commit}{logical (default FALSE) Check commit hash in RU and BBS?}
 
 \item{check}{character vector of acceptable R CMD check statuses}
 
-\item{data.frame}{of R Universe packages}
+\item{available_pkgs}{data.frame of R Universe packages}
 }
 \value{
 data.frame of filtered candidate packages
 }
 \description{
-Get packages matching criteria
+Filters packages by same commit in  BBS, vignettes passing, or
+check status values.
 }
 \examples{
-comparable_pkgs <- get_comparable_pkgs("bioc", "devel", "4.6.0", "windows",
-                                       "3.23")
-pkgs <- get_candidates(comparable_pkgs, commit = TRUE)
+candidates <- get_candidates("bioc", "devel", "4.6.0", "3.23", "windows",
+                             commit = TRUE)
 
 }

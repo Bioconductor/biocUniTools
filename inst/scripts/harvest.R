@@ -36,8 +36,8 @@ if (OS == "macosx" && length(args) != 5) {
     ARCH <- args[5]
     LOG_FILE_BASE <- paste("harvest", OS, MACOSX_NAME, ARCH, sep = "-")
 } else {
-    MACOSX_NAME <- NULL
-    ARCH <- NULL
+    MACOSX_NAME <- NA
+    ARCH <- NA
     LOG_FILE_BASE <- paste("harvest", OS, sep = "-")
 }
 
@@ -53,19 +53,43 @@ logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
 repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH)
-pkgs <- get_comparable_pkgs(bioc_info$ru_uni, bioc_info$bioc_branch,
-                            bioc_info$r_version, bioc_version = BIOC_VERSION,
-                            os = OS, macosx_name = MACOSX_NAME, arch = ARCH)
-candidates <- get_candidates(pkgs, commit = TRUE)
+candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
+                             bioc_info$r_version, bioc_version = BIOC_VERSION,
+                             os = OS, arch = ARCH,
+                             commit = TRUE)
+
 # Remove any candidates from the list that are currently in the repository
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 candidates <- candidates |>
     dplyr::mutate(File = uni_pkg_file(Package, OS, Version)) |>
     dplyr::filter(!File %in% binaries)
 
-if (length(candidates$Artifact) >= 1) {
-    downloaded <- curl::multi_download(candidates$Artifact)
-    logger::log_info("Downloaded {downloaded$success} {downloaded$status_code} {downloaded$destfile}")
+if (nrow(candidates) >= 1) {
+    downloaded <- curl::multi_download(
+        candidates$Artifact,
+        destfiles = file.path(repo_path, candidates$File)
+    )
+    
+    # Log successful downloads
+    successful <- downloaded[downloaded$success, ]
+    if (nrow(successful) >= 1)
+        logger::log_info("Downloaded {nrow(successful)} binaries: {successful$destfile}")
+    
+    # Log failed downloads
+    failed <- downloaded[!downloaded$success, ]
+    if (nrow(failed) >= 1) {
+        logger::log_warn("Failed to download {nrow(failed)} binaries:")
+        for (i in seq_len(nrow(failed))) {
+            logger::log_warn("  {failed$url[i]} - status: {failed$status_code[i]}, error: {failed$error[i]}")
+        }
+        # Remove any partial downloads
+        for (f in failed$destfile) {
+            if (file.exists(f)) {
+                file.remove(f)
+                logger::log_info("Removed partial download: {f}")
+            }
+        }
+    }
 } else {
     logger::log_info("No new binaries available.")
 }
@@ -76,7 +100,7 @@ removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, 
 if (length(removed) >= 1) {
     logger::log_info("{prefix}Removed {removed}")
 } else {
-    logger::log_info("No binaries to remove.")
+    logger::log_info("{prefix}No binaries to remove.")
 }
 
 logger::log_info("{Sys.time()} End")
