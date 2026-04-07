@@ -64,6 +64,35 @@ candidates <- candidates |>
     dplyr::mutate(File = uni_pkg_file(Package, OS, Version)) |>
     dplyr::filter(!File %in% binaries)
 
+# Check for version downgrades against what is currently in the repo
+existing_versions <- data.frame(
+    File = binaries,
+    stringsAsFactors = FALSE
+) |>
+    dplyr::mutate(
+        Package = sub("_[0-9]+\\.[0-9]+.*", "", File),
+        Version = sub(".*_(([0-9]+\\.)+[0-9]+)\\..*", "\\1", File)
+    )
+
+downgrade_check <- candidates |>
+    dplyr::inner_join(existing_versions, by = "Package", suffix = c("_new", "_current")) |>
+    dplyr::filter(
+        package_version(Version_new) < package_version(Version_current)
+    )
+
+if (nrow(downgrade_check) >= 1) {
+    for (i in seq_len(nrow(downgrade_check))) {
+        logger::log_warn(
+            "VERSION DOWNGRADE DETECTED: {downgrade_check$Package[i]} - ",
+            "current: {downgrade_check$Version_current[i]}, ",
+            "incoming: {downgrade_check$Version_new[i]}. ",
+            "Skipping download."
+        )
+    }
+    candidates <- candidates |>
+        dplyr::filter(!Package %in% downgrade_check$Package)
+}
+
 if (nrow(candidates) >= 1) {
     downloaded <- curl::multi_download(
         candidates$Artifact,
