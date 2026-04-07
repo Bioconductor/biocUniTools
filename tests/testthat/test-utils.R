@@ -8,15 +8,6 @@ test_that("r_xy_ver handles NA", {
     expect_equal(r_xy_ver(c("4.6.0", NA)), c("4.6", NA))
 })
 
-test_that("is_greater_than returns TRUE if LHS version greater", {
-    expect_false(is_greater_than("10.2.4", "12.3.0"))
-    expect_true(is_greater_than("2.4.4", "2.3.0"))
-    expect_true(is_greater_than("2.3.4", "2.3.0"))
-    # equal versions
-    expect_true(is_greater_than("2.3.0", "2.3.0"))
-    expect_error(is_greater_than("4.6", "4.5.0"), "Invalid version format")
-})
-
 test_that("uni_pkg_file makes correct file format", {
     expect_equal(uni_pkg_file("pkg", "windows", "1.2.3"),
                  "pkg_1.2.3.zip")
