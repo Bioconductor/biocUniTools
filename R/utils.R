@@ -16,34 +16,6 @@ r_xy_ver <- function(version) {
     dplyr::if_else(is.na(version), NA_character_, paste(x, y, sep = "."))
 }
 
-#' Check if the first version is greater the second 
-#'
-#' @param version1 character
-#' @param version2 character
-#'
-#' @returns logical
-#'
-#' @examples
-#' is_greater_than("0.10.3", "1.0.20")
-#'
-#' @export
-is_greater_than <- function(version1, version2) {
-    parse_version <- function(v) {
-        xyz <- stringr::str_extract(v, "[0-9]+\\.[0-9]+\\.[0-9]+")
-        if (is.na(xyz)) stop(paste("Invalid version format:", v))
-        as.integer(strsplit(xyz, "\\.")[[1]])
-    }
-
-    v1 <- parse_version(version1)
-    v2 <- parse_version(version2)
-
-    for (i in 1:3) {
-        if (v1[i] < v2[i]) return(FALSE)
-        if (v1[i] > v2[i]) return(TRUE)
-    }
-    TRUE
-}
-
 #' Construct binary file name
 #'
 #' @param pkg character package name
@@ -517,12 +489,11 @@ remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NA,
        }
 
        if (binaries$pkg[latest] == binaries$pkg[i]) {
-           if (is_greater_than(binaries$version[latest],
-                               binaries$version[i])) {
+           if (package_version(binaries$version[latest]) >
+               package_version(binaries$version[i])) {
                binaries$latest[latest] <- TRUE
                binaries$latest[i] <- FALSE
-           } else if (is_greater_than(binaries$version[i],
-                                      binaries$version[latest])) {
+           } else if (package_version(binaries$version[i]) > package_version(binaries$version[latest])) {
                binaries$latest[i] <- TRUE
                binaries$latest[latest] <- FALSE
                latest <- i
