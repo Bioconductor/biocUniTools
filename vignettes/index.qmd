@@ -40,6 +40,29 @@ get_buildurl <- function(pkg, uni) {
 }
 ```
 
+```{r propagation-criteria, echo = FALSE}
+propagate <- function(commit_match, deprecated, job_check, binary_check,
+                      binary_status, vignettes_check) {
+    !is.na(commit_match) & commit_match & 
+        !is.na(deprecated) & !deprecated &
+        !is.na(job_check) & (!job_check %in% c("CANCELLED", "ERROR", "FAIL")) &
+        !is.na(binary_check) & (!binary_check %in% c("CANCELLED", "ERROR", "FAIL")) &
+        !is.na(binary_status) & (binary_status == "success") &
+        !is.na(vignettes_check) & (!vignettes_check %in% c("CANCELLED", "ERROR", "FAIL"))
+}
+```
+
+The following tables attempt to describe the potential propagation status of a
+package in R universe. Propagation is based on
+
+- the same commit in both build systems
+- the job building in R Universe
+- the binary building in R Universe
+- the vignettes building in R Universe
+- package is not deprecated
+
+Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
+
 ## R Universe and Bioconductor 3.23
 
 https://bioc.r-universe.dev
@@ -50,20 +73,21 @@ bioc_version <- "3.23"
 uni <- "bioc"
 uni_os_branch <- "devel"
 os <- "linux"
-node <- "nebbiolo1"
+nde <- "nebbiolo1"
 ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
-bbs_pkgs_i <- BiocPkgTools::biocBuildReport(version = bioc_version,
+bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
                                             pkgType = "software")
 ```
 
 ::: column-screen-inset
 ```{r devel-data, echo = FALSE}
-bbs_builds <- bbs_pkgs_i |>
-    dplyr::filter(node == node, stage == "checksrc") |>
+bbs_builds <- bbs_pkgs |>
+    dplyr::filter(node == nde, stage == "checksrc") |>
     dplyr::select(pkg, version, Deprecated, git_last_commit, result) |>
-    dplyr::rename(Package = pkg, Version = version, `BBS Commit` = git_last_commit,
-                  Check = result) |>
-    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7))
+    dplyr::rename(Package = pkg, Version = version,
+                  `BBS Commit` = git_last_commit, Check = result) |>
+    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7)) |>
+    dplyr::distinct()
 
 filtered_ru_builds <- ru_builds |>
     dplyr::filter(`_jobs_os_` == os) |>
@@ -92,14 +116,18 @@ builds <- builds |>
                        unmatched = "ignore")
 
 condensed_builds <- builds |>
-    dplyr::rename(`Job Check` = `_jobs_check`, `Binaries Check` = `_binaries_check`,
+    dplyr::rename(`Job Check` = `_jobs_check`, `Binary Check` = `_binaries_check`,
                   `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
-                  `Job Url` = JobUrl) |>
+                  `Job Url` = JobUrl, `Binary Status` = `_binaries_status`) |>
     dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
-    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`) |>
+    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`,
+                  Propagate = propagate(`Commit Match`, Deprecated,
+                                        `Job Check`, `Binary Check`,
+                                        `Binary Status`, `Vignettes Check`)) |>
     dplyr::select(Package, Version, `BBS Commit`, Deprecated, `Commit Match`,
-                  Check, `Job Check`, `Binaries Check`, `Job Url`, `Build Url`,
-                  `Vignettes Check`, vignettes_buildurl)
+                  Check, `Job Check`, `Binary Check`, `Binary Status`,
+                  `Job Url`, `Build Url`, `Vignettes Check`, vignettes_buildurl,
+                  Propagate)
 
 condensed_builds_display <- condensed_builds |>
     dplyr::mutate(
@@ -110,15 +138,17 @@ condensed_builds_display <- condensed_builds |>
         `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),
             paste0('<a href="', `Job Url`, '" target="_blank">', `Job Check`, '</a>'),
             as.character(`Job Check`)),
-        `Binaries Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binaries Check`),
-            paste0('<a href="', `Build Url`, '" target="_blank">', `Binaries Check`,
+        `Binary Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binary Check`),
+            paste0('<a href="', `Build Url`, '" target="_blank">', `Binary Check`,
                    '</a>'),
-            as.character(`Binaries Check`)),
+            as.character(`Binary Check`)),
         `Vignettes Check` = ifelse(!is.na(vignettes_buildurl) & !is.na(`Vignettes Check`),
             paste0('<a href="', vignettes_buildurl, '" target="_blank">',
                    `Vignettes Check`, '</a>'),
             as.character(`Vignettes Check`)),
-
+        Propagate = ifelse(Propagate,
+            '<span>&#x2705;</span>',
+            '<span>\U0001F6AB</span>')
     ) |>
     dplyr::select(-`Job Url`, -`Build Url`, -vignettes_buildurl)
 
@@ -127,8 +157,10 @@ reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
                      columns = list(
                        Check = reactable::colDef(html = TRUE),
                        `Job Check` = reactable::colDef(html = TRUE),
-                       `Binaries Check` = reactable::colDef(html = TRUE),
-                       `Vignettes Check` = reactable::colDef(html = TRUE)
+                       `Binary Check` = reactable::colDef(html = TRUE),
+                       `Vignettes Check` = reactable::colDef(html = TRUE),
+                       Propagate = reactable::colDef(html = TRUE)
+
                      ),
                      defaultColDef = reactable::colDef(
                        minWidth = 150,
@@ -148,20 +180,21 @@ r_version <- "4.5.0"
 bioc_version <- "3.22"
 uni_os_branch <- "release"
 uni <- "bioc-release"
-node <- "nebbiolo2"
+nde <- "nebbiolo2"
 ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
-bbs_pkgs_i <- BiocPkgTools::biocBuildReport(version = bioc_version,
-                                            pkgType = "software")
+bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
+                                          pkgType = "software")
 ```
 
 ::: column-screen-inset
 ```{r release-data, echo = FALSE}
-bbs_builds <- bbs_pkgs_i |>
-    dplyr::filter(node == node, stage == "checksrc") |>
+bbs_builds <- bbs_pkgs |>
+    dplyr::filter(node == nde, stage == "checksrc") |>
     dplyr::select(pkg, version, Deprecated, git_last_commit, result) |>
-    dplyr::rename(Package = pkg, Version = version, `BBS Commit` = git_last_commit,
-                  Check = result) |>
-    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7))
+    dplyr::rename(Package = pkg, Version = version,
+                  `BBS Commit` = git_last_commit, Check = result) |>
+    dplyr::mutate(`BBS Commit` = substr(`BBS Commit`, 1, 7)) |>
+    dplyr::distinct()
 
 filtered_ru_builds <- ru_builds |>
     dplyr::filter(`_jobs_os_` == os) |>
@@ -188,15 +221,20 @@ builds <- builds |>
     dplyr::rows_update(needs_url |> dplyr::select(Package, `_buildurl`),
                        by = "Package",
                        unmatched = "ignore")
+
 condensed_builds <- builds |>
-    dplyr::rename(`Job Check` = `_jobs_check`, `Binaries Check` = `_binaries_check`,
+    dplyr::rename(`Job Check` = `_jobs_check`, `Binary Check` = `_binaries_check`,
                   `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
-                  `Job Url` = JobUrl) |>
+                  `Job Url` = JobUrl, `Binary Status` = `_binaries_status`) |>
     dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
-    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`) |>
-    dplyr::select(Package, Version, Deprecated, `BBS Commit`, `Commit Match`,
-                  Check, `Job Check`, `Binaries Check`, `Job Url`, `Build Url`,
-                  `Vignettes Check`, vignettes_buildurl)
+    dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`,
+                  Propagate = propagate(`Commit Match`, Deprecated,
+                                        `Job Check`, `Binary Check`,
+                                        `Binary Status`, `Vignettes Check`)) |>
+    dplyr::select(Package, Version, `BBS Commit`, Deprecated, `Commit Match`,
+                  Check, `Job Check`, `Binary Check`, `Binary Status`,
+                  `Job Url`, `Build Url`, `Vignettes Check`, vignettes_buildurl,
+                  Propagate)
 
 condensed_builds_display <- condensed_builds |>
     dplyr::mutate(
@@ -207,15 +245,17 @@ condensed_builds_display <- condensed_builds |>
         `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),
             paste0('<a href="', `Job Url`, '" target="_blank">', `Job Check`, '</a>'),
             as.character(`Job Check`)),
-        `Binaries Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binaries Check`),
-            paste0('<a href="', `Build Url`, '" target="_blank">', `Binaries Check`,
+        `Binary Check` = ifelse(!is.na(`Build Url`) & !is.na(`Binary Check`),
+            paste0('<a href="', `Build Url`, '" target="_blank">', `Binary Check`,
                    '</a>'),
-            as.character(`Binaries Check`)),
+            as.character(`Binary Check`)),
         `Vignettes Check` = ifelse(!is.na(vignettes_buildurl) & !is.na(`Vignettes Check`),
             paste0('<a href="', vignettes_buildurl, '" target="_blank">',
                    `Vignettes Check`, '</a>'),
             as.character(`Vignettes Check`)),
-
+        Propagate = ifelse(Propagate,
+            '<span>&#x2705;</span>',
+            '<span>\U0001F6AB</span>')
     ) |>
     dplyr::select(-`Job Url`, -`Build Url`, -vignettes_buildurl)
 
@@ -224,8 +264,10 @@ reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
                      columns = list(
                        Check = reactable::colDef(html = TRUE),
                        `Job Check` = reactable::colDef(html = TRUE),
-                       `Binaries Check` = reactable::colDef(html = TRUE),
-                       `Vignettes Check` = reactable::colDef(html = TRUE)
+                       `Binary Check` = reactable::colDef(html = TRUE),
+                       `Vignettes Check` = reactable::colDef(html = TRUE),
+                       Propagate = reactable::colDef(html = TRUE)
+
                      ),
                      defaultColDef = reactable::colDef(
                        minWidth = 150,

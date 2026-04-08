@@ -222,7 +222,7 @@ match_binaries <- function(binaries, r_xy, os, arch) {
 #' @returns data.frame
 #' 
 #' @examples
-#' raw_df <- get_raw_uni_df("bioc", "devel", "4.6.0")
+#' raw_df <- get_raw_uni_df("bioc")
 #' get_uni_df(raw_df)
 #'
 #' @export
