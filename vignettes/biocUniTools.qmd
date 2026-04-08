@@ -1,9 +1,12 @@
 ---
 title: "biocUniTools"
-format:
-  html:
+format: html
 editor: visual
 engine: knitr
+vignette: >
+  %\VignetteIndexEntry{biocUniTools}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
 ---
 
 biocUniTools aims to make it easier to work with Bioconductor package data in
@@ -31,13 +34,14 @@ exactly match a `_binaries`'s `os`.
 
 ## lefser in Bioconductor 3.23 via the R Universe API
 
+This is a truncated version of parts of the API.
+
 ```{json lefser-in-3.23-on-2026047}
 {
   "_id": "69cf91f20c54e422bf1d50de",
   "Package": "lefser",
   "Type": "Package",
   "Title": "R implementation of the LEfSE method for microbiome biomarker\ndiscovery",
-  # Truncated
   "_jobs": [
     {
       "job": 69829927166,
@@ -126,7 +130,6 @@ exactly match a `_binaries`'s `os`.
     "note": 8
   },
   "_buildurl": "https://github.com/r-universe/bioc/actions/runs/23941765469",
-  # Truncated
   "_binaries": [
     {
       "r": "4.6.0",
@@ -173,8 +176,7 @@ exactly match a `_binaries`'s `os`.
       "status": "failure",
       "check": "ERROR",
       "buildurl": "https://github.com/r-universe/bioc/actions/runs/23941765469"
-    },
-  # Truncated
+    }
   ]
 }
 ```
@@ -187,6 +189,8 @@ binaries. This information is important to construct the repository path. Note:
 the `arch` field in `rtracklayer`'s `_binaries` for macosx.
 
 ```{json rtracklayer-binaries-for-mac-aarch}
+}
+  "_binaries": [
     {
       "r": "4.6.0",
       "os": "mac",
@@ -198,7 +202,8 @@ the `arch` field in `rtracklayer`'s `_binaries` for macosx.
       "status": "success",
       "check": "WARNING",
       "buildurl": "https://github.com/r-universe/bioc/actions/runs/23130760393"
-    },
+    }
+}
 ```
 
 ## Using biocUniTools
@@ -211,8 +216,8 @@ repository for future maintenance.
 Get corresponding R Universe information for a Bioconductor branch.
 
 ```{r get-uni-for-bioc-branch}
-bioc_uni <- get_uni_for_bioc_version("3.23")
-bioc_uni
+bioc_info <- get_uni_for_bioc_version("3.23")
+bioc_info
 ```
 
 If we wanted to create a report of each package's status, we could use `get_jobs`,
@@ -224,8 +229,8 @@ R Universe.
 ::: column-screen-inset
 
 ```{r get_jobs}
-jobs <- get_jobs(bioc_uni$ru_uni, bioc_uni$bioc_branch, bioc_uni$r_version,
-                 bioc_uni$bioc_version)
+jobs <- get_jobs(bioc_info$ru_uni, bioc_info$bioc_branch, bioc_info$r_version,
+                 bioc_info$bioc_version)
 
 jobs |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>
@@ -240,9 +245,10 @@ check and the commit is the same in the BBS. We could use `curl::multi_download`
 to download all binaries into our repository.
 ::: column-screen-inset
 ```{r get_candidates}
-candidates <- get_candidates(bioc_uni$ru_uni, bioc_uni$bioc_branch, bioc_uni$r_version,
-                             bioc_uni$bioc_version, "macosx", "arm64",
-                             vignettes = TRUE, commit = TRUE)
+candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
+                             bioc_info$r_version, bioc_info$bioc_version,
+                             "macosx", "arm64", vignettes = TRUE,
+                             commit = TRUE)
 candidates |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>
     dplyr::select(Package, `_jobs_r_xy`, `_jobs_type`, `_jobs_arch`,
@@ -256,14 +262,14 @@ binaries after updating the repository with R Universe binaries. See
 `inst/scripts/harvest.R` for a more complete example.
 
 ```{r remove-old-binaries, eval = FALSE}
+os <- "macosx"
+arch <- "arm64"
 repo_root <- "~/tmp/PACKAGES/3.23/bioc"
 # The R 4.6 macosx path uses sonoma for arm64
-repo_path <- get_repository_path(repo_root, bioc_info$r_version, OS, "sonoma",
-                                 "arm64")
-
+repo_path <- get_repository_path(repo_root, bioc_info$r_version, os, "sonoma",
+                                 arch)
 downloaded <- curl::multi_download(candidates$Artifact, destfiles = repo_path)
-    )
-remove_old_binaries(repo_root, bioc_uni$r_version, "macosx", "arm64")
+remove_old_binaries(repo_root, bioc_info$r_version, os, arch)
 ```
 
 ```{r sessionInfo}

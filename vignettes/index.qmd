@@ -1,10 +1,14 @@
 ---
-title: "Bioconductor in R Universe: Linux and Vignettes"
+title: "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes"
 format:
   html:
     code-fold: true
 editor: visual
 engine: knitr
+vignette: >
+  %\VignetteIndexEntry{Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r install_universe, echo = FALSE, message = FALSE}
@@ -52,14 +56,13 @@ propagate <- function(commit_match, deprecated, job_check, binary_check,
 }
 ```
 
-The following tables attempt to describe the potential propagation status of a
-package in R universe. Propagation is based on
+The following tables attempt to describe the potential propagation status of a package in R universe. Propagation is based on
 
-- the same commit in both build systems
-- the job building in R Universe
-- the binary building in R Universe
-- the vignettes building in R Universe
-- package is not deprecated
+-   the same commit in both build systems
+-   the job building in R Universe
+-   the binary building in R Universe
+-   the vignettes building in R Universe
+-   package is not deprecated
 
 Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
 
