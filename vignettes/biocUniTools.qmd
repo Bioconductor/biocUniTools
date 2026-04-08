@@ -206,6 +206,7 @@ the `arch` field in `rtracklayer`'s `_binaries` for macosx.
       "check": "WARNING",
       "buildurl": "https://github.com/r-universe/bioc/actions/runs/23130760393"
     }
+  ]
 }
 ```
 
