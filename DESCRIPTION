@@ -13,6 +13,7 @@ Imports:
     dplyr,
     httr2,
     jsonlite,
+    purrr,
     readr,
     stringr,
     tibble,
@@ -23,6 +24,7 @@ Suggests:
     kableExtra,
     logger,
     quarto,
+    reactable,
     tidyr,
     testthat (>= 3.0.0)
 Encoding: UTF-8

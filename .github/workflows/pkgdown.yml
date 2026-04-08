@@ -28,6 +28,7 @@ jobs:
           extra-packages: |
             any::pkgdown
             any::remotes
+            local::.
           needs: website
 
       - name: Install package
