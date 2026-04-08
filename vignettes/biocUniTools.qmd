@@ -1,6 +1,9 @@
 ---
 title: "biocUniTools"
-format: html
+format:
+  html:
+    toc: false
+sidebar: false
 editor: visual
 engine: knitr
 vignette: >

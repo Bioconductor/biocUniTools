@@ -3,6 +3,8 @@ title: "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes
 format:
   html:
     code-fold: true
+    toc: false
+sidebar: false
 editor: visual
 engine: knitr
 vignette: >
