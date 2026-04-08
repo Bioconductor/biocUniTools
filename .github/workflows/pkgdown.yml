@@ -31,9 +31,11 @@ jobs:
           needs: website
 
       - name: Install package
-        run: |
-          BiocManager::install("Bioconductor/biocUniTools")
+        run: BiocManager::install("Bioconductor/biocUniTools")
         shell: Rscript {0}
+
+      - name: Render Quarto document
+        run: quarto render path/to/yourfile.qmd --output-dir docs/articles
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
