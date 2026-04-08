@@ -2,3 +2,9 @@ template:
   bootstrap: 5
   bslib:
     enable-bs-ruleset: true
+  includes:
+    in_header: |
+      <style>
+        .col-md-9 { width: 100%; }
+        .col-md-3 { display: none; }
+      </style>
