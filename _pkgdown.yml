@@ -2,8 +2,3 @@ template:
   bootstrap: 5
   bslib:
     enable-bs-ruleset: true
-
-articles:
-  - title: "Getting Started"
-    contents:
-      - biocUniTools
