@@ -18,7 +18,7 @@ Adds additional columns to \verb{_jobs_r_xy}, \verb{_binaries_r_xy},
 \verb{_jobs_type}, \verb{_jobs_arch}, \verb{_jobs_os_}, \verb{_binaries_os_}
 }
 \examples{
-raw_df <- get_raw_uni_df("bioc", "devel", "4.6.0")
+raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
 
 }
