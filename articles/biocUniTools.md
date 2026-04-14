@@ -265,9 +265,6 @@ candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
                              bioc_info$r_version, bioc_info$bioc_version,
                              "macosx", "arm64", vignettes = TRUE,
                              commit = TRUE)
-```
-
-``` r
 candidates |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>
     dplyr::select(Package, `_jobs_r_xy`, `_jobs_type`, `_jobs_arch`,
