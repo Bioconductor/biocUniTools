@@ -1,0 +1,23 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/biocUniTools.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/filter_by_arch.html</loc></url>
+<url><loc>/reference/get_arch.html</loc></url>
+<url><loc>/reference/get_binary_os.html</loc></url>
+<url><loc>/reference/get_candidates.html</loc></url>
+<url><loc>/reference/get_jobs.html</loc></url>
+<url><loc>/reference/get_macosx_subpath.html</loc></url>
+<url><loc>/reference/get_raw_uni_df.html</loc></url>
+<url><loc>/reference/get_repository_path.html</loc></url>
+<url><loc>/reference/get_uni_df.html</loc></url>
+<url><loc>/reference/get_uni_for_bioc_version.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/r_xy_ver.html</loc></url>
+<url><loc>/reference/remove_old_binaries.html</loc></url>
+<url><loc>/reference/uni_pkg_file.html</loc></url>
+<url><loc>/reference/uni_repo_url.html</loc></url>
+</urlset>
+

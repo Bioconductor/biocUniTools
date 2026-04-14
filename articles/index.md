@@ -1,0 +1,75 @@
+# Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes
+
+The following tables attempt to describe the potential propagation
+status of a package in R universe. Propagation is based on
+
+- the same commit in both build systems
+- the job building in R Universe
+- the binary building in R Universe
+- the vignettes building in R Universe
+- package is not deprecated
+
+Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
+
+## R Universe and Bioconductor 3.23
+
+https://bioc.r-universe.dev
+
+## R Universe and Bioconductor 3.22
+
+https://bioc-release.r-universe.dev
+
+Code
+
+``` r
+sessionInfo()
+```
+
+    R version 4.5.3 (2026-03-11)
+    Platform: x86_64-pc-linux-gnu
+    Running under: Ubuntu 24.04.4 LTS
+
+    Matrix products: default
+    BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+    LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+    locale:
+     [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8
+     [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8
+     [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C
+    [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C
+
+    time zone: UTC
+    tzcode source: system (glibc)
+
+    attached base packages:
+    [1] stats     graphics  grDevices utils     datasets  methods   base
+
+    other attached packages:
+    [1] purrr_1.2.2         reactable_0.4.5     httr2_1.2.2
+    [4] biocUniTools_0.0.99 dplyr_1.2.1         BiocPkgTools_1.28.3
+    [7] htmlwidgets_1.6.4
+
+    loaded via a namespace (and not attached):
+     [1] xfun_0.57           gh_1.5.0            Biobase_2.70.0
+     [4] tzdb_0.5.0          vctrs_0.7.3         tools_4.5.3
+     [7] crosstalk_1.2.2     bitops_1.0-9        generics_0.1.4
+    [10] stats4_4.5.3        curl_7.0.0          RUnit_0.4.33.1
+    [13] tibble_3.3.1        RSQLite_2.4.6       blob_1.3.0
+    [16] pkgconfig_2.0.3     dbplyr_2.5.2        graph_1.88.1
+    [19] lifecycle_1.0.5     compiler_4.5.3      stringr_1.6.0
+    [22] biocViews_1.78.2    htmltools_0.5.9     RCurl_1.98-1.18
+    [25] yaml_2.3.12         pillar_1.11.1       tidyr_1.3.2
+    [28] DT_0.34.0           cachem_1.1.0        tidyselect_1.2.1
+    [31] rvest_1.0.5         digest_0.6.39       stringi_1.8.7
+    [34] fastmap_1.2.0       cli_3.6.6           magrittr_2.0.5
+    [37] RBGL_1.86.0         XML_3.99-0.23       reactR_0.6.1
+    [40] readr_2.2.0         withr_3.0.2         filelock_1.0.3
+    [43] rappdirs_0.3.4      bit64_4.6.0-1       lubridate_1.9.5
+    [46] timechange_0.4.0    rmarkdown_2.31      httr_1.4.8
+    [49] igraph_2.2.3        bit_4.6.0           otel_0.2.0
+    [52] hms_1.1.4           memoise_2.0.1       evaluate_1.0.5
+    [55] knitr_1.51          BiocFileCache_3.0.0 rlang_1.2.0
+    [58] glue_1.8.0          DBI_1.3.0           BiocManager_1.30.27
+    [61] xml2_1.5.2          BiocGenerics_0.56.0 jsonlite_2.0.0
+    [64] R6_2.6.1           
