@@ -265,6 +265,9 @@ candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
                              bioc_info$r_version, bioc_info$bioc_version,
                              "macosx", "arm64", vignettes = TRUE,
                              commit = TRUE)
+```
+
+``` r
 candidates |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>
     dplyr::select(Package, `_jobs_r_xy`, `_jobs_type`, `_jobs_arch`,
@@ -277,7 +280,7 @@ candidates |>
       _binaries_check
     1         WARNING
                                                                            JobUrl
-    1 https://github.com/r-universe/bioc/actions/runs/23130760393/job/67184075231
+    1 https://github.com/r-universe/bioc/actions/runs/24439351234/job/71401219263
                                                                                     Artifact
     1 https://bioc.r-universe.dev/bin/macosx/sonoma-arm64/contrib/4.6/rtracklayer_1.71.3.tgz
 

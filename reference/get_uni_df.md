@@ -24,24 +24,24 @@ data.frame
 ``` r
 raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
-#> # A tibble: 24,377 × 250
-#>    Package Type    Title  Version Date  `Authors@R` Description License LazyData
-#>    <chr>   <chr>   <chr>  <chr>   <chr> <chr>       <chr>       <chr>   <chr>   
-#>  1 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  2 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  3 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  4 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  5 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  6 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  7 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  8 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#>  9 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#> 10 HIBAG   Package HLA G… 1.47.1  2026… "c(person(… "Imputes H… GPL-3   yes     
-#> # ℹ 24,367 more rows
-#> # ℹ 241 more variables: VignetteBuilder <chr>, SystemRequirements <chr>,
-#> #   ByteCompile <chr>, biocViews <chr>, URL <chr>, `Config/pak/sysreqs` <chr>,
-#> #   Repository <chr>, `Date/Publication` <chr>, RemoteUrl <chr>,
-#> #   RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>,
-#> #   Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
-#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
+#> # A tibble: 24,425 × 250
+#>    Package   Type    Title         Version Date  `Authors@R` Description License
+#>    <chr>     <chr>   <chr>         <chr>   <chr> <chr>       <chr>       <chr>  
+#>  1 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  2 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  3 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  4 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  5 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  6 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  7 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  8 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#>  9 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#> 10 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
+#> # ℹ 24,415 more rows
+#> # ℹ 242 more variables: VignetteBuilder <chr>, LazyData <chr>, URL <chr>,
+#> #   BugReports <chr>, biocViews <chr>, Repository <chr>,
+#> #   `Date/Publication` <chr>, RemoteUrl <chr>, RemoteRef <chr>,
+#> #   RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>, Maintainer <chr>,
+#> #   MD5sum <chr>, `_user` <chr>, `_type` <chr>, `_file` <chr>, `_fileid` <chr>,
+#> #   `_filesize` <int>, `_sha256` <chr>, `_created` <chr>, `_published` <chr>, …
 ```
