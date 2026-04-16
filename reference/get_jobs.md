@@ -34,7 +34,7 @@ data.frame packages in a universe
 
 ``` r
 get_jobs("bioc", "devel", "4.6.0", "3.23")
-#> # A tibble: 12,750 × 252
+#> # A tibble: 12,756 × 252
 #>    Package Type    Title           Version Date  `Authors@R` Description License
 #>    <chr>   <chr>   <chr>           <chr>   <chr> <chr>       <chr>       <chr>  
 #>  1 ABSSeq  Package "ABSSeq: a new… 1.65.0  NA    NA          "Inferring… GPL (>…
@@ -47,11 +47,11 @@ get_jobs("bioc", "devel", "4.6.0", "3.23")
 #>  8 ABarray NA      "Microarray QA… 1.79.0  2006… NA          "Automated… GPL    
 #>  9 ABarray NA      "Microarray QA… 1.79.0  2006… NA          "Automated… GPL    
 #> 10 ABarray NA      "Microarray QA… 1.79.0  2006… NA          "Automated… GPL    
-#> # ℹ 12,740 more rows
-#> # ℹ 244 more variables: VignetteBuilder <chr>, LazyData <chr>, URL <chr>,
-#> #   BugReports <chr>, biocViews <chr>, Repository <chr>,
-#> #   `Date/Publication` <chr>, RemoteUrl <chr>, RemoteRef <chr>,
-#> #   RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>, Maintainer <chr>,
-#> #   MD5sum <chr>, `_user` <chr>, `_type` <chr>, `_file` <chr>, `_fileid` <chr>,
-#> #   `_filesize` <int>, `_sha256` <chr>, `_created` <chr>, `_published` <chr>, …
+#> # ℹ 12,746 more rows
+#> # ℹ 244 more variables: SystemRequirements <chr>, VignetteBuilder <chr>,
+#> #   ByteCompile <chr>, URL <chr>, biocViews <chr>, `Config/pak/sysreqs` <chr>,
+#> #   Repository <chr>, `Date/Publication` <chr>, RemoteUrl <chr>,
+#> #   RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>,
+#> #   Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
 ```

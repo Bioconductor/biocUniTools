@@ -24,24 +24,24 @@ data.frame
 ``` r
 raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
-#> # A tibble: 24,425 × 250
-#>    Package   Type    Title         Version Date  `Authors@R` Description License
-#>    <chr>     <chr>   <chr>         <chr>   <chr> <chr>       <chr>       <chr>  
-#>  1 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  2 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  3 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  4 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  5 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  6 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  7 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  8 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#>  9 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#> 10 SNPRelate Package "Parallel Co… 1.45.2  2026… "c(person(… "Genome-wi… GPL-3  
-#> # ℹ 24,415 more rows
-#> # ℹ 242 more variables: VignetteBuilder <chr>, LazyData <chr>, URL <chr>,
-#> #   BugReports <chr>, biocViews <chr>, Repository <chr>,
-#> #   `Date/Publication` <chr>, RemoteUrl <chr>, RemoteRef <chr>,
-#> #   RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>, Maintainer <chr>,
-#> #   MD5sum <chr>, `_user` <chr>, `_type` <chr>, `_file` <chr>, `_fileid` <chr>,
-#> #   `_filesize` <int>, `_sha256` <chr>, `_created` <chr>, `_published` <chr>, …
+#> # A tibble: 24,439 × 250
+#>    Package  Type    Title          Version Date  `Authors@R` Description License
+#>    <chr>    <chr>   <chr>          <chr>   <chr> <chr>       <chr>       <chr>  
+#>  1 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  2 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  3 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  4 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  5 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  6 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  7 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  8 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#>  9 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#> 10 SAIGEgds Package "Scalable Imp… 2.11.4  2026… "c(person(… "Scalable … GPL-3  
+#> # ℹ 24,429 more rows
+#> # ℹ 242 more variables: SystemRequirements <chr>, VignetteBuilder <chr>,
+#> #   ByteCompile <chr>, URL <chr>, biocViews <chr>, `Config/pak/sysreqs` <chr>,
+#> #   Repository <chr>, `Date/Publication` <chr>, RemoteUrl <chr>,
+#> #   RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>,
+#> #   Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
 ```
