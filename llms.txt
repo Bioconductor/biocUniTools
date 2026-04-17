@@ -117,6 +117,6 @@ sessionInfo()
     [49] igraph_2.2.3        bit_4.6.0           otel_0.2.0
     [52] hms_1.1.4           memoise_2.0.1       evaluate_1.0.5
     [55] knitr_1.51          BiocFileCache_3.0.0 rlang_1.2.0
-    [58] glue_1.8.0          DBI_1.3.0           BiocManager_1.30.27
+    [58] glue_1.8.1          DBI_1.3.0           BiocManager_1.30.27
     [61] xml2_1.5.2          BiocGenerics_0.56.0 jsonlite_2.0.0
     [64] R6_2.6.1           
