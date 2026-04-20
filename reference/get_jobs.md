@@ -34,24 +34,24 @@ data.frame packages in a universe
 
 ``` r
 get_jobs("bioc", "devel", "4.6.0", "3.23")
-#> # A tibble: 12,816 × 252
-#>    Package Title  Version Author Maintainer Description URL   BugReports License
-#>    <chr>   <chr>  <chr>   <chr>  <chr>      <chr>       <chr> <chr>      <chr>  
-#>  1 ABSSeq  "ABSS… 1.65.0  Wenta… Wentao Ya… "Inferring… NA    NA         GPL (>…
-#>  2 ABSSeq  "ABSS… 1.65.0  Wenta… Wentao Ya… "Inferring… NA    NA         GPL (>…
-#>  3 ABSSeq  "ABSS… 1.65.0  Wenta… Wentao Ya… "Inferring… NA    NA         GPL (>…
-#>  4 ABSSeq  "ABSS… 1.65.0  Wenta… Wentao Ya… "Inferring… NA    NA         GPL (>…
-#>  5 ABSSeq  "ABSS… 1.65.0  Wenta… Wentao Ya… "Inferring… NA    NA         GPL (>…
-#>  6 ABarray "Micr… 1.79.0  Yongm… Yongming … "Automated… NA    NA         GPL    
-#>  7 ABarray "Micr… 1.79.0  Yongm… Yongming … "Automated… NA    NA         GPL    
-#>  8 ABarray "Micr… 1.79.0  Yongm… Yongming … "Automated… NA    NA         GPL    
-#>  9 ABarray "Micr… 1.79.0  Yongm… Yongming … "Automated… NA    NA         GPL    
-#> 10 ABarray "Micr… 1.79.0  Yongm… Yongming … "Automated… NA    NA         GPL    
-#> # ℹ 12,806 more rows
-#> # ℹ 243 more variables: Encoding <chr>, Roxygen <chr>, RoxygenNote <chr>,
-#> #   `Config/testthat/edition` <chr>, biocViews <chr>, VignetteBuilder <chr>,
-#> #   SystemRequirements <chr>, OS_type <chr>,
-#> #   `Config/Bioconductor/UnsupportedPlatforms` <chr>,
-#> #   `Config/pak/sysreqs` <chr>, Repository <chr>, `Date/Publication` <chr>,
-#> #   RemoteUrl <chr>, RemoteRef <chr>, RemoteSha <chr>, …
+#> # A tibble: 12,810 × 252
+#>    Package Type  Title Version `Authors@R` Description License Encoding LazyData
+#>    <chr>   <chr> <chr> <chr>   <chr>       <chr>       <chr>   <chr>    <chr>   
+#>  1 ABSSeq  Pack… "ABS… 1.65.0  NA          "Inferring… GPL (>… NA       NA      
+#>  2 ABSSeq  Pack… "ABS… 1.65.0  NA          "Inferring… GPL (>… NA       NA      
+#>  3 ABSSeq  Pack… "ABS… 1.65.0  NA          "Inferring… GPL (>… NA       NA      
+#>  4 ABSSeq  Pack… "ABS… 1.65.0  NA          "Inferring… GPL (>… NA       NA      
+#>  5 ABSSeq  Pack… "ABS… 1.65.0  NA          "Inferring… GPL (>… NA       NA      
+#>  6 ABarray NA    "Mic… 1.79.0  NA          "Automated… GPL     NA       NA      
+#>  7 ABarray NA    "Mic… 1.79.0  NA          "Automated… GPL     NA       NA      
+#>  8 ABarray NA    "Mic… 1.79.0  NA          "Automated… GPL     NA       NA      
+#>  9 ABarray NA    "Mic… 1.79.0  NA          "Automated… GPL     NA       NA      
+#> 10 ABarray NA    "Mic… 1.79.0  NA          "Automated… GPL     NA       NA      
+#> # ℹ 12,800 more rows
+#> # ℹ 243 more variables: RoxygenNote <chr>, URL <chr>, BugReports <chr>,
+#> #   VignetteBuilder <chr>, biocViews <chr>, `Config/pak/sysreqs` <chr>,
+#> #   Repository <chr>, `Date/Publication` <chr>, RemoteUrl <chr>,
+#> #   RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>,
+#> #   Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
 ```

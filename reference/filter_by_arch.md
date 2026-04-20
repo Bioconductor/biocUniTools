@@ -46,6 +46,6 @@ filter_by_arch(df, "macosx", "arm64")
 #>         .Call(C_df, x, df1, df2, log)
 #>     else .Call(C_dnf, x, df1, df2, ncp, log)
 #> }
-#> <bytecode: 0x555ea4eb00e8>
+#> <bytecode: 0x5591e7014820>
 #> <environment: namespace:stats>
 ```

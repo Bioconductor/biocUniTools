@@ -24,24 +24,24 @@ data.frame
 ``` r
 raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
-#> # A tibble: 24,576 × 250
-#>    Package  Title Version Author Maintainer Description URL   BugReports License
-#>    <chr>    <chr> <chr>   <chr>  <chr>      <chr>       <chr> <chr>      <chr>  
-#>  1 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  2 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  3 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  4 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  5 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  6 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  7 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  8 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#>  9 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#> 10 CBN2Path "CBN… 1.1.7   Willi… "William … "CBN2Path … "htt… https://g… MIT + …
-#> # ℹ 24,566 more rows
-#> # ℹ 241 more variables: Encoding <chr>, Roxygen <chr>, RoxygenNote <chr>,
-#> #   `Config/testthat/edition` <chr>, biocViews <chr>, VignetteBuilder <chr>,
-#> #   SystemRequirements <chr>, OS_type <chr>,
-#> #   `Config/Bioconductor/UnsupportedPlatforms` <chr>,
-#> #   `Config/pak/sysreqs` <chr>, Repository <chr>, `Date/Publication` <chr>,
-#> #   RemoteUrl <chr>, RemoteRef <chr>, RemoteSha <chr>, …
+#> # A tibble: 24,566 × 250
+#>    Package Type  Title Version `Authors@R` Description License Encoding LazyData
+#>    <chr>   <chr> <chr> <chr>   <chr>       <chr>       <chr>   <chr>    <chr>   
+#>  1 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  2 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  3 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  4 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  5 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  6 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  7 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  8 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#>  9 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#> 10 SMAD    Pack… Stat… 1.27.6  "person(gi… "Assigning… MIT + … UTF-8    false   
+#> # ℹ 24,556 more rows
+#> # ℹ 241 more variables: RoxygenNote <chr>, URL <chr>, BugReports <chr>,
+#> #   VignetteBuilder <chr>, biocViews <chr>, `Config/pak/sysreqs` <chr>,
+#> #   Repository <chr>, `Date/Publication` <chr>, RemoteUrl <chr>,
+#> #   RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>,
+#> #   Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
 ```
