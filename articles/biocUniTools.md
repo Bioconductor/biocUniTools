@@ -341,8 +341,8 @@ sessionInfo()
     [37] cli_3.6.6           magrittr_2.0.5      RBGL_1.86.0
     [40] XML_3.99-0.23       utf8_1.2.6          readr_2.2.0
     [43] withr_3.0.2         filelock_1.0.3      rappdirs_0.3.4
-    [46] bit64_4.6.0-1       lubridate_1.9.5     timechange_0.4.0
-    [49] rmarkdown_2.31      httr_1.4.8          igraph_2.2.3
+    [46] bit64_4.8.0         lubridate_1.9.5     timechange_0.4.0
+    [49] rmarkdown_2.31      httr_1.4.8          igraph_2.3.0
     [52] bit_4.6.0           otel_0.2.0          hms_1.1.4
     [55] memoise_2.0.1       evaluate_1.0.5      knitr_1.51
     [58] BiocFileCache_3.0.0 rlang_1.2.0         BiocPkgTools_1.28.3
