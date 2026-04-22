@@ -54,7 +54,7 @@ sessionInfo()
      [1] xfun_0.57           gh_1.5.0            Biobase_2.70.0
      [4] tzdb_0.5.0          vctrs_0.7.3         tools_4.5.3
      [7] crosstalk_1.2.2     bitops_1.0-9        generics_0.1.4
-    [10] stats4_4.5.3        curl_7.0.0          RUnit_0.4.33.1
+    [10] stats4_4.5.3        curl_7.1.0          RUnit_0.4.33.1
     [13] tibble_3.3.1        RSQLite_2.4.6       blob_1.3.0
     [16] pkgconfig_2.0.3     dbplyr_2.5.2        graph_1.88.1
     [19] lifecycle_1.0.5     compiler_4.5.3      stringr_1.6.0
