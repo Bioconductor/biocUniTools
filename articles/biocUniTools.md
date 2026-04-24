@@ -273,13 +273,17 @@ candidates |>
 ```
 
           Package _jobs_r_xy _jobs_type _jobs_arch _jobs_os_ _jobs_check
-    1 rtracklayer        4.6     binary      arm64       mac     WARNING
+    1      lefser        4.6     binary      arm64       mac          OK
+    2 rtracklayer        4.6     binary      arm64       mac     WARNING
       _binaries_check
-    1         WARNING
+    1              OK
+    2         WARNING
                                                                            JobUrl
-    1 https://github.com/r-universe/bioc/actions/runs/24439351234/job/71401219263
+    1 https://github.com/r-universe/bioc/actions/runs/24873105152/job/72824213075
+    2 https://github.com/r-universe/bioc/actions/runs/24439351234/job/71401219263
                                                                                     Artifact
-    1 https://bioc.r-universe.dev/bin/macosx/sonoma-arm64/contrib/4.6/rtracklayer_1.71.3.tgz
+    1    https://bioc.r-universe.dev/bin/macosx/big-sur-x86_64/contrib/4.6/lefser_1.21.8.tgz
+    2 https://bioc.r-universe.dev/bin/macosx/sonoma-arm64/contrib/4.6/rtracklayer_1.71.3.tgz
 
 :::
 
