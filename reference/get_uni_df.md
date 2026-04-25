@@ -24,24 +24,24 @@ data.frame
 ``` r
 raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
-#> # A tibble: 25,247 × 250
-#>    Package          Type  Title Version `Authors@R` Description License Encoding
-#>    <chr>            <chr> <chr> <chr>   <chr>       <chr>       <chr>   <chr>   
-#>  1 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  2 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  3 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  4 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  5 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  6 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  7 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  8 Voyager          Pack… From… 1.13.1  "c(person(… "SpatialFe… Artist… UTF-8   
-#>  9 SpatialFeatureE… Pack… Inte… 1.13.2  "c(person(… "A new S4 … Artist… UTF-8   
-#> 10 SpatialFeatureE… Pack… Inte… 1.13.2  "c(person(… "A new S4 … Artist… UTF-8   
-#> # ℹ 25,237 more rows
-#> # ℹ 242 more variables: RoxygenNote <chr>, `Config/testthat/edition` <chr>,
-#> #   biocViews <chr>, VignetteBuilder <chr>, URL <chr>, BugReports <chr>,
-#> #   Collate <chr>, `Config/pak/sysreqs` <chr>, Repository <chr>,
-#> #   `Date/Publication` <chr>, RemoteUrl <chr>, RemoteRef <chr>,
-#> #   RemoteSha <chr>, NeedsCompilation <chr>, Author <chr>, Maintainer <chr>,
-#> #   MD5sum <chr>, `_user` <chr>, `_type` <chr>, `_file` <chr>, …
+#> # A tibble: 25,411 × 250
+#>    Package  Type    Title          Version Date  `Authors@R` Description License
+#>    <chr>    <chr>   <chr>          <chr>   <chr> <chr>       <chr>       <chr>  
+#>  1 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  2 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  3 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  4 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  5 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  6 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  7 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  8 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#>  9 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#> 10 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
+#> # ℹ 25,401 more rows
+#> # ℹ 242 more variables: VignetteBuilder <chr>, ByteCompile <chr>,
+#> #   LazyData <chr>, URL <chr>, BugReports <chr>, biocViews <chr>,
+#> #   `Config/pak/sysreqs` <chr>, Repository <chr>, `Date/Publication` <chr>,
+#> #   RemoteUrl <chr>, RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>,
+#> #   Author <chr>, Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
 ```

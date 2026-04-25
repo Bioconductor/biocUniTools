@@ -306,7 +306,7 @@ remove_old_binaries(repo_root, bioc_info$r_version, os, arch)
 sessionInfo()
 ```
 
-    R version 4.5.3 (2026-03-11)
+    R version 4.6.0 (2026-04-24)
     Platform: x86_64-pc-linux-gnu
     Running under: Ubuntu 24.04.4 LTS
 
@@ -331,25 +331,25 @@ sessionInfo()
 
     loaded via a namespace (and not attached):
      [1] xfun_0.57           httr2_1.2.2         htmlwidgets_1.6.4
-     [4] gh_1.5.0            Biobase_2.70.0      tzdb_0.5.0
-     [7] vctrs_0.7.3         tools_4.5.3         bitops_1.0-9
-    [10] generics_0.1.4      stats4_4.5.3        curl_7.1.0
+     [4] gh_1.5.0            Biobase_2.71.0      tzdb_0.5.0
+     [7] vctrs_0.7.3         tools_4.6.0         bitops_1.0-9
+    [10] generics_0.1.4      stats4_4.6.0        curl_7.1.0
     [13] RUnit_0.4.33.1      tibble_3.3.1        RSQLite_2.4.6
     [16] blob_1.3.0          pkgconfig_2.0.3     dbplyr_2.5.2
-    [19] graph_1.88.1        lifecycle_1.0.5     compiler_4.5.3
-    [22] stringr_1.6.0       biocViews_1.78.2    htmltools_0.5.9
+    [19] graph_1.89.1        lifecycle_1.0.5     compiler_4.6.0
+    [22] stringr_1.6.0       biocViews_1.79.6    htmltools_0.5.9
     [25] RCurl_1.98-1.18     yaml_2.3.12         pillar_1.11.1
     [28] tidyr_1.3.2         DT_0.34.0           cachem_1.1.0
     [31] rvest_1.0.5         tidyselect_1.2.1    digest_0.6.39
     [34] stringi_1.8.7       purrr_1.2.2         fastmap_1.2.0
-    [37] cli_3.6.6           magrittr_2.0.5      RBGL_1.86.0
+    [37] cli_3.6.6           magrittr_2.0.5      RBGL_1.87.0
     [40] XML_3.99-0.23       utf8_1.2.6          readr_2.2.0
     [43] withr_3.0.2         filelock_1.0.3      rappdirs_0.3.4
     [46] bit64_4.8.0         lubridate_1.9.5     timechange_0.4.0
     [49] rmarkdown_2.31      httr_1.4.8          igraph_2.3.0
     [52] bit_4.6.0           otel_0.2.0          hms_1.1.4
     [55] memoise_2.0.1       evaluate_1.0.5      knitr_1.51
-    [58] BiocFileCache_3.0.0 rlang_1.2.0         BiocPkgTools_1.28.3
+    [58] BiocFileCache_3.1.0 rlang_1.2.0         BiocPkgTools_1.29.4
     [61] glue_1.8.1          DBI_1.3.0           BiocManager_1.30.27
-    [64] xml2_1.5.2          BiocGenerics_0.56.0 jsonlite_2.0.0
+    [64] xml2_1.5.2          BiocGenerics_0.57.1 jsonlite_2.0.0
     [67] R6_2.6.1           
