@@ -24,24 +24,24 @@ data.frame
 ``` r
 raw_df <- get_raw_uni_df("bioc")
 get_uni_df(raw_df)
-#> # A tibble: 25,411 × 250
-#>    Package  Type    Title          Version Date  `Authors@R` Description License
-#>    <chr>    <chr>   <chr>          <chr>   <chr> <chr>       <chr>       <chr>  
-#>  1 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  2 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  3 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  4 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  5 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  6 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  7 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  8 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#>  9 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#> 10 SeqArray Package "Data managem… 1.51.10 2026… "c(person(… "Data mana… GPL-3  
-#> # ℹ 25,401 more rows
-#> # ℹ 242 more variables: VignetteBuilder <chr>, ByteCompile <chr>,
-#> #   LazyData <chr>, URL <chr>, BugReports <chr>, biocViews <chr>,
+#> # A tibble: 25,690 × 250
+#>    Package  Version Date  Title `Authors@R` Description License URL   BugReports
+#>    <chr>    <chr>   <chr> <chr> <chr>       <chr>       <chr>   <chr> <chr>     
+#>  1 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  2 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  3 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  4 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  5 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  6 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  7 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  8 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#>  9 graphite 1.57.1  2026… GRAP… "c(\nperso… "Graph obj… AGPL-3  http… https://g…
+#> 10 amplican 1.33.10 NA    Auto… "c(\nperso… "`amplican… GPL-3   http… https://g…
+#> # ℹ 25,680 more rows
+#> # ℹ 241 more variables: Collate <chr>, VignetteBuilder <chr>, biocViews <chr>,
 #> #   `Config/pak/sysreqs` <chr>, Repository <chr>, `Date/Publication` <chr>,
 #> #   RemoteUrl <chr>, RemoteRef <chr>, RemoteSha <chr>, NeedsCompilation <chr>,
 #> #   Author <chr>, Maintainer <chr>, MD5sum <chr>, `_user` <chr>, `_type` <chr>,
-#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>, …
+#> #   `_file` <chr>, `_fileid` <chr>, `_filesize` <int>, `_sha256` <chr>,
+#> #   `_created` <chr>, `_published` <chr>, `_jobs_job` <dbl>, …
 ```
