@@ -22,6 +22,7 @@ data.frame packages in a universe
 Adds Artifact and JobUrl
 }
 \examples{
-get_jobs("bioc", "devel", "4.6.0", "3.23")
+bu <- get_uni_for_bioc_version("devel")
+get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
 
 }

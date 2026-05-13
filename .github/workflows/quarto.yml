@@ -7,26 +7,21 @@ on:
     - cron: "30 16 * * *" # 2:30pm ET 
   workflow_dispatch:
 
-name: pkgdown
+name: quarto
 
 jobs:
-  pkgdown:
+  quarto:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
-
-      - uses: quarto-dev/quarto-actions/setup@v2
+      - uses: quarto-dev/quarto-actions/setup@v2 
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            any::pkgdown
             any::remotes
             local::.
           needs: website
@@ -35,9 +30,8 @@ jobs:
         run: BiocManager::install("Bioconductor/biocUniTools")
         shell: Rscript {0}
 
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE, quiet = FALSE)
-        shell: Rscript {0}
+      - name: Render
+        run: quarto render
 
       - name: Deploy to GitHub pages
         uses: JamesIves/github-pages-deploy-action@v4
