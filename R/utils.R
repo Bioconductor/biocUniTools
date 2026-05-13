@@ -479,7 +479,7 @@ get_uni_for_bioc_version <- function(version) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
     stopifnot(version %in% c(bioc_yaml$versions, "release", "devel"))
 
-    if (version == "devel" || version == bioc_yaml$devel_version) {
+    if (version %in% c("devel", bioc_yaml$devel_version)) {
         bioc_version <- bioc_yaml$devel_version
         bioc_branch <- "devel"
         ru_uni <- "bioc"
