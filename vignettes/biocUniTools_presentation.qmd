@@ -16,14 +16,10 @@ execute:
 
 ## binaries and propagation +
 
--   binary: prebuilt packages for macosx and windows users that make it easy to
-    install Bioconductor packages because compilation is sometimes hard.
+-   binary: prebuilt packages for macosx and windows users that make it easy to install Bioconductor packages because compilation is sometimes hard.
 -   propagation: based a set of criteria, make a new version of the package available
-    -   Criteria on BBS: passes `R CMD INSTALL`, `R CMD build`,
-        `R CMD check`, `R CMD buildbin` (this makes the actual binary)
-    -   Criteria in RU: `R CMD check`, vignettes passing, binaries check pass,
-        binaries status pass, job check pass, and for now matching commit in
-        BBS and RU
+    -   Criteria on BBS: passes `R CMD INSTALL`, `R CMD build`, `R CMD check`, `R CMD buildbin` (this makes the actual binary)
+    -   Criteria in RU: `R CMD check`, vignettes passing, binaries check pass, binaries status pass, job check pass, and for now matching commit in BBS and RU
 
 ## RU API
 
@@ -40,18 +36,18 @@ Also
 -   extra fields only if needed: universal vs arch-specific builds
 -   jobs and binaries separated
 
-## Universal and arch-specific binaries + 
+## Universal and arch-specific binaries +
 
 Needed to compile, C for example, in an R package.
 
 Universal binary building
 
-os | arch | universal builder?
----+------+-------------------
-linux | x86_64 | Yes
-linux | aarch64 | No
-macosx | x86_64 | No
-macosx | arm64 | Yes
+| os     | arch    | universal builder? |
+|--------|---------|--------------------|
+| linux  | x86_64  | Yes                |
+| linux  | aarch64 | No                 |
+| macosx | x86_64  | No                 |
+| macosx | arm64   | Yes                |
 
 ## Comparison: lefser
 
@@ -72,6 +68,7 @@ macosx | arm64 | Yes
   ]
 }
 ```
+
 [lefser](https://bioc.r-universe.dev/lefser)
 
 ## Comparison: rtracklayer
@@ -94,6 +91,7 @@ macosx | arm64 | Yes
   ]
 }
 ```
+
 [rtracklayer](https://bioc.r-universe.dev/rtracklayer)
 
 ## biocUniTools
@@ -119,7 +117,6 @@ bioc_info
 ## `get_jobs` to create a report
 
 ::: column-screen-inset
-
 ```{r get_jobs}
 jobs <- get_jobs(bioc_info$ru_uni, bioc_info$bioc_branch, bioc_info$r_version,
                  bioc_info$bioc_version)
@@ -134,9 +131,7 @@ jobs |>
 
 ## Use case: create a macosx arm64 binary repository
 
-Use `get_candidates` to find candidates binaries if their vignettes have passed
-check and the commit is the same in the BBS. We could use `curl::multi_download`
-to download all binaries into our repository.
+Use `get_candidates` to find candidates binaries if their vignettes have passed check and the commit is the same in the BBS. We could use `curl::multi_download` to download all binaries into our repository.
 
 ::: column-screen-inset
 ```{r get_candidates}
@@ -154,8 +149,7 @@ candidates |>
 
 ## Clean up with `remove_old_binaries`
 
-Clean up older versions of binaries after updating the repository with RU
-binaries. See `inst/scripts/harvest.R` for a more complete example.
+Clean up older versions of binaries after updating the repository with RU binaries. See `inst/scripts/harvest.R` for a more complete example.
 
 ```{r remove-old-binaries, eval = FALSE}
 os <- "macosx"
