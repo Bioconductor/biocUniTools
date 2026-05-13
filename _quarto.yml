@@ -1,0 +1,15 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "biocUniTools"
+  navbar:
+    left:
+      - text: "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes"
+        href: vignettes/index.html
+
+format:
+  html:
+    theme: cosmo
+    toc: true

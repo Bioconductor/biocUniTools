@@ -2,3 +2,5 @@ vignettes/*_files/*
 vignettes/*.html
 docs
 .Rhistory
+
+/.quarto/

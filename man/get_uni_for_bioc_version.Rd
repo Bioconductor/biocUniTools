@@ -7,8 +7,12 @@
 get_uni_for_bioc_version(version)
 }
 \arguments{
-\item{version}{character Bioconductor version}
+\item{version}{character Bioconductor version, "devel", or "release"}
 }
 \description{
 Get information about R Universe building a Bioconductor version
+}
+\examples{
+bu <- get_uni_for_bioc_version("devel")
+
 }

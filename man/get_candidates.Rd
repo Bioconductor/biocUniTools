@@ -45,7 +45,9 @@ Filters packages by same commit in  BBS, vignettes passing, or
 check status values.
 }
 \examples{
-candidates <- get_candidates("bioc", "devel", "4.6.0", "3.23", "windows",
+bu <- get_uni_for_bioc_version("devel")
+candidates <- get_candidates(bu$ru_uni, bu$bioc_branch, bu$r_version,
+                             bu$bioc_version, "windows",
                              commit = TRUE)
 
 }

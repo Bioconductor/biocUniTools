@@ -196,6 +196,9 @@ get_raw_uni_df <- function(uni) {
 #'
 #' @noRd
 match_binaries <- function(binaries, r_xy, os, arch) {
+    if (nrow(binaries) == 0)
+        return(binaries)
+    
     if (!"arch" %in% names(binaries))
         binaries$arch <- NA_character_
     binaries_os_ <- get_binary_os(binaries$os)
@@ -208,6 +211,74 @@ match_binaries <- function(binaries, r_xy, os, arch) {
     binaries[binaries_os_ == os &
                  binaries_r_xy == r_xy &
                  arch_match, ]
+}
+
+#'  get_uni_df helper to expand `_jobs`
+#' 
+#' @description
+#' Adds additional columns to `_jobs_r_xy`, `_jobs_type`, `_jobs_arch`,
+#' `_jobs_os_`
+#' 
+#' @param df data.frame unprocessed data from R Universe API
+#' 
+#' @returns data.frame
+#' 
+#' @examples
+#' raw_df <- get_raw_uni_df("bioc")
+#' df <- .expand_jobs(raw_df)
+#'
+#' @export
+.expand_jobs <- function(df) {
+    df |>
+        tidyr::unnest(`_jobs`, names_sep = "_", names_repair = "unique") |>
+        dplyr::mutate(
+            `_jobs_r_xy` = r_xy_ver(`_jobs_r`),
+            `_jobs_type` = dplyr::case_when(
+                stringr::str_detect(`_jobs_config`, "bioc-checks") ~ "bioc-checks",
+                stringr::str_detect(`_jobs_config`, "source") ~ "source",
+                .default = "binary"),
+            `_jobs_arch` = dplyr::case_when(
+                stringr::str_detect(`_jobs_config`, "arm64") ~ "arm64",
+                stringr::str_detect(`_jobs_config`, "x86_64|windows") ~ "x86_64",
+                stringr::str_detect(`_jobs_config`, "wasm") ~ "emscripten",
+                .default = NA),
+            `_jobs_os_` = dplyr::if_else(`_jobs_type` == "binary",
+                                         get_binary_os(stringr::str_split_i(`_jobs_config`, "-", 1)),
+                                         "linux"))
+}
+
+#' get_uni_df helper to expand `_binaries` and match with `_job`-related columns
+#' 
+#' @description
+#' Adds additional columns to `_binaries_r_xy` and `_binaries_os_`
+#' 
+#' @param df data.frame data processed from R Universe API
+#' 
+#' @returns data.frame
+#' 
+#' @examples
+#' raw_df <- get_raw_uni_df("bioc")
+#' df <- .expand_jobs(df)
+#' df <- .expand_binaries(df)
+#'
+#' @noRd
+.expand_binaries <- function(df) {
+    dplyr::bind_rows(
+        df |>
+            dplyr::filter(`_jobs_type` == "binary") |>
+            dplyr::mutate(`_binaries` = purrr::pmap(
+                list(`_binaries`, `_jobs_r_xy`, `_jobs_os_`, `_jobs_arch`),
+                match_binaries)) |>
+            tidyr::unnest(`_binaries`, names_sep = "_", names_repair = "unique",
+                          keep_empty = TRUE) |>
+            dplyr::mutate(`_binaries_os_` = get_binary_os(`_binaries_os`),
+                          `_binaries_r_xy` = dplyr::if_else(is.na(`_binaries_r`),
+                                                            NA_character_,
+                                                            r_xy_ver(`_binaries_r`))),
+        df |>
+            dplyr::filter(`_jobs_type` %in% c("bioc-checks", "source")) |>
+            dplyr::select(-`_binaries`) |>
+            dplyr::mutate(`_binaries_r_xy` = NA_character_))
 }
 
 #' Flatten raw universe data.frame by matching R, OS, and arch information from
@@ -228,37 +299,8 @@ match_binaries <- function(binaries, r_xy, os, arch) {
 #' @export
 get_uni_df <- function(raw_df) {
     uni_df <- raw_df |>
-        tidyr::unnest(`_jobs`, names_sep = "_", names_repair = "unique") |>
-        dplyr::mutate(
-            `_jobs_r_xy` = r_xy_ver(`_jobs_r`),
-            `_jobs_type` = dplyr::case_when(
-                stringr::str_detect(`_jobs_config`, "bioc-checks") ~ "bioc-checks",
-                stringr::str_detect(`_jobs_config`, "source") ~ "source",
-                .default = "binary"),
-            `_jobs_arch` = dplyr::case_when(
-                stringr::str_detect(`_jobs_config`, "arm64") ~ "arm64",
-                stringr::str_detect(`_jobs_config`, "x86_64|windows") ~ "x86_64",
-                stringr::str_detect(`_jobs_config`, "wasm") ~ "emscripten",
-                .default = NA),
-            `_jobs_os_` = dplyr::if_else(`_jobs_type` == "binary",
-                                         get_binary_os(stringr::str_split_i(`_jobs_config`, "-", 1)),
-                                         "linux")) |>
-        (\(df) dplyr::bind_rows(
-            df |>
-                dplyr::filter(`_jobs_type` == "binary") |>
-                dplyr::mutate(`_binaries` = purrr::pmap(
-                    list(`_binaries`, `_jobs_r_xy`, `_jobs_os_`, `_jobs_arch`),
-                    match_binaries)) |>
-                tidyr::unnest(`_binaries`, names_sep = "_", names_repair = "unique",
-                              keep_empty = TRUE) |>
-                dplyr::mutate(`_binaries_os_` = get_binary_os(`_binaries_os`),
-                              `_binaries_r_xy` = dplyr::if_else(is.na(`_binaries_r`),
-                                                                NA_character_,
-                                                                r_xy_ver(`_binaries_r`))),
-            df |>
-                dplyr::filter(`_jobs_type` %in% c("bioc-checks", "source")) |>
-                dplyr::select(-`_binaries`) |>
-                dplyr::mutate(`_binaries_r_xy` = NA_character_)))() |>
+        .expand_jobs() |>
+        .expand_binaries() |>
         dplyr::filter(
             (`_jobs_type` == "binary" & (`_jobs_r_xy` == `_binaries_r_xy` | is.na(`_binaries_r_xy`))) |
                 (`_jobs_type` %in% c("bioc-checks", "source")))
@@ -278,7 +320,8 @@ get_uni_df <- function(raw_df) {
 #' @returns data.frame packages in a universe
 #'
 #' @examples
-#' get_jobs("bioc", "devel", "4.6.0", "3.23")
+#' bu <- get_uni_for_bioc_version("devel")
+#' get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
 #'
 #' @export
 get_jobs <- function(uni, uni_os_branch, r_version, bioc_version) {
@@ -330,7 +373,8 @@ get_jobs <- function(uni, uni_os_branch, r_version, bioc_version) {
 #' @returns data.frame
 #' 
 #' @examples
-#' df <- get_jobs("bioc", "devel", "4.6.0", "3.23", "macosx", "arm64")
+#' bu <- get_uni_for_bioc_version("devel")
+#' df <- get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
 #' filter_by_arch(df, "macosx", "arm64")
 #' 
 #' @export
@@ -371,7 +415,9 @@ filter_by_arch <- function(df, os, arch = NA) {
 #' @returns data.frame of filtered candidate packages
 #'
 #' @examples
-#' candidates <- get_candidates("bioc", "devel", "4.6.0", "3.23", "windows",
+#' bu <- get_uni_for_bioc_version("devel")
+#' candidates <- get_candidates(bu$ru_uni, bu$bioc_branch, bu$r_version,
+#'                              bu$bioc_version, "windows",
 #'                              commit = TRUE)
 #'
 #' @export
@@ -423,22 +469,29 @@ get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
 
 #' Get information about R Universe building a Bioconductor version
 #'
-#' @param version character Bioconductor version
+#' @param version character Bioconductor version, "devel", or "release"
 #'
+#' @examples
+#' bu <- get_uni_for_bioc_version("devel")
+#' 
 #' @export
 get_uni_for_bioc_version <- function(version) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
-    
-    stopifnot(version %in% bioc_yaml$versions)
-    bioc_branch <- ifelse(bioc_yaml$devel_version == version, "devel",
-                          "release")
-    ru_uni <- ifelse(bioc_branch == "devel", "bioc", "bioc-release")
-    if (bioc_branch == "devel")
-        r_version <- bioc_yaml$r_version_associated_with_devel
-    else
-        r_version <- bioc_yaml$r_version_associated_with_release
+    stopifnot(version %in% c(bioc_yaml$versions, "release", "devel"))
 
-    list(bioc_version = version,
+    if (version %in% c("devel", bioc_yaml$devel_version)) {
+        bioc_version <- bioc_yaml$devel_version
+        bioc_branch <- "devel"
+        ru_uni <- "bioc"
+        r_version <- bioc_yaml$r_version_associated_with_devel
+    } else {
+        bioc_version <- bioc_yaml$release_version
+        bioc_branch <- "release"
+        ru_uni <- "bioc-release"
+        r_version <- bioc_yaml$r_version_associated_with_release
+    }
+    
+    list(bioc_version = bioc_version,
          bioc_branch = bioc_branch,
          ru_uni = ru_uni,
          r_version = r_version)
@@ -458,7 +511,9 @@ get_uni_for_bioc_version <- function(version) {
 #' @returns vector of the full path of binaries removed
 #'
 #' @examples
-#' remove_old_binaries("/home/biocpush/PACKAGES/3.22/bioc", "4.6.0", "windows")
+#' bu <- get_uni_for_bioc_version("devel")
+#' repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
+#' remove_old_binaries(repo_root, bu$bioc_version, "windows")
 #'
 #' @export
 remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NA,
