@@ -6,6 +6,14 @@ execute:
   echo: true
 ---
 
+```{r json, echo = FALSE}
+knitr::knit_engines$set(json = function(options) {
+  code <- paste(options$code, collapse = '\n')
+  # Return the code as-is, wrapped in a code block
+  sprintf('```json\n%s\n```', code)
+})
+```
+
 ## Motivation
 
 -   [Bioconductor moving to R Universe](https://blog.bioconductor.org/posts/2026-04-08-r-universe-collaboration/)
