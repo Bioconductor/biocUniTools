@@ -6,7 +6,7 @@ format:
     toc: false
 sidebar: false
 editor: visual
-engine: knitr
+engine: quarto
 vignette: >
   %\VignetteIndexEntry{Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes}
   %\VignetteEngine{quarto::html}
@@ -68,20 +68,21 @@ The following tables attempt to describe the potential propagation status of a p
 
 Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
 
-## R Universe and Bioconductor 3.23
+## R Universe and Bioconductor 3.24
 
 https://bioc.r-universe.dev
 
 ```{r devel-settings, echo = FALSE, message = FALSE}
-r_version <- "4.6.0"
-bioc_version <- "3.23"
-uni <- "bioc"
-uni_os_branch <- "devel"
+bu <- get_uni_for_bioc_version("devel")
+r_version <- bu$r_version
+bioc_version <- bu$bioc_version
+uni <- bu$ru_uni
+uni_os_branch <- bu$bioc_branch
 os <- "linux"
-nde <- "nebbiolo1"
+nde <- "nebbiolo2"
 ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
-                                            pkgType = "software")
+                                          pkgType = "software")
 ```
 
 ::: column-screen-inset
@@ -176,16 +177,17 @@ reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
 ```
 :::
 
-## R Universe and Bioconductor 3.22
+## R Universe and Bioconductor 3.23
 
 https://bioc-release.r-universe.dev
 
 ```{r release-settings, echo = FALSE, message = FALSE}
-r_version <- "4.5.0"
-bioc_version <- "3.22"
-uni_os_branch <- "release"
-uni <- "bioc-release"
-nde <- "nebbiolo2"
+bu <- get_uni_for_bioc_version("release")
+r_version <- bu$r_version
+bioc_version <- bu$bioc_version
+uni <- bu$ru_uni
+uni_os_branch <- bu$bioc_branch
+nde <- "nebbiolo1"
 ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
                                           pkgType = "software")
