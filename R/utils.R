@@ -483,12 +483,12 @@ get_uni_for_bioc_version <- function(version) {
         bioc_version <- bioc_yaml$devel_version
         bioc_branch <- "devel"
         ru_uni <- "bioc"
-        bioc_yaml$r_version_associated_with_devel
+        r_version <- bioc_yaml$r_version_associated_with_devel
     } else {
         bioc_version <- bioc_yaml$release_version
         bioc_branch <- "release"
         ru_uni <- "bioc-release"
-        bioc_yaml$r_version_associated_with_release
+        r_version <- bioc_yaml$r_version_associated_with_release
     }
     
     list(bioc_version = bioc_version,
