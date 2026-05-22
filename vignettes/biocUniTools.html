@@ -370,21 +370,22 @@ $r_version
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">_binaries_arch</span><span class="st">`</span>, <span class="st">`</span><span class="at">_jobs_os_</span><span class="st">`</span>, <span class="st">`</span><span class="at">_binaries_os_</span><span class="st">`</span>,</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">_jobs_check</span><span class="st">`</span>, <span class="st">`</span><span class="at">_binaries_check</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 12 × 9
+<pre><code># A tibble: 13 × 9
    Package   `_jobs_r_xy` `_jobs_type` `_jobs_arch` `_binaries_arch` `_jobs_os_`
    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;            &lt;chr&gt;      
  1 lefser    4.6          binary       x86_64       &lt;NA&gt;             linux      
  2 lefser    4.6          binary       arm64        &lt;NA&gt;             mac        
- 3 lefser    4.6          binary       x86_64       &lt;NA&gt;             win        
- 4 lefser    4.6          bioc-checks  &lt;NA&gt;         &lt;NA&gt;             linux      
- 5 lefser    4.6          source       &lt;NA&gt;         &lt;NA&gt;             linux      
- 6 rtrackla… 4.6          binary       arm64        aarch64          linux      
- 7 rtrackla… 4.6          binary       x86_64       x86_64           linux      
- 8 rtrackla… 4.6          binary       arm64        aarch64          mac        
- 9 rtrackla… 4.6          binary       x86_64       x86_64           mac        
-10 rtrackla… 4.6          binary       x86_64       x86_64           win        
-11 rtrackla… 4.6          bioc-checks  &lt;NA&gt;         &lt;NA&gt;             linux      
-12 rtrackla… 4.6          source       &lt;NA&gt;         &lt;NA&gt;             linux      
+ 3 lefser    4.6          binary       emscripten   &lt;NA&gt;             wasm       
+ 4 lefser    4.6          binary       x86_64       &lt;NA&gt;             win        
+ 5 lefser    4.6          bioc-checks  &lt;NA&gt;         &lt;NA&gt;             linux      
+ 6 lefser    4.6          source       &lt;NA&gt;         &lt;NA&gt;             linux      
+ 7 rtrackla… 4.6          binary       arm64        aarch64          linux      
+ 8 rtrackla… 4.6          binary       x86_64       x86_64           linux      
+ 9 rtrackla… 4.6          binary       arm64        aarch64          mac        
+10 rtrackla… 4.6          binary       x86_64       x86_64           mac        
+11 rtrackla… 4.6          binary       x86_64       x86_64           win        
+12 rtrackla… 4.6          bioc-checks  &lt;NA&gt;         &lt;NA&gt;             linux      
+13 rtrackla… 4.6          source       &lt;NA&gt;         &lt;NA&gt;             linux      
 # ℹ 3 more variables: `_binaries_os_` &lt;chr&gt;, `_jobs_check` &lt;chr&gt;,
 #   `_binaries_check` &lt;chr&gt;</code></pre>
 </div>
@@ -409,7 +410,7 @@ $r_version
 1              OK
 2         WARNING
                                                                                JobUrl
-1 https://github.com/r-universe/bioc-release/actions/runs/26220610977/job/77155258276
+1 https://github.com/r-universe/bioc-release/actions/runs/26220610977/job/77255777929
 2 https://github.com/r-universe/bioc-release/actions/runs/25110262901/job/73751079883
                                                                                         Artifact
 1    https://bioc-release.r-universe.dev/bin/macosx/big-sur-x86_64/contrib/4.6/lefser_1.22.0.tgz
