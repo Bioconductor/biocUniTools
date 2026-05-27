@@ -13,6 +13,7 @@ get_candidates(
   arch = NA,
   vignettes = TRUE,
   commit = FALSE,
+  unsupported_platforms = TRUE,
   check = c("NOTE", "WARNING", "OK")
 )
 }
