@@ -396,6 +396,58 @@ filter_by_arch <- function(df, os, arch = NA) {
     }
 }
 
+#' Check if a platform is listed as unsupported for a package
+#'
+#' @description
+#' Parses `Config/Bioconductor/UnsupportedPlatforms` (a comma-separated string)
+#' and tests whether the given OS and arch combination is covered. Matches both
+#' full names (e.g. `"windows"`, `"macosx"`) and abbreviations (e.g. `"win"`,
+#' `"mac"`), as well as OS+arch combinations (e.g. `"macosx-arm64"`). Note: linux
+#' is always supported and other oses/arches should return FALSE.
+#'
+#' @param unsupported_str character scalar; value of
+#'     `Config/Bioconductor/UnsupportedPlatforms`, may be NA
+#' @param os character scalar; 3-char OS abbreviation as used in `_jobs_os_`,
+#'     e.g. `"win"`, `"mac"`, `"lin"`
+#' @param arch character scalar; `"x86_64"`, `"arm64"`, or NA
+#'
+#' @returns logical; TRUE if the OS/arch combo is in the unsupported list
+#'
+#' @examples
+#' is_unsupported_platform("windows, macosx-arm64", "win", "x86_64")  # TRUE
+#' is_unsupported_platform("windows, macosx-arm64", "mac", "arm64")   # TRUE
+#' is_unsupported_platform("windows, macosx-arm64", "mac", "x86_64")  # FALSE
+#' is_unsupported_platform("macosx", "mac", "arm64")                  # TRUE
+#' is_unsupported_platform(NA, "win", "x86_64")                       # FALSE
+#'
+#' @export
+is_unsupported_platform <- function(unsupported_str, os, arch) {
+    if (is.na(unsupported_str) || is.na(os) || substr(os, 1, 3) == "lin")
+        return(FALSE)
+    
+    # Split on commas, trim whitespace, lowercase
+    entries <- trimws(tolower(strsplit(unsupported_str, ",")[[1]]))
+    
+    for (entry in entries) {
+        parts <- strsplit(entry, "-")[[1]]
+        entry_os   <- parts[1]
+        entry_arch <- if (length(parts) >= 2) parts[2] else NA_character_
+        
+        # Normalize entry OS to 3-char abbreviation for comparison
+        entry_os_abbr <- substr(entry_os, 1, 3)
+        
+        os_match <- (entry_os_abbr == os)
+        if (!os_match)
+            next
+        
+        # If the entry specifies an arch, it must also match
+        arch_match <- is.na(entry_arch) || (!is.na(arch) && entry_arch == arch)
+        if (arch_match)
+            return(TRUE)
+    }
+    FALSE
+}
+
 #' Get candidate packages in R Universe based on criteria
 #'
 #' @description Filters packages by same commit in  BBS, vignettes passing, or
@@ -423,6 +475,7 @@ filter_by_arch <- function(df, os, arch = NA) {
 #' @export
 get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
                            arch = NA, vignettes = TRUE, commit = FALSE,
+                           unsupported_platforms = TRUE,
                            check = c("NOTE", "WARNING", "OK")) {
 
     os <- get_binary_os(os)
@@ -463,6 +516,16 @@ get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
             dplyr::filter(BBS_commit == substr(RemoteSha, 1, 7))
     }
     
+    if (unsupported_platforms) {
+        candidates <- candidates |>
+            dplyr::filter(!purrr::pmap_lgl(
+                list(`Config/Bioconductor/UnsupportedPlatforms`,
+                     `_jobs_os_`,
+                     `_jobs_arch`),
+                is_unsupported_platform
+            ))
+    }
+
     candidates |>
         dplyr::arrange(Package)
 }
@@ -531,29 +594,30 @@ remove_old_binaries <- function(repo_root, r_version, os, macosx_name = NA,
 
     latest <- NULL
     for (i in seq_len(nrow(binaries))) {
-
-       if (is.null(latest)) {
-           latest <- i
-           next
-       }
-
-       if (binaries$pkg[latest] != binaries$pkg[i]) {
-           latest <- i
-           binaries$latest[latest] <- TRUE
-           next
-       }
-
-       if (binaries$pkg[latest] == binaries$pkg[i]) {
-           if (package_version(binaries$version[latest]) >
-               package_version(binaries$version[i])) {
-               binaries$latest[latest] <- TRUE
-               binaries$latest[i] <- FALSE
-           } else if (package_version(binaries$version[i]) > package_version(binaries$version[latest])) {
-               binaries$latest[i] <- TRUE
-               binaries$latest[latest] <- FALSE
-               latest <- i
-           }
-       }
+        if (is.null(latest)) {
+            latest <- i
+            binaries$latest[latest] <- TRUE  # <-- add this
+            next
+        }
+        
+        if (binaries$pkg[latest] != binaries$pkg[i]) {
+            latest <- i
+            binaries$latest[latest] <- TRUE
+            next
+        }
+        
+        if (binaries$pkg[latest] == binaries$pkg[i]) {
+            if (package_version(binaries$version[latest]) >
+                package_version(binaries$version[i])) {
+                binaries$latest[latest] <- TRUE
+                binaries$latest[i] <- FALSE
+            } else if (package_version(binaries$version[i]) >
+                       package_version(binaries$version[latest])) {
+                binaries$latest[latest] <- FALSE  # <-- also mark old one FALSE
+                binaries$latest[i] <- TRUE
+                latest <- i
+            }
+        }
     }
 
     if (!is.null(latest))
