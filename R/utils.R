@@ -422,25 +422,33 @@ filter_by_arch <- function(df, os, arch = NA) {
 #'
 #' @export
 is_unsupported_platform <- function(unsupported_str, os, arch) {
-    if (is.na(unsupported_str) || is.na(os) || substr(os, 1, 3) == "lin")
+    if (is.na(unsupported_str) || is.na(os))
         return(FALSE)
-    
-    # Split on commas, trim whitespace, lowercase
+
     entries <- trimws(tolower(strsplit(unsupported_str, ",")[[1]]))
-    
+
     for (entry in entries) {
-        parts <- strsplit(entry, "-")[[1]]
-        entry_os   <- parts[1]
-        entry_arch <- if (length(parts) >= 2) parts[2] else NA_character_
-        
-        # Normalize entry OS to 3-char abbreviation for comparison
-        entry_os_abbr <- substr(entry_os, 1, 3)
-        
-        os_match <- (entry_os_abbr == os)
+        entry_os <- dplyr::case_when(
+            stringr::str_detect(entry, "linux") ~ "linux",
+            stringr::str_detect(entry, "win")   ~ "win",
+            stringr::str_detect(entry, "mac")   ~ "mac",
+            stringr::str_detect(entry, "wasm")  ~ "wasm",
+            .default = entry
+        )
+
+        # Extract and normalize arch from the entry token
+        raw_entry_arch <- stringr::str_extract(entry, "aarch64|arm64|x86_64|x86|emscripten")
+        entry_arch <- dplyr::case_when(
+            is.na(raw_entry_arch)             ~ NA_character_,
+            raw_entry_arch == "aarch64"       ~ "arm64",
+            raw_entry_arch == "x86"           ~ "x86_64",
+            .default = raw_entry_arch
+        )
+
+        os_match <- (entry_os == os)
         if (!os_match)
             next
-        
-        # If the entry specifies an arch, it must also match
+
         arch_match <- is.na(entry_arch) || (!is.na(arch) && entry_arch == arch)
         if (arch_match)
             return(TRUE)
@@ -515,15 +523,18 @@ get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
                           `_binaries_status` == "success") |>
             dplyr::filter(BBS_commit == substr(RemoteSha, 1, 7))
     }
-    
+
     if (unsupported_platforms) {
         candidates <- candidates |>
-            dplyr::filter(!purrr::pmap_lgl(
-                list(`Config/Bioconductor/UnsupportedPlatforms`,
-                     `_jobs_os_`,
-                     `_jobs_arch`),
-                is_unsupported_platform
-            ))
+            dplyr::filter(
+                `_jobs_type` == "source" |
+                    !purrr::pmap_lgl(
+                        list(`Config/Bioconductor/UnsupportedPlatforms`,
+                             `_jobs_os_`,
+                             `_jobs_arch`),
+                        is_unsupported_platform
+                    )
+            )
     }
 
     candidates |>
