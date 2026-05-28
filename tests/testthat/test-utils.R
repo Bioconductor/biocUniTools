@@ -79,12 +79,12 @@ test_that("get_repository_path creates good paths", {
                  "reporoot/bin/macosx/sonoma-arm64/contrib/4.6")
 })
 
-test_that("ist_unsupported_platforms filters os-arch", {
+test_that("is_unsupported_platforms filters os-arch", {
     expect_true(is_unsupported_platform("windows, macosx-arm64", "win", "x86_64"))
     expect_true(is_unsupported_platform("windows, macosx-arm64", "mac", "arm64"))
     expect_true(!is_unsupported_platform("windows, macosx-arm64", "mac", "x86_64"))
     expect_true(is_unsupported_platform("macosx", "mac", "arm64"))
-    expect_false(is_unsupported_platform(NA, "win", "x86_64"))
+    expect_true(is_unsupported_platform("wasm-enscripten", "wasm", "enscripten"))
 
     # NA arch: OS-only entry still matches, arch-specific entry does not
     expect_true(is_unsupported_platform("macosx", "mac", NA))
@@ -93,9 +93,9 @@ test_that("ist_unsupported_platforms filters os-arch", {
     # NA os always FALSE
     expect_false(is_unsupported_platform("windows", NA, NA))
 
-    # unknown/future platforms (wasm, emscripten) are silently ignored
     expect_false(is_unsupported_platform("wasm", "win", "x86_64"))
-    expect_false(is_unsupported_platform("emscripten", "mac", "arm64"))
+    expect_false(is_unsupported_platform("enscripten", "mac", "arm64"))
+    expect_false(is_unsupported_platform(NA, "win", "x86_64"))
 
     # abbreviations work
     expect_true(is_unsupported_platform("win", "win", "x86_64"))
@@ -107,6 +107,7 @@ test_that("ist_unsupported_platforms filters os-arch", {
     # linux
     expect_false(is_unsupported_platform("linux", "lin", "x86_64"))
     expect_false(is_unsupported_platform("linux", "win", "x86_64"))
+    expect_true(is_unsupported_platform("aarch64-linux-gnu", "linux", "arm64"))
 })
 
 test_that("get_candidates gets R Universe data", {
