@@ -74,14 +74,10 @@ https://bioc.r-universe.dev
 
 ```{r devel-settings, echo = FALSE, message = FALSE}
 bu <- uni_for_bioc("devel")
-r_version <- bu$r_version
-bioc_version <- bu$bioc_version
-uni <- bu$ru_uni
-uni_os_branch <- bu$bioc_branch
 os <- "linux"
 nde <- "nebbiolo2"
-ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
-bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
+ru_builds <- biocUniTools::get_jobs(bu)
+bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```
 
@@ -138,7 +134,7 @@ condensed_builds <- builds |>
 condensed_builds_display <- condensed_builds |>
     dplyr::mutate(
         Check = ifelse(!is.na(Check),
-            paste0('<a href="https://bioconductor.org/checkResults/', bioc_version,
+            paste0('<a href="https://bioconductor.org/checkResults/', bu$bioc_version,
                    '/bioc-LATEST/', Package, '" target="_blank">', Check, '</a>'),
             as.character(Check)),
         `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),
@@ -183,13 +179,9 @@ https://bioc-release.r-universe.dev
 
 ```{r release-settings, echo = FALSE, message = FALSE}
 bu <- uni_for_bioc("release")
-r_version <- bu$r_version
-bioc_version <- bu$bioc_version
-uni <- bu$ru_uni
-uni_os_branch <- bu$bioc_branch
 nde <- "nebbiolo1"
-ru_builds <- biocUniTools::get_jobs(uni, uni_os_branch, r_version, bioc_version)
-bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bioc_version,
+ru_builds <- biocUniTools::get_jobs(bu)
+bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```
 
@@ -246,7 +238,7 @@ condensed_builds <- builds |>
 condensed_builds_display <- condensed_builds |>
     dplyr::mutate(
         Check = ifelse(!is.na(Check),
-            paste0('<a href="https://bioconductor.org/checkResults/', bioc_version,
+            paste0('<a href="https://bioconductor.org/checkResults/', bu$bioc_version,
                    '/bioc-LATEST/', Package, '" target="_blank">', Check, '</a>'),
             as.character(Check)),
         `Job Check` = ifelse(!is.na(`Job Url`) & !is.na(`Job Check`),

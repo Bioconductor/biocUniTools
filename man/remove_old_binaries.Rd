@@ -35,7 +35,7 @@ vector of the full path of binaries removed
 Remove old binaries if a new binary exists
 }
 \examples{
-bu <- get_uni_for_bioc_version("devel")
+bu <- uni_for_bioc("devel")
 repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
 remove_old_binaries(repo_root, bu$bioc_version, "windows")
 

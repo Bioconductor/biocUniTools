@@ -112,7 +112,11 @@ test_that("is_unsupported_platforms filters os-arch", {
 
 test_that("get_candidates gets R Universe data", {
     # windows
-    pkgs <- get_candidates("bioc", "devel", "4.6.0", "3.23", "windows")
+    bu <- list(ru_version = "bioc",
+               bioc_branch = "devel",
+               r_version = "4.6.0",
+               bioc_version = "3.23")
+    pkgs <- get_candidates(bu,  "windows")
     expect_gt(nrow(pkgs), 0)
     
     pkg <- pkgs |>
@@ -125,8 +129,11 @@ test_that("get_candidates gets R Universe data", {
     expect_equal(dplyr::pull(pkg, Artifact), url)
     
     # macosx x86_64
-    pkgs <- get_candidates("bioc-release", "release", "4.5.0", "3.22",
-                           "macosx", arch = "x86_64")
+    bu <- list(ru_version = "bioc-release",
+               bioc_branch = "release",
+               r_version = "4.5.0",
+               bioc_version = "3.22")
+    pkgs <- get_candidates(bu, "macosx", arch = "x86_64")
     expect_gt(nrow(pkgs), 0)
     
     pkg <- pkgs |>
@@ -142,33 +149,24 @@ test_that("get_candidates gets R Universe data", {
 
 test_that("get_candidates filters on check status", {
     # without commit filter, check status is not filtered
-    candidates <- get_candidates("bioc", "devel", devel$r_version,
-                                 devel$bioc_version, "windows")
+    candidates <- get_candidates(devel, "windows")
     expect_gt(nrow(candidates), 0)
     
     # with commit filter, check status is filtered
-    candidates_commit <- get_candidates("bioc", "devel", devel$r_version,
-                                        devel$bioc_version, "windows",
-                                        commit = TRUE)
+    candidates_commit <- get_candidates(devel, "windows", commit = TRUE)
     expect_true(all(candidates_commit$`_binaries_check` %in% c("NOTE", "WARNING", "OK")))
     expect_true(all(candidates_commit$`_jobs_check` %in% c("NOTE", "WARNING", "OK")))
     expect_true(all(candidates_commit$`_binaries_status` == "success"))
     
     # restrict to OK only
-    ok_only <- get_candidates("bioc", "devel", devel$r_version,
-                              devel$bioc_version, "windows", commit = TRUE,
-                              check = "OK")
+    ok_only <- get_candidates(devel, "windows", commit = TRUE, check = "OK")
     expect_true(all(ok_only$`_binaries_check` == "OK"))
     expect_true(all(ok_only$`_jobs_check` == "OK"))
 })
 
 test_that("get_candidates commit filter works", {
-    without_commit <- get_candidates("bioc", "devel", devel$r_version,
-                                     devel$bioc_version, "windows",
-                                     commit = FALSE)
-    with_commit    <- get_candidates("bioc", "devel", devel$r_version,
-                                     devel$bioc_version, "windows",
-                                     commit = TRUE)
+    without_commit <- get_candidates(devel, "windows", commit = FALSE)
+    with_commit    <- get_candidates(devel, "windows", commit = TRUE)
 
     # commit filter should only reduce or maintain row count
     expect_lte(nrow(with_commit), nrow(without_commit))
@@ -180,9 +178,7 @@ test_that("get_candidates commit filter works", {
 })
 
 test_that("get_candidates for sonoma includes arm64 and universal binaries", {
-    arm_candidates <- get_candidates("bioc", "devel", devel$r_version,
-                                     devel$bioc_version, "macosx",
-                                     arch = "arm64", commit = TRUE)
+    arm_candidates <- get_candidates(devel, "macosx", arch = "arm64", commit = TRUE)
     expect_true("BiocVersion" %in% arm_candidates$Package)
     expect_true("rtracklayer" %in% arm_candidates$Package)
 })
@@ -358,12 +354,8 @@ test_that("filter_by_arch passes all rows for windows", {
 
 test_that("get_candidates vignette filter works", {
     # vignettes = TRUE (default) should filter on source check
-    with_vignettes <- get_candidates("bioc", release$bioc_branch, release$r_version,
-                                     release$bioc_version, "windows",
-                                     vignettes = TRUE)
-    without_vignettes <- get_candidates("bioc", release$bioc_branch,
-                                        release$r_version, release$bioc_version,
-                                        "windows", vignettes = FALSE)
+    with_vignettes <- get_candidates(release, "windows", vignettes = TRUE)
+    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE)
     
     # vignette filter should only reduce or maintain row count
     expect_lte(nrow(with_vignettes), nrow(without_vignettes))
@@ -373,15 +365,11 @@ test_that("get_candidates vignette filter works", {
 })
 
 test_that("get_candidates vignette check respects check argument", {
-    ok_only <- get_candidates("bioc", release$bioc_branch, release$r_version,
-                              release$bioc_version, "windows", vignettes = TRUE,
-                              check = "OK")
+    ok_only <- get_candidates(release, "windows", vignettes = TRUE, check = "OK")
     expect_true(all(ok_only$`Vignettes Check` == "OK"))
 })
 
 test_that("get_candidates without vignettes has no Vignettes Check column", {
-    without_vignettes <- get_candidates("bioc", release$bioc_branch,
-                                        release$r_version, release$bioc_version,
-                                        "windows", vignettes = FALSE)
+    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE)
     expect_false("Vignettes Check" %in% names(without_vignettes))
 })

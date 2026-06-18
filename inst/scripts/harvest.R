@@ -53,10 +53,7 @@ logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
 repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH)
-candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
-                             bioc_info$r_version, bioc_version = BIOC_VERSION,
-                             os = OS, arch = ARCH,
-                             commit = TRUE)
+candidates <- get_candidates(bioc_info, os = OS, arch = ARCH, commit = TRUE)
 
 # Remove any candidates from the list that are currently in the repository
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
