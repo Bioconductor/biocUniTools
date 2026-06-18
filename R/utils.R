@@ -320,7 +320,7 @@ get_uni_df <- function(raw_df) {
 #' @returns data.frame packages in a universe
 #'
 #' @examples
-#' bu <- get_uni_for_bioc_version("devel")
+#' bu <- uni_for_bioc("devel")
 #' get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
 #'
 #' @export
@@ -373,7 +373,7 @@ get_jobs <- function(uni, uni_os_branch, r_version, bioc_version) {
 #' @returns data.frame
 #' 
 #' @examples
-#' bu <- get_uni_for_bioc_version("devel")
+#' bu <- uni_for_bioc("devel")
 #' df <- get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
 #' filter_by_arch(df, "macosx", "arm64")
 #' 
@@ -475,7 +475,7 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #' @returns data.frame of filtered candidate packages
 #'
 #' @examples
-#' bu <- get_uni_for_bioc_version("devel")
+#' bu <- uni_for_bioc("devel")
 #' candidates <- get_candidates(bu$ru_uni, bu$bioc_branch, bu$r_version,
 #'                              bu$bioc_version, "windows",
 #'                              commit = TRUE)
@@ -546,10 +546,10 @@ get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
 #' @param version character Bioconductor version, "devel", or "release"
 #'
 #' @examples
-#' bu <- get_uni_for_bioc_version("devel")
+#' bu <- uni_for_bioc("devel")
 #' 
 #' @export
-get_uni_for_bioc_version <- function(version) {
+uni_for_bioc <- function(version) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
     stopifnot(version %in% c(bioc_yaml$versions, "release", "devel"))
 
@@ -585,7 +585,7 @@ get_uni_for_bioc_version <- function(version) {
 #' @returns vector of the full path of binaries removed
 #'
 #' @examples
-#' bu <- get_uni_for_bioc_version("devel")
+#' bu <- uni_for_bioc("devel")
 #' repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
 #' remove_old_binaries(repo_root, bu$bioc_version, "windows")
 #'

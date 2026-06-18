@@ -219,8 +219,8 @@ repository for future maintenance.
 
 Get corresponding R Universe information for a Bioconductor branch.
 
-```{r get-uni-for-bioc-branch}
-bioc_info <- get_uni_for_bioc_version("3.23")
+```{r uni-for-bioc}
+bioc_info <- uni_for_bioc("3.23")
 bioc_info
 ```
 

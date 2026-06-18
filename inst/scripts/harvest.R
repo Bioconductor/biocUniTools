@@ -18,7 +18,7 @@ stopifnot(args[1] %in% c("TRUE", "FALSE"))
 TEST_REMOVAL <- as.logical(args[1])
 
 bioc_info <- tryCatch(
-    get_uni_for_bioc_version(args[2]),
+    uni_for_bioc(args[2]),
     error = function(x) {
         stop(args[2], " not a current or valid Bioconductor version")
     })

@@ -7,16 +7,14 @@ Authors@R: c(
     )
 Description: A package of tools for working Bioconductor universes.
 License: Artistic-2.0
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.6.0)
 Imports:
     BiocPkgTools,
     dplyr,
     httr2,
     jsonlite,
     purrr,
-    readr,
     stringr,
-    tibble,
     yaml
 Suggests:
     curl,
