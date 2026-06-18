@@ -73,7 +73,7 @@ Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
 https://bioc.r-universe.dev
 
 ```{r devel-settings, echo = FALSE, message = FALSE}
-bu <- uni_for_bioc("devel")
+bu <- get_uni_for_bioc_version("devel")
 r_version <- bu$r_version
 bioc_version <- bu$bioc_version
 uni <- bu$ru_uni
@@ -182,7 +182,7 @@ reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
 https://bioc-release.r-universe.dev
 
 ```{r release-settings, echo = FALSE, message = FALSE}
-bu <- uni_for_bioc("release")
+bu <- get_uni_for_bioc_version("release")
 r_version <- bu$r_version
 bioc_version <- bu$bioc_version
 uni <- bu$ru_uni

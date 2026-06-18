@@ -1,5 +1,5 @@
-devel <- biocUniTools::get_uni_for_bioc_version("devel")
-release <- biocUniTools::get_uni_for_bioc_version("release")
+devel <- biocUniTools::uni_for_bioc("devel")
+release <- biocUniTools::uni_for_bioc("release")
 
 test_that("r_xy_ver gives x.y", {
     expect_equal(r_xy_ver("4.6.3"), "4.6")
@@ -187,8 +187,8 @@ test_that("get_candidates for sonoma includes arm64 and universal binaries", {
     expect_true("rtracklayer" %in% arm_candidates$Package)
 })
 
-test_that("get_uni_for_bioc_version gets correct universe", {
-    bioc_ru_info <- get_uni_for_bioc_version("release")
+test_that("uni_for_bioc gets correct universe", {
+    bioc_ru_info <- uni_for_bioc("release")
     expect_equal(bioc_ru_info$r_version, release$r_version)
     expect_equal(bioc_ru_info$bioc_branch, "release")
     expect_equal(bioc_ru_info$ru_uni, "bioc-release")
