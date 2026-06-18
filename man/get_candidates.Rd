@@ -5,10 +5,7 @@
 \title{Get candidate packages in R Universe based on criteria}
 \usage{
 get_candidates(
-  uni,
-  uni_os_branch,
-  r_version,
-  bioc_version,
+  bioc_uni,
   os,
   arch = NA,
   vignettes = TRUE,
@@ -18,13 +15,7 @@ get_candidates(
 )
 }
 \arguments{
-\item{uni}{character universe name}
-
-\item{uni_os_branch}{character release or devel}
-
-\item{r_version}{character}
-
-\item{bioc_version}{character}
+\item{bioc_uni}{result of uni_for_bioc}
 
 \item{os}{character}
 
@@ -46,9 +37,7 @@ Filters packages by same commit in  BBS, vignettes passing, or
 check status values.
 }
 \examples{
-bu <- get_uni_for_bioc_version("devel")
-candidates <- get_candidates(bu$ru_uni, bu$bioc_branch, bu$r_version,
-                             bu$bioc_version, "windows",
-                             commit = TRUE)
+bu <- uni_for_bioc("devel")
+candidates <- get_candidates(bu, "windows", commit = TRUE)
 
 }

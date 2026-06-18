@@ -76,7 +76,6 @@ get_repository_path <- function(repo_root, r_version, os, macosx_name = NA,
     is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
     is_win <- !is.na(os) & stringr::str_detect(os, "win")
 
-    # --- validation ---
     if (any(is_mac & is.na(arch)))
         stop("arch must not be NA for os == macosx")
     if (any(is_mac & !stringr::str_detect(arch, "^(x86_64|arm64)$")))
@@ -89,7 +88,6 @@ get_repository_path <- function(repo_root, r_version, os, macosx_name = NA,
             !stringr::str_detect(macosx_name, "^(big-sur|sonoma)$")))
         stop("macosx_name must be big-sur or sonoma")
     
-    # --- path building ---
     subpath <- dplyr::case_when(
         is_mac ~ file.path("bin", "macosx",
                            get_macosx_subpath(r_xy, ifelse(is.na(arch), "x86_64", arch)),
@@ -312,34 +310,37 @@ get_uni_df <- function(raw_df) {
 #'
 #' @description Adds Artifact and JobUrl
 #'
-#' @param uni character universe name
-#' @param uni_os_branch character release or devel
-#' @param r_version character
-#' @param bioc_version character
+#' @param bioc_uni result of uni_for_bioc
 #'
 #' @returns data.frame packages in a universe
 #'
 #' @examples
 #' bu <- uni_for_bioc("devel")
-#' get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
+#' get_jobs(bu)
 #'
 #' @export
-get_jobs <- function(uni, uni_os_branch, r_version, bioc_version) {
-    raw_uni_df <- get_raw_uni_df(uni)
+get_jobs <- function(bioc_uni) {
+
+    stopifnot("bioc_version" %in% names(bioc_uni) |
+              "bioc_branch" %in% names(bioc_uni) |
+              "ru_uni" %in% names(bioc_uni) |
+              "r_version" %in% names(bioc_uni))
+
+    raw_uni_df <- get_raw_uni_df(bioc_uni$ru_uni)
     uni_df <- get_uni_df(raw_uni_df)
 
     # Packages without an explicit _binaries_arch have universal binaries
     binary_rows <- uni_df |>
         dplyr::filter(
             `_jobs_type` == "binary",
-            `_jobs_r_xy` == r_xy_ver(r_version)) |>
+            `_jobs_r_xy` == r_xy_ver(bioc_uni$r_version)) |>
         dplyr::mutate(
             Artifact = ifelse(
                 `_binaries_check` %in% c("FAIL", "ERROR", "CANCELLED") |
                     `_jobs_check` %in% c("FAIL", "ERROR", "CANCELLED") |
                     `_binaries_status` == "failure",
                 NA_character_,
-                file.path(uni_repo_url(uni, `_binaries_r_xy`,
+                file.path(uni_repo_url(bioc_uni$uni, `_binaries_r_xy`,
                                        get_binary_os(`_binaries_os_`),
                                        arch = get_arch(`_binaries_arch`,
                                                        `_jobs_arch`)),
@@ -374,7 +375,7 @@ get_jobs <- function(uni, uni_os_branch, r_version, bioc_version) {
 #' 
 #' @examples
 #' bu <- uni_for_bioc("devel")
-#' df <- get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
+#' df <- get_jobs(bu)
 #' filter_by_arch(df, "macosx", "arm64")
 #' 
 #' @export
@@ -459,12 +460,9 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #' Get candidate packages in R Universe based on criteria
 #'
 #' @description Filters packages by same commit in  BBS, vignettes passing, or
-#' check status values. 
+#' check status values.
 #'
-#' @param uni character universe name
-#' @param uni_os_branch character release or devel
-#' @param r_version character
-#' @param bioc_version character
+#' @param bioc_uni result of uni_for_bioc
 #' @param os character
 #' @param arch character x86_64 or arm64
 #' @param available_pkgs data.frame of R Universe packages
@@ -476,18 +474,15 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #'
 #' @examples
 #' bu <- uni_for_bioc("devel")
-#' candidates <- get_candidates(bu$ru_uni, bu$bioc_branch, bu$r_version,
-#'                              bu$bioc_version, "windows",
-#'                              commit = TRUE)
+#' candidates <- get_candidates(bu, "windows", commit = TRUE)
 #'
 #' @export
-get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
-                           arch = NA, vignettes = TRUE, commit = FALSE,
-                           unsupported_platforms = TRUE,
+get_candidates <- function(bioc_uni, os, arch = NA, vignettes = TRUE,
+                           commit = FALSE, unsupported_platforms = TRUE,
                            check = c("NOTE", "WARNING", "OK")) {
 
     os <- get_binary_os(os)
-    jobs <- get_jobs(uni, uni_os_branch, r_version, bioc_version)
+    jobs <- get_jobs(bioc_uni)
     candidates <- jobs |>
         dplyr::filter(`_jobs_os_` == os) |>
         filter_by_arch(os, arch)
@@ -506,7 +501,7 @@ get_candidates <- function(uni, uni_os_branch, r_version, bioc_version, os,
     }
 
     if (commit) {
-        bbs_info <- BiocPkgTools::biocBuildReport(version = bioc_version,
+        bbs_info <- BiocPkgTools::biocBuildReport(version = bioc_uni$bioc_version,
                                                   pkgType = "software")
         bbs_builds <- bbs_info |>
             dplyr::rename(Package = pkg, Version = version,

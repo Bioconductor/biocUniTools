@@ -220,8 +220,8 @@ repository for future maintenance.
 Get corresponding R Universe information for a Bioconductor branch.
 
 ```{r uni-for-bioc}
-bioc_info <- uni_for_bioc("3.23")
-bioc_info
+bioc_uni <- uni_for_bioc("3.23")
+bioc_uni
 ```
 
 If we wanted to create a report of each package's status, we could use `get_jobs`,
@@ -233,8 +233,7 @@ R Universe.
 ::: column-screen-inset
 
 ```{r get_jobs}
-jobs <- get_jobs(bioc_info$ru_uni, bioc_info$bioc_branch, bioc_info$r_version,
-                 bioc_info$bioc_version)
+jobs <- get_jobs(bioc_uni)
 
 jobs |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>
@@ -249,9 +248,7 @@ check and the commit is the same in the BBS. We could use `curl::multi_download`
 to download all binaries into our repository.
 ::: column-screen-inset
 ```{r get_candidates}
-candidates <- get_candidates(bioc_info$ru_uni, bioc_info$bioc_branch,
-                             bioc_info$r_version, bioc_info$bioc_version,
-                             "macosx", "arm64", vignettes = TRUE,
+candidates <- get_candidates(bioc_uni, "macosx", "arm64", vignettes = TRUE,
                              commit = TRUE)
 candidates |>
     dplyr::filter(Package %in% c("lefser", "rtracklayer")) |>

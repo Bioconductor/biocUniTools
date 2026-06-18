@@ -26,8 +26,8 @@ change in the future.
 }
 }
 \examples{
-bu <- get_uni_for_bioc_version("devel")
-df <- get_jobs(bu$ru_uni, bu$bioc_branch, bu$r_version, bu$bioc_version)
+bu <- uni_for_bioc("devel")
+df <- get_jobs(bu)
 filter_by_arch(df, "macosx", "arm64")
 
 }
