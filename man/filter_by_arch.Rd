@@ -4,7 +4,7 @@
 \alias{filter_by_arch}
 \title{Filter by arch if it has arch-specific and universal binaries}
 \usage{
-filter_by_arch(df, os, arch = NA)
+filter_by_arch(df, os, arch)
 }
 \arguments{
 \item{df}{data.frame from get_jobs()}
@@ -21,13 +21,13 @@ Some builds can have arch-specific and universal binaries. This
 function filters specifically for data observed in R Universe, which could
 change in the future.
 \itemize{
-\item mac universal binaries: \verb{_jobs_arch} == 'arm64' & !is.na(\verb{_binaries_arch})
-\item linux universal binaries: \verb{_jobs_arch} == 'x86_64' & !is.na(\verb{_binaries_arch})
+\item mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
+\item linux default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
 }
 }
 \examples{
 bu <- uni_for_bioc("devel")
 df <- get_jobs(bu)
-filter_by_arch(df, "macosx", "arm64")
+filter_by_os_arch(df, "macosx", "arm64")
 
 }

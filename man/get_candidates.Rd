@@ -5,9 +5,9 @@
 \title{Get candidate packages in R Universe based on criteria}
 \usage{
 get_candidates(
-  bioc_uni,
+  bu,
   os,
-  arch = NA,
+  arch = NA_character_,
   vignettes = TRUE,
   commit = FALSE,
   unsupported_platforms = TRUE,
@@ -15,19 +15,18 @@ get_candidates(
 )
 }
 \arguments{
-\item{bioc_uni}{result of uni_for_bioc}
+\item{bu}{result of uni_for_bioc}
 
 \item{os}{character}
 
-\item{arch}{character x86_64 or arm64}
+\item{arch}{character (default NA_character_) x86_64 or arm64}
 
 \item{vignettes}{logical (default TRUE) Check status of source / vignettes}
 
 \item{commit}{logical (default FALSE) Check commit hash in RU and BBS?}
 
-\item{check}{character vector of acceptable R CMD check statuses}
-
-\item{available_pkgs}{data.frame of R Universe packages}
+\item{unsupported_platforms}{logical (default TRUE) Check for unsupported
+platforms}
 }
 \value{
 data.frame of filtered candidate packages

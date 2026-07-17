@@ -4,10 +4,10 @@
 \alias{get_jobs}
 \title{Get jobs for an R Universe build}
 \usage{
-get_jobs(bioc_uni)
+get_jobs(bu)
 }
 \arguments{
-\item{bioc_uni}{result of uni_for_bioc}
+\item{bu}{result of uni_for_bioc}
 }
 \value{
 data.frame packages in a universe

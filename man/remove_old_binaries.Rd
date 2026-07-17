@@ -8,8 +8,8 @@ remove_old_binaries(
   repo_root,
   r_version,
   os,
-  macosx_name = NA,
-  arch = NA,
+  macosx_name = NA_character_,
+  arch = NA_character_,
   test = TRUE
 )
 }

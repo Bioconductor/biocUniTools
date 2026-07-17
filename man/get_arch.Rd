@@ -4,12 +4,12 @@
 \alias{get_arch}
 \title{Get the arch}
 \usage{
-get_arch(binaries_arch, jobs_arch)
+get_arch(binaries_arch, job_arch)
 }
 \arguments{
-\item{binaries_arch}{_binaries_arch}
+\item{binaries_arch}{binaries_arch}
 
-\item{jobs_arch}{_jobs_arch}
+\item{job_arch}{job_arch}
 }
 \value{
 character
@@ -18,5 +18,5 @@ character
 Get the arch
 }
 \examples{
-get_arch(NA, "arm64")
+get_arch(binaries_arch, "arm64")
 }
