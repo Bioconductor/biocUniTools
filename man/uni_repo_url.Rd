@@ -4,7 +4,13 @@
 \alias{uni_repo_url}
 \title{Get universe URL for an os and R version}
 \usage{
-uni_repo_url(uni, r_version, os, macosx_name = NA, arch = NA)
+uni_repo_url(
+  uni,
+  r_version,
+  os,
+  macosx_name = NA_character_,
+  arch = NA_character_
+)
 }
 \arguments{
 \item{uni}{character universe name}

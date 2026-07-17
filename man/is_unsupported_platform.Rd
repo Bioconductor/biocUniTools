@@ -10,10 +10,10 @@ is_unsupported_platform(unsupported_str, os, arch)
 \item{unsupported_str}{character scalar; value of
 \code{Config/Bioconductor/UnsupportedPlatforms}, may be NA}
 
-\item{os}{character scalar; 3-char OS abbreviation as used in \verb{_jobs_os_},
-e.g. \code{"win"}, \code{"mac"}, \code{"lin"}}
+\item{os}{character scalar; 3-char OS abbreviation as used in job_os,
+e.g. "win", "mac"}
 
-\item{arch}{character scalar; \code{"x86_64"}, \code{"arm64"}, or NA}
+\item{arch}{character scalar; "x86_64", "arm64", or NA}
 }
 \value{
 logical; TRUE if the OS/arch combo is in the unsupported list
@@ -21,8 +21,8 @@ logical; TRUE if the OS/arch combo is in the unsupported list
 \description{
 Parses \code{Config/Bioconductor/UnsupportedPlatforms} (a comma-separated string)
 and tests whether the given OS and arch combination is covered. Matches both
-full names (e.g. \code{"windows"}, \code{"macosx"}) and abbreviations (e.g. \code{"win"},
-\code{"mac"}), as well as OS+arch combinations (e.g. \code{"macosx-arm64"}). Note: linux
+full names (e.g. "windows", "macosx") and abbreviations (e.g. "win",
+"mac"), as well as OS+arch combinations (e.g. "macosx-arm64"). Note: linux
 is always supported and other oses/arches should return FALSE.
 }
 \examples{

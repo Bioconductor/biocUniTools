@@ -4,10 +4,10 @@
 \alias{uni_for_bioc}
 \title{Get information about R Universe building a Bioconductor version}
 \usage{
-uni_for_bioc(version)
+uni_for_bioc(branch)
 }
 \arguments{
-\item{version}{character Bioconductor version, "devel", or "release"}
+\item{branch}{character Bioconductor branch: "devel" or "release"}
 }
 \description{
 Get information about R Universe building a Bioconductor version

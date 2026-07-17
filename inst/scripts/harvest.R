@@ -92,7 +92,7 @@ if (nrow(downgrade_check) >= 1) {
 
 if (nrow(candidates) >= 1) {
     downloaded <- curl::multi_download(
-        candidates$Artifact,
+        candidates$artifact,
         destfiles = file.path(repo_path, candidates$File)
     )
     

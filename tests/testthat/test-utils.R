@@ -7,8 +7,8 @@ test_that("r_xy_ver gives x.y", {
 })
 
 test_that("r_xy_ver handles NA", {
-    expect_equal(r_xy_ver(NA), NA_character_)
-    expect_equal(r_xy_ver(c("4.6.0", NA)), c("4.6", NA))
+    expect_equal(r_xy_ver(NA_character_), NA_character_)
+    expect_equal(r_xy_ver(c("4.6.0", NA_character_)), c("4.6", NA_character_))
 })
 
 test_that("uni_pkg_file makes correct file format", {
@@ -87,15 +87,15 @@ test_that("is_unsupported_platforms filters os-arch", {
     expect_true(is_unsupported_platform("wasm-enscripten", "wasm", "enscripten"))
 
     # NA arch: OS-only entry still matches, arch-specific entry does not
-    expect_true(is_unsupported_platform("macosx", "mac", NA))
-    expect_false(is_unsupported_platform("macosx-arm64", "mac", NA))
+    expect_true(is_unsupported_platform("macosx", "mac", NA_character_))
+    expect_false(is_unsupported_platform("macosx-arm64", "mac", NA_character_))
 
     # NA os always FALSE
-    expect_false(is_unsupported_platform("windows", NA, NA))
+    expect_false(is_unsupported_platform("windows", NA_character_, NA_character_))
 
     expect_false(is_unsupported_platform("wasm", "win", "x86_64"))
     expect_false(is_unsupported_platform("enscripten", "mac", "arm64"))
-    expect_false(is_unsupported_platform(NA, "win", "x86_64"))
+    expect_false(is_unsupported_platform(NA_character_, "win", "x86_64"))
 
     # abbreviations work
     expect_true(is_unsupported_platform("win", "win", "x86_64"))
@@ -112,7 +112,7 @@ test_that("is_unsupported_platforms filters os-arch", {
 
 test_that("get_candidates gets R Universe data", {
     # windows
-    bu <- list(ru_version = "bioc",
+    bu <- list(universe = "bioc",
                bioc_branch = "devel",
                r_version = "4.6.0",
                bioc_version = "3.23")
@@ -129,7 +129,7 @@ test_that("get_candidates gets R Universe data", {
     expect_equal(dplyr::pull(pkg, Artifact), url)
     
     # macosx x86_64
-    bu <- list(ru_version = "bioc-release",
+    bu <- list(universe = "bioc-release",
                bioc_branch = "release",
                r_version = "4.5.0",
                bioc_version = "3.22")
@@ -184,10 +184,10 @@ test_that("get_candidates for sonoma includes arm64 and universal binaries", {
 })
 
 test_that("uni_for_bioc gets correct universe", {
-    bioc_ru_info <- uni_for_bioc("release")
-    expect_equal(bioc_ru_info$r_version, release$r_version)
-    expect_equal(bioc_ru_info$bioc_branch, "release")
-    expect_equal(bioc_ru_info$ru_uni, "bioc-release")
+    bu <- uni_for_bioc("release")
+    expect_equal(bu$r_version, release$r_version)
+    expect_equal(bu$bioc_branch, "release")
+    expect_equal(bu$universe, "bioc-release")
 })
 
 test_that("remove_old_binaries only removes older binaries", {
@@ -222,21 +222,21 @@ test_that("remove_old_binaries only removes older binaries", {
 })
 
 # Claude generated tests for filter_by_arch
-make_mock_df <- function(jobs_os, jobs_arch, binaries_arch) {
+make_mock_df <- function(job_os, job_arch, binaries_arch) {
     data.frame(
-        Package = paste0("pkg", seq_along(jobs_os)),
-        `_jobs_os_` = jobs_os,
-        `_jobs_arch` = jobs_arch,
-        `_binaries_arch` = binaries_arch,
+        Package = paste0("pkg", seq_along(job_os)),
+        job_os = job_os,
+        job_arch = job_arch,
+        binaries_arch = binaries_arch,
         check.names = FALSE
     )
 }
 
 test_that("filter_by_arch filters mac x86_64 correctly", {
     df <- make_mock_df(
-        jobs_os =       c("mac",    "mac",   "mac"),
-        jobs_arch =     c("x86_64", "arm64", "arm64"),
-        binaries_arch = c("x86_64", NA,      "aarch64")
+        job_os =        c("mac",    "mac",         "mac"),
+        job_arch =      c("x86_64", "arm64",       "arm64"),
+        binaries_arch = c("x86_64", NA_character_, "aarch64")
     )
     result <- filter_by_arch(df, "mac", "x86_64")
     expect_equal(nrow(result), 2)
@@ -246,9 +246,9 @@ test_that("filter_by_arch filters mac x86_64 correctly", {
 
 test_that("filter_by_arch mac x86_64 drops non-arm64 universal binaries", {
     df <- make_mock_df(
-        jobs_os =       c("mac"),
-        jobs_arch =     c("x86_64"),
-        binaries_arch = c(NA)
+        job_os =       c("mac"),
+        job_arch =     c("x86_64"),
+        binaries_arch = c(NA_character_)
     )
     result <- filter_by_arch(df, "mac", "x86_64")
     expect_equal(nrow(result), 0)
@@ -256,9 +256,9 @@ test_that("filter_by_arch mac x86_64 drops non-arm64 universal binaries", {
 
 test_that("filter_by_arch filters mac arm64 correctly", {
     df <- make_mock_df(
-        jobs_os =       c("mac",     "mac",   "mac"),
-        jobs_arch =     c("arm64",   "arm64", "x86_64"),
-        binaries_arch = c("aarch64", NA,      "x86_64")
+        job_os =       c("mac",     "mac",         "mac"),
+        job_arch =     c("arm64",   "arm64",       "x86_64"),
+        binaries_arch = c("aarch64", NA_character_, "x86_64")
     )
     result <- filter_by_arch(df, "mac", "arm64")
     expect_equal(nrow(result), 2)
@@ -268,9 +268,9 @@ test_that("filter_by_arch filters mac arm64 correctly", {
 
 test_that("filter_by_arch filters linux x86_64 correctly", {
     df <- make_mock_df(
-        jobs_os =       c("linux",  "linux",  "linux"),
-        jobs_arch =     c("x86_64", "x86_64", "arm64"),
-        binaries_arch = c("x86_64", NA,       "aarch64")
+        job_os =       c("linux",  "linux",       "linux"),
+        job_arch =     c("x86_64", "x86_64",      "arm64"),
+        binaries_arch = c("x86_64", NA_character_, "aarch64")
     )
     result <- filter_by_arch(df, "linux", "x86_64")
     expect_equal(nrow(result), 2)
@@ -280,9 +280,9 @@ test_that("filter_by_arch filters linux x86_64 correctly", {
 
 test_that("filter_by_arch linux x86_64 drops non-x86_64 universal binaries", {
     df <- make_mock_df(
-        jobs_os =       c("linux"),
-        jobs_arch =     c("arm64"),
-        binaries_arch = c(NA)
+        job_os =       c("linux"),
+        job_arch =     c("arm64"),
+        binaries_arch = c(NA_character_)
     )
     result <- filter_by_arch(df, "linux", "x86_64")
     expect_equal(nrow(result), 0)
@@ -290,9 +290,9 @@ test_that("filter_by_arch linux x86_64 drops non-x86_64 universal binaries", {
 
 test_that("filter_by_arch filters linux arm64 correctly", {
     df <- make_mock_df(
-        jobs_os =       c("linux",    "linux",  "linux"),
-        jobs_arch =     c("arm64",    "x86_64", "x86_64"),
-        binaries_arch = c("aarch64",  NA,       "x86_64")
+        job_os =       c("linux",   "linux",       "linux"),
+        job_arch =     c("arm64",   "x86_64",      "x86_64"),
+        binaries_arch = c("aarch64", NA_character_, "x86_64")
     )
     result <- filter_by_arch(df, "linux", "arm64")
     expect_equal(nrow(result), 2)
@@ -302,9 +302,9 @@ test_that("filter_by_arch filters linux arm64 correctly", {
 
 test_that("filter_by_arch linux arm64 drops non-x86_64 universal binaries", {
     df <- make_mock_df(
-        jobs_os =       c("linux"),
-        jobs_arch =     c("arm64"),
-        binaries_arch = c(NA)
+        job_os =       c("linux"),
+        job_arch =     c("arm64"),
+        binaries_arch = c(NA_character_)
     )
     result <- filter_by_arch(df, "linux", "arm64")
     expect_equal(nrow(result), 0)
@@ -312,20 +312,20 @@ test_that("filter_by_arch linux arm64 drops non-x86_64 universal binaries", {
 
 test_that("filter_by_arch treats linux NA arch same as x86_64", {
     df <- make_mock_df(
-        jobs_os =       c("linux",  "linux",  "linux"),
-        jobs_arch =     c("x86_64", "x86_64", "arm64"),
-        binaries_arch = c("x86_64", NA,       "aarch64")
+        job_os =       c("linux",  "linux",       "linux"),
+        job_arch =     c("x86_64", "x86_64",      "arm64"),
+        binaries_arch = c("x86_64", NA_character_, "aarch64")
     )
-    result_na  <- filter_by_arch(df, "linux", NA)
+    result_na  <- filter_by_arch(df, "linux", NA_character_)
     result_x86 <- filter_by_arch(df, "linux", "x86_64")
     expect_equal(result_na, result_x86)
 })
 
 test_that("filter_by_arch drops rows from other OS", {
     df <- make_mock_df(
-        jobs_os =       c("mac",     "linux",  "win"),
-        jobs_arch =     c("arm64",   "x86_64", "x86_64"),
-        binaries_arch = c("aarch64", "x86_64", NA)
+        job_os =       c("mac",     "linux",  "win"),
+        job_arch =     c("arm64",   "x86_64", "x86_64"),
+        binaries_arch = c("aarch64", "x86_64", NA_character_)
     )
     result <- filter_by_arch(df, "mac", "arm64")
     expect_equal(nrow(result), 1)
@@ -334,9 +334,9 @@ test_that("filter_by_arch drops rows from other OS", {
 
 test_that("filter_by_arch returns empty df when no matches", {
     df <- make_mock_df(
-        jobs_os =       c("mac",    "mac"),
-        jobs_arch =     c("x86_64", "x86_64"),
-        binaries_arch = c("x86_64", NA)
+        job_os =       c("mac",    "mac"),
+        job_arch =     c("x86_64", "x86_64"),
+        binaries_arch = c("x86_64", NA_character_)
     )
     result <- filter_by_arch(df, "mac", "arm64")
     expect_equal(nrow(result), 0)
@@ -344,9 +344,9 @@ test_that("filter_by_arch returns empty df when no matches", {
 
 test_that("filter_by_arch passes all rows for windows", {
     df <- make_mock_df(
-        jobs_os =       c("win",    "win"),
-        jobs_arch =     c("x86_64", "x86_64"),
-        binaries_arch = c(NA,       NA)
+        job_os =       c("win",         "win"),
+        job_arch =     c("x86_64",      "x86_64"),
+        binaries_arch = c(NA_character_, NA_character_)
     )
     result <- filter_by_arch(df, "win", NA)
     expect_equal(nrow(result), 2)

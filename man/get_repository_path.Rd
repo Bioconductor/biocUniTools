@@ -4,7 +4,13 @@
 \alias{get_repository_path}
 \title{Get repo path}
 \usage{
-get_repository_path(repo_root, r_version, os, macosx_name = NA, arch = NA)
+get_repository_path(
+  repo_root,
+  r_version,
+  os,
+  macosx_name = NA_character_,
+  arch = NA_character_
+)
 }
 \arguments{
 \item{r_version}{character}

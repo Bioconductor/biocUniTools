@@ -13,8 +13,7 @@
 data.frame
 }
 \description{
-Adds additional columns to \verb{_jobs_r_xy}, \verb{_jobs_type}, \verb{_jobs_arch},
-\verb{_jobs_os_}
+Adds additional columns to job_r_xy, job_type, job_arch, job_os
 }
 \examples{
 raw_df <- get_raw_uni_df("bioc")
