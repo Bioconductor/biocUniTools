@@ -76,7 +76,9 @@ https://bioc.r-universe.dev
 bu <- uni_for_bioc("devel")
 os <- "linux"
 nde <- "nebbiolo2"
-ru_builds <- biocUniTools::get_jobs(bu)
+raw_universe_df <- biocUniTools::get_raw_uni_df(bu$universe)
+universe_df <- biocUniTools::get_uni_df(raw_universe_df)
+ru_builds <- biocUniTools::get_jobs(universe_df, bu$r_version, bu$universe)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```
@@ -180,7 +182,9 @@ https://bioc-release.r-universe.dev
 ```{r release-settings, echo = FALSE, message = FALSE}
 bu <- uni_for_bioc("release")
 nde <- "nebbiolo1"
-ru_builds <- biocUniTools::get_jobs(bu)
+raw_universe_df <- biocUniTools::get_raw_uni_df(bu$universe)
+universe_df <- biocUniTools::get_uni_df(raw_universe_df)
+ru_builds <- biocUniTools::get_jobs(universe_df, bu$r_version, bu$universe)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```

@@ -324,52 +324,48 @@ get_uni_df <- function(raw_df) {
 #'
 #' @description Adds artifact and job_url
 #'
+#' @param universe_df data.frame output of get_uni_df
 #' @param bu result of uni_for_bioc
 #'
 #' @returns data.frame packages in a universe
 #'
 #' @examples
 #' bu <- uni_for_bioc("devel")
-#' get_jobs(bu)
+#' raw_universe_df <- get_raw_uni_df(bu$universe)
+#' universe_df <- get_uni_df(raw_universe_df)
+#' get_jobs(universe_df, bu$r_version, bu$universe)
 #'
 #' @export
-get_jobs <- function(bu) {
 
-    stopifnot("bioc_version" %in% names(bu) &
-              "bioc_branch" %in% names(bu) &
-              "universe" %in% names(bu) &
-              "r_version" %in% names(bu))
-
-    raw_uni_df <- get_raw_uni_df(bu$universe)
-    uni_df <- get_uni_df(raw_uni_df)
+get_jobs <- function(universe_df, r_version, universe) {
 
     # Packages without an explicit binaries_arch have universal binaries
-    binary_rows <- uni_df |>
+    binary_rows <- universe_df |>
         dplyr::filter(
             job_type == "binary",
-            job_r_xy == r_xy_ver(bu$r_version)) |>
+            job_r_xy == r_xy_ver(r_version)) |>
         dplyr::mutate(
             artifact = ifelse(
                 binaries_check %in% c("FAIL", "ERROR", "CANCELLED") |
                     jobs_check %in% c("FAIL", "ERROR", "CANCELLED") |
                     binaries_status == "failure",
                 NA_character_,
-                file.path(uni_repo_url(bu$universe, binary_r_xy,
+                file.path(uni_repo_url(universe, binary_r_xy,
                                        get_binary_os(binary_os),
                                        arch = get_arch(binaries_arch,
                                                        job_arch)),
                           uni_pkg_file(Package, binary_os,
                                        binaries_version))))
 
-    nonbinary_rows <- uni_df |>
+    nonbinary_rows <- universe_df |>
         dplyr::filter(job_type != "binary") |>
         dplyr::mutate(artifact = NA_character_)
 
-    updated_uni_df <- dplyr::bind_rows(binary_rows, nonbinary_rows) |>
+    updated_universe_df <- dplyr::bind_rows(binary_rows, nonbinary_rows) |>
         dplyr::mutate(job_url = ifelse(is.na(job_id), NA_character_,
                                       file.path(`_buildurl`, "job", job_id))) |>
         dplyr::arrange(Package)
-    updated_uni_df
+    updated_universe_df
 }
 
 #' Filter by arch if it has arch-specific and universal binaries
@@ -389,11 +385,15 @@ get_jobs <- function(bu) {
 #' 
 #' @examples
 #' bu <- uni_for_bioc("devel")
-#' df <- get_jobs(bu)
-#' filter_by_os_arch(df, "macosx", "arm64")
+#' raw_universe_df <- get_raw_uni_df(bu$universe)
+#' universe_df <- get_uni_df(raw_universe_df)
+#' jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
+#' filter_by_os_arch(jobs, "macosx", "arm64")
 #' 
 #' @export
 filter_by_arch <- function(df, os, arch = "x86_64") {
+    if (os == "linux" && is.na(arch))
+        arch <- "x86_64"
 
     if (os == "mac" && arch == "x86_64") {
         dplyr::filter(df,
@@ -498,7 +498,9 @@ get_candidates <- function(bu, os, arch = NA_character_, vignettes = TRUE,
                            check = c("NOTE", "WARNING", "OK")) {
 
     os <- get_binary_os(os)
-    jobs <- get_jobs(bu)
+    raw_universe_df <- get_raw_uni_df(bu$universe)
+    universe_df <- get_uni_df(raw_universe_df)
+    jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
     candidates <- jobs |>
         dplyr::filter(job_os == os)
 
@@ -510,13 +512,13 @@ get_candidates <- function(bu, os, arch = NA_character_, vignettes = TRUE,
         vignette_jobs <- jobs |>
             dplyr::filter(job_type == "source") |>
             dplyr::select(Package, Version, jobs_check) |>
-            dplyr::rename(`Vignettes Check` = jobs_check)
+            dplyr::rename(vignettes_check = jobs_check)
 
         candidates <- merge(candidates, vignette_jobs,
                             by = c("Package", "Version"))
 
         candidates <- candidates |>
-            dplyr::filter(`Vignettes Check` %in% check)
+            dplyr::filter(vignettes_check %in% check)
     }
 
     if (commit) {
