@@ -26,10 +26,10 @@ library(purrr)
 # When a package fails early in the build, we don't get a _buildurl but we can
 # construct it
 get_buildurl <- function(pkg, uni) {
+    u <-paste0("https://", uni, ".r-universe.dev/api/packages/", pkg)
     buildurl <- tryCatch({
-        u <-paste0("https://", uni, ".r-universe.dev/api/packages/", pkg)
         pkglist <- httr2::request(u) |>
-            httr2::req_timeout(10) |>  # timeout after 10 seconds
+            httr2::req_timeout(20) |>
             httr2::req_perform() |>
             httr2::resp_body_json()
         pkglist$`_buildurl`
@@ -76,7 +76,9 @@ https://bioc.r-universe.dev
 bu <- uni_for_bioc("devel")
 os <- "linux"
 nde <- "nebbiolo2"
-ru_builds <- biocUniTools::get_jobs(bu)
+raw_universe_df <- biocUniTools::get_raw_uni_df(bu$universe)
+universe_df <- biocUniTools::get_uni_df(raw_universe_df)
+ru_builds <- biocUniTools::get_jobs(universe_df, bu$r_version, bu$universe)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```
@@ -92,12 +94,12 @@ bbs_builds <- bbs_pkgs |>
     dplyr::distinct()
 
 filtered_ru_builds <- ru_builds |>
-    dplyr::filter(`_jobs_os_` == os) |>
-    biocUniTools::filter_by_arch(os)
+    dplyr::filter(job_os == os) |>
+    biocUniTools::filter_by_arch(os, arch = "x86_64")
 vignettes_ru_builds <- ru_builds |>
-    dplyr::filter(`_jobs_type` == "source") |>
-    dplyr::select(Package, Version, `_jobs_check`, `_buildurl`) |>
-    dplyr::rename(`Vignettes Check` = `_jobs_check`,
+    dplyr::filter(job_type == "source") |>
+    dplyr::select(Package, Version, jobs_check, `_buildurl`) |>
+    dplyr::rename(`Vignettes Check` = jobs_check,
                   vignettes_buildurl = `_buildurl`)
 
 builds <- merge(bbs_builds, filtered_ru_builds, by = c("Package", "Version"),
@@ -110,7 +112,7 @@ needs_url <- builds |>
     dplyr::filter(!Deprecated & is.na(`_buildurl`)) |>
     dplyr::distinct(Package, .keep_all = TRUE)
 
-needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, uni)
+needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, bu$universe)
 
 builds <- builds |>
     dplyr::rows_update(needs_url |> dplyr::select(Package, `_buildurl`),
@@ -118,9 +120,9 @@ builds <- builds |>
                        unmatched = "ignore")
 
 condensed_builds <- builds |>
-    dplyr::rename(`Job Check` = `_jobs_check`, `Binary Check` = `_binaries_check`,
+    dplyr::rename(`Job Check` = jobs_check, `Binary Check` = binaries_check,
                   `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
-                  `Job Url` = JobUrl, `Binary Status` = `_binaries_status`) |>
+                  `Job Url` = job_url, `Binary Status` = binaries_status) |>
     dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
     dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`,
                   Propagate = propagate(`Commit Match`, Deprecated,
@@ -180,7 +182,9 @@ https://bioc-release.r-universe.dev
 ```{r release-settings, echo = FALSE, message = FALSE}
 bu <- uni_for_bioc("release")
 nde <- "nebbiolo1"
-ru_builds <- biocUniTools::get_jobs(bu)
+raw_universe_df <- biocUniTools::get_raw_uni_df(bu$universe)
+universe_df <- biocUniTools::get_uni_df(raw_universe_df)
+ru_builds <- biocUniTools::get_jobs(universe_df, bu$r_version, bu$universe)
 bbs_pkgs <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
                                           pkgType = "software")
 ```
@@ -196,12 +200,12 @@ bbs_builds <- bbs_pkgs |>
     dplyr::distinct()
 
 filtered_ru_builds <- ru_builds |>
-    dplyr::filter(`_jobs_os_` == os) |>
-    biocUniTools::filter_by_arch(os)
+    dplyr::filter(job_os == os) |>
+    biocUniTools::filter_by_arch(os, arch = "x86_64")
 vignettes_ru_builds <- ru_builds |>
-    dplyr::filter(`_jobs_type` == "source") |>
-    dplyr::select(Package, Version, `_jobs_check`, `_buildurl`) |>
-    dplyr::rename(`Vignettes Check` = `_jobs_check`,
+    dplyr::filter(job_type == "source") |>
+    dplyr::select(Package, Version, jobs_check, `_buildurl`) |>
+    dplyr::rename(`Vignettes Check` = jobs_check,
                   vignettes_buildurl = `_buildurl`)
 
 builds <- merge(bbs_builds, filtered_ru_builds, by = c("Package", "Version"),
@@ -214,7 +218,7 @@ needs_url <- builds |>
     dplyr::filter(!Deprecated & is.na(`_buildurl`)) |>
     dplyr::distinct(Package, .keep_all = TRUE)
 
-needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, uni)
+needs_url$`_buildurl` <- purrr::map_chr(needs_url$Package, get_buildurl, bu$universe)
 
 builds <- builds |>
     dplyr::rows_update(needs_url |> dplyr::select(Package, `_buildurl`),
@@ -222,9 +226,9 @@ builds <- builds |>
                        unmatched = "ignore")
 
 condensed_builds <- builds |>
-    dplyr::rename(`Job Check` = `_jobs_check`, `Binary Check` = `_binaries_check`,
+    dplyr::rename(`Job Check` = jobs_check, `Binary Check` = binaries_check,
                   `Build Url` = `_buildurl`, `RU Commit` = RemoteSha,
-                  `Job Url` = JobUrl, `Binary Status` = `_binaries_status`) |>
+                  `Job Url` = job_url, `Binary Status` = binaries_status) |>
     dplyr::mutate(`RU Commit` = substr(`RU Commit`, 1, 7)) |>
     dplyr::mutate(`Commit Match` = `BBS Commit` == `RU Commit`,
                   Propagate = propagate(`Commit Match`, Deprecated,
