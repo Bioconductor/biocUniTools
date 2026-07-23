@@ -4,14 +4,14 @@
 \alias{filter_by_arch}
 \title{Filter by arch if it has arch-specific and universal binaries}
 \usage{
-filter_by_arch(df, os, arch)
+filter_by_arch(df, os, arch = "x86_64")
 }
 \arguments{
 \item{df}{data.frame from get_jobs()}
 
 \item{os}{character}
 
-\item{arch}{character}
+\item{arch}{character (default: x86_64)}
 }
 \value{
 data.frame
@@ -27,7 +27,9 @@ change in the future.
 }
 \examples{
 bu <- uni_for_bioc("devel")
-df <- get_jobs(bu)
-filter_by_os_arch(df, "macosx", "arm64")
+raw_universe_df <- get_raw_uni_df(bu$universe)
+universe_df <- get_uni_df(raw_universe_df)
+jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
+filter_by_os_arch(jobs, "macosx", "arm64")
 
 }
