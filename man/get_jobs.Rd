@@ -4,19 +4,23 @@
 \alias{get_jobs}
 \title{Get jobs for an R Universe build}
 \usage{
-get_jobs(bioc_uni)
+get_jobs(universe_df, r_version, universe)
 }
 \arguments{
-\item{bioc_uni}{result of uni_for_bioc}
+\item{universe_df}{data.frame output of get_uni_df}
+
+\item{bu}{result of uni_for_bioc}
 }
 \value{
 data.frame packages in a universe
 }
 \description{
-Adds Artifact and JobUrl
+Adds artifact and job_url
 }
 \examples{
 bu <- uni_for_bioc("devel")
-get_jobs(bu)
+raw_universe_df <- get_raw_uni_df(bu$universe)
+universe_df <- get_uni_df(raw_universe_df)
+get_jobs(universe_df, bu$r_version, bu$universe)
 
 }

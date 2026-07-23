@@ -17,12 +17,12 @@ if (length(args) < 3)
 stopifnot(args[1] %in% c("TRUE", "FALSE"))
 TEST_REMOVAL <- as.logical(args[1])
 
-bioc_info <- tryCatch(
+bu <- tryCatch(
     uni_for_bioc(args[2]),
     error = function(x) {
         stop(args[2], " not a current or valid Bioconductor version")
     })
-BIOC_VERSION <- bioc_info$bioc_version
+BIOC_VERSION <- bu$bioc_version
 
 stopifnot(args[3] %in% c("windows", "linux", "macosx"))
 OS <- args[3]
@@ -52,8 +52,8 @@ options(max.print = 3000L)
 logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
-repo_path <- get_repository_path(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH)
-candidates <- get_candidates(bioc_info, os = OS, arch = ARCH, commit = TRUE)
+repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, MACOSX_NAME, ARCH)
+candidates <- get_candidates(bu, os = OS, arch = ARCH, commit = TRUE)
 
 # Remove any candidates from the list that are currently in the repository
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
@@ -92,7 +92,7 @@ if (nrow(downgrade_check) >= 1) {
 
 if (nrow(candidates) >= 1) {
     downloaded <- curl::multi_download(
-        candidates$Artifact,
+        candidates$artifact,
         destfiles = file.path(repo_path, candidates$File)
     )
     
@@ -121,7 +121,7 @@ if (nrow(candidates) >= 1) {
 }
 
 prefix <- ifelse(TEST_REMOVAL, "[TEST] ", "")
-removed <- remove_old_binaries(REPO_ROOT, bioc_info$r_version, OS, MACOSX_NAME, ARCH,
+removed <- remove_old_binaries(REPO_ROOT, bu$r_version, OS, MACOSX_NAME, ARCH,
                                test = TEST_REMOVAL)
 if (length(removed) >= 1) {
     logger::log_info("{prefix}Removed {removed}")
