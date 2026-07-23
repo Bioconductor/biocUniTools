@@ -120,13 +120,13 @@ test_that("get_candidates gets R Universe data", {
     expect_gt(nrow(pkgs), 0)
     
     pkg <- pkgs |>
-        dplyr::filter(!is.na(Artifact)) |>
+        dplyr::filter(!is.na(artifact)) |>
         dplyr::slice(1)
     version <- dplyr::pull(pkg, Version)
     package <- dplyr::pull(pkg, Package)
     url <- file.path(uni_repo_url("bioc", "4.6.0", "windows"),
                      uni_pkg_file(package, "windows", version))
-    expect_equal(dplyr::pull(pkg, Artifact), url)
+    expect_equal(dplyr::pull(pkg, artifact), url)
     
     # macosx x86_64
     bu <- list(universe = "bioc-release",
@@ -137,14 +137,14 @@ test_that("get_candidates gets R Universe data", {
     expect_gt(nrow(pkgs), 0)
     
     pkg <- pkgs |>
-        dplyr::filter(!is.na(Artifact)) |>
+        dplyr::filter(!is.na(artifact)) |>
         dplyr::slice(1)
     version <- dplyr::pull(pkg, Version)
     package <- dplyr::pull(pkg, Package)
     url <- file.path(uni_repo_url("bioc-release", "4.5.0", "macosx",
                                   macosx_name = "big-sur", arch = "x86_64"),
                      uni_pkg_file(package, "macosx", version))
-    expect_equal(dplyr::pull(pkg, Artifact), url)
+    expect_equal(dplyr::pull(pkg, artifact), url)
 })
 
 test_that("get_candidates filters on check status", {
@@ -154,14 +154,14 @@ test_that("get_candidates filters on check status", {
     
     # with commit filter, check status is filtered
     candidates_commit <- get_candidates(devel, "windows", commit = TRUE)
-    expect_true(all(candidates_commit$`_binaries_check` %in% c("NOTE", "WARNING", "OK")))
-    expect_true(all(candidates_commit$`_jobs_check` %in% c("NOTE", "WARNING", "OK")))
-    expect_true(all(candidates_commit$`_binaries_status` == "success"))
+    expect_true(all(candidates_commit$binaries_check %in% c("NOTE", "WARNING", "OK")))
+    expect_true(all(candidates_commit$jobs_check %in% c("NOTE", "WARNING", "OK")))
+    expect_true(all(candidates_commit$binaries_status == "success"))
     
     # restrict to OK only
     ok_only <- get_candidates(devel, "windows", commit = TRUE, check = "OK")
-    expect_true(all(ok_only$`_binaries_check` == "OK"))
-    expect_true(all(ok_only$`_jobs_check` == "OK"))
+    expect_true(all(ok_only$binaries_check == "OK"))
+    expect_true(all(ok_only$jobs_check == "OK"))
 })
 
 test_that("get_candidates commit filter works", {
@@ -361,12 +361,12 @@ test_that("get_candidates vignette filter works", {
     expect_lte(nrow(with_vignettes), nrow(without_vignettes))
     
     # all rows should have passing vignette check
-    expect_true(all(with_vignettes$`Vignettes Check` %in% c("NOTE", "WARNING", "OK")))
+    expect_true(all(with_vignettes$vignettes_check %in% c("NOTE", "WARNING", "OK")))
 })
 
 test_that("get_candidates vignette check respects check argument", {
     ok_only <- get_candidates(release, "windows", vignettes = TRUE, check = "OK")
-    expect_true(all(ok_only$`Vignettes Check` == "OK"))
+    expect_true(all(ok_only$vignettes_check == "OK"))
 })
 
 test_that("get_candidates without vignettes has no Vignettes Check column", {
