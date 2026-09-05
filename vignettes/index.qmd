@@ -68,7 +68,7 @@ The following tables attempt to describe the potential propagation status of a p
 
 Possible failure states are `CANCELLED`, `ERROR`, or `FAIL`.
 
-## R Universe and Bioconductor 3.24
+## R Universe and Bioconductor devel 
 
 https://bioc.r-universe.dev
 
@@ -175,7 +175,7 @@ reactable::reactable(condensed_builds_display, searchable = TRUE, #wrap = FALSE,
 ```
 :::
 
-## R Universe and Bioconductor 3.23
+## R Universe and Bioconductor release
 
 https://bioc-release.r-universe.dev
 

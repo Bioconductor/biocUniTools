@@ -22,7 +22,7 @@ function filters specifically for data observed in R Universe, which could
 change in the future.
 \itemize{
 \item mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
-\item linux default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
+\item linux/win default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
 }
 }
 \examples{
