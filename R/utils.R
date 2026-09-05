@@ -50,6 +50,9 @@ uni_pkg_file <- function(pkg, os, version) {
 #'
 #' @export
 get_macosx_subpath <- function(r_version, arch) {
+    if (any(as.double(r_version) < 4.6 & arch == "arm64"))
+        stop("R version must be greater than or equal to 4.6 if arch is arm64")
+
     ifelse(as.double(r_version) >= 4.6 & arch == "arm64",
            subpath <- paste0("sonoma", "-", arch),
            subpath <- paste0("big-sur", "-", arch))
@@ -57,47 +60,52 @@ get_macosx_subpath <- function(r_version, arch) {
 
 #' Get repo path
 #'
+#' @details R Universe has adopted <os name>-<arch> style path for linux and
+#' and macosx, <compiler>-<arch> for windows. CRAN has not adopted these
+#' conventions for linux and windows, so Bioconductor has not yet adopted them.
+#' The `cran_subpath` parameter should be TRUE to not use R Universe subpath
+#' for windows.
+#'
 #' @param r_version character
 #' @param bioc_version character
 #' @param os character
-#' @param macosx_name big-sur or sonoma
 #' @param arch character x86_64 or arm64
+#' @param cran_subpath (default FALSE) uses CRAN style subpaths
 #'
 #' @returns character
 #'
 #' @examples
-#' get_repository_path("/home/biocpush/PACKAGES/3.22/bioc", "4.6.0", "windows")
+#' repo_root <- "/home/biocpush/PACKAGES/3.22/bioc"
+#' get_repository_path(repo_root, "4.6.0", "windows", "arm64")
 #'
 #' @export
-get_repository_path <- function(repo_root, r_version, os,
-                                macosx_name = NA_character_,
-                                arch = NA_character_) {
+get_repository_path <- function(repo_root, r_version, os, arch = NA_character_,
+                                cran_subpath = FALSE) {
     r_xy <- r_xy_ver(r_version)
-    
+
     is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
     is_win <- !is.na(os) & stringr::str_detect(os, "win")
 
-    if (any(is_mac & is.na(arch)))
-        stop("arch must not be NA for os == macosx")
-    if (any(is_mac & !stringr::str_detect(arch, "^(x86_64|arm64)$")))
+    if (any((is_mac | is_win) & (is.na(arch) |
+        !stringr::str_detect(arch, "^(x86_64|arm64)$"))))
         stop("arch must be x86_64 or arm64")
-    if (any(is_mac & !is.na(macosx_name) &
-            stringr::str_detect(macosx_name, "sonoma") &
-            (as.numeric(r_xy) < 4.6 | stringr::str_detect(arch, "x86_64"))))
-        stop("sonoma binaries are for arch == arm64 and >= R 4.6")
-    if (any(is_mac & !is.na(macosx_name) &
-            !stringr::str_detect(macosx_name, "^(big-sur|sonoma)$")))
-        stop("macosx_name must be big-sur or sonoma")
-    
-    subpath <- dplyr::case_when(
-        is_mac ~ file.path("bin", "macosx",
-                           get_macosx_subpath(r_xy, ifelse(is.na(arch), "x86_64", arch)),
-                           "contrib", r_xy),
-        is_win ~ file.path("bin", "windows", "contrib", r_xy),
+
+    subpath_arch <- dplyr::case_when(
+        is_mac ~ get_macosx_subpath(r_xy, arch),
+        is_win & arch == "arm64" ~ paste("clang", arch, sep = "-"),
+        is_win & arch == "x86_64" ~ paste("gcc", arch, sep = "-"),
+        .default = ""
+    )
+
+    repo_path <- dplyr::case_when(
+        is_mac ~ file.path("bin", "macosx", subpath_arch, "contrib", r_xy),
+        is_win & cran_subpath ~ file.path("bin", "windows", "contrib", r_xy),
+        is_win & !cran_subpath ~ file.path("bin", "windows", subpath_arch,
+                                           "contrib", r_xy),
         .default = "src/contrib"
     )
-    
-    file.path(repo_root, subpath)
+
+    file.path(repo_root, repo_path)
 }
 
 #' Get universe URL for an os and R version
@@ -105,19 +113,17 @@ get_repository_path <- function(repo_root, r_version, os,
 #' @param uni character universe name
 #' @param r_version character
 #' @param os character
-#' @param macosx_name big-sur or sonoma
 #' @param arch character x86_64 or arm64
 #'
 #' @returns character
 #'
 #' @examples
-#' uni_repo_url("bioc", "4.5.3", "windows")
+#' uni_repo_url("bioc", "4.5.3", "windows", "x86_64")
 #'
 #' @export
-uni_repo_url <- function(uni, r_version, os, macosx_name = NA_character_,
-                         arch = NA_character_) {
+uni_repo_url <- function(uni, r_version, os, arch = NA_character_) {
     universe <- paste0("https://", uni, ".r-universe.dev")
-    get_repository_path(universe, r_version, os, macosx_name, arch)
+    get_repository_path(universe, r_version, os, arch, cran_subpath = FALSE)
 }
 
 #' Get OS abbreviation
@@ -375,7 +381,7 @@ get_jobs <- function(universe_df, r_version, universe) {
 #' change in the future.
 #' 
 #' * mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
-#' * linux default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
+#' * linux/win default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
 #'
 #' @param df data.frame from get_jobs()
 #' @param os character
@@ -401,10 +407,10 @@ filter_by_arch <- function(df, os, arch = "x86_64") {
     } else if (os == "mac" && arch == "arm64") {
         dplyr::filter(df,
                       (binaries_arch == "aarch64") | (job_arch == "arm64" & is.na(binaries_arch)))
-    } else if (os == "linux" && arch == "x86_64") {
+    } else if (os %in% c("linux", "windows") && arch == "x86_64") {
         dplyr::filter(df,
                       (binaries_arch == "x86_64") | (job_arch == "x86_64" & is.na(binaries_arch)))
-    } else if (os == "linux" && arch == "arm64") {
+    } else if (os %in% c("linux", "windows") && arch == "arm64") {
         dplyr::filter(df,
                       (binaries_arch == "aarch64") | (job_arch == "x86_64" & is.na(binaries_arch)))
     } else {
@@ -593,7 +599,6 @@ uni_for_bioc <- function(branch) {
 #'     "/home/biocpush/PACKAGES/3.22/bioc"
 #' @param r_version R x.y.z version
 #' @param os name, full or abbreviation
-#' @param macosx_name big-sur or sonoma
 #' @param arch x86_64 or arm64
 #' @param test logical (default TRUE) don't remove, only print packages marked
 #'     for removal
@@ -603,14 +608,13 @@ uni_for_bioc <- function(branch) {
 #' @examples
 #' bu <- uni_for_bioc("devel")
 #' repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
-#' remove_old_binaries(repo_root, bu$bioc_version, "windows")
+#' remove_old_binaries(repo_root, bu$bioc_version, "windows", "x86_64")
 #'
 #' @export
-remove_old_binaries <- function(repo_root, r_version, os,
-                                macosx_name = NA_character_,
-                                arch = NA_character_, test = TRUE) {
-    binaries_path <- get_repository_path(repo_root, r_version, os, macosx_name,
-                                         arch)
+remove_old_binaries <- function(repo_root, r_version, os, arch = NA_character_,
+                                test = TRUE) {
+    binaries_path <- get_repository_path(repo_root, r_version, os, arch,
+                                         cran_subpath = TRUE)
     files <- list.files(binaries_path, pattern=".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
     binaries <- data.frame(file = files,
                            latest = NA_character_)

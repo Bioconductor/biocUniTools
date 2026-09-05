@@ -4,11 +4,12 @@ library(logger)
 library(biocUniTools)
 
 
-# Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [MACOSX_NAME] [ARCH]
-# MACOSX_NAME and ARCH are only for macosx
-# Example: Rscript harvest.R 3.22 macosx sonoma arm64
+# Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]
+# ARCH are only for macosx
+# Example: Rscript harvest.R 3.22 macosx arm64
+# Example: Rscript harvest.R 3.23 windows arm64
 
-msg <- "Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [MACOSX_NAME] [ARCH]"
+msg <- "Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]"
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 3)
@@ -27,16 +28,18 @@ BIOC_VERSION <- bu$bioc_version
 stopifnot(args[3] %in% c("windows", "linux", "macosx"))
 OS <- args[3]
 
-if (OS == "macosx" && length(args) != 5) {
+if (OS %in% c("macosx", "windows") && length(args) != 4) {
     stop(msg, call.=FALSE)
-} else if (OS == "macosx" && length(args) == 5) {
-    stopifnot(args[4] %in% c("big-sur", "sonoma"))
-    MACOSX_NAME <- args[4]
+} else if (OS == "macosx" && length(args) == 4) {
+    stopifnot(args[4] %in% c("x86_64", "arm64"))
+    ARCH <- args[4]
+    LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
+} else if (OS == "windows" && length(args) == 4) {
     stopifnot(args[5] %in% c("x86_64", "arm64"))
     ARCH <- args[5]
-    LOG_FILE_BASE <- paste("harvest", OS, MACOSX_NAME, ARCH, sep = "-")
+    LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
 } else {
-    MACOSX_NAME <- NA
+    SUBPATH <- NA
     ARCH <- NA
     LOG_FILE_BASE <- paste("harvest", OS, sep = "-")
 }
@@ -52,7 +55,7 @@ options(max.print = 3000L)
 logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
-repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, MACOSX_NAME, ARCH)
+repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, ARCH)
 candidates <- get_candidates(bu, os = OS, arch = ARCH, commit = TRUE)
 
 # Remove any candidates from the list that are currently in the repository
@@ -121,7 +124,7 @@ if (nrow(candidates) >= 1) {
 }
 
 prefix <- ifelse(TEST_REMOVAL, "[TEST] ", "")
-removed <- remove_old_binaries(REPO_ROOT, bu$r_version, OS, MACOSX_NAME, ARCH,
+removed <- remove_old_binaries(REPO_ROOT, bu$r_version, OS, ARCH,
                                test = TEST_REMOVAL)
 if (length(removed) >= 1) {
     logger::log_info("{prefix}Removed {removed}")
