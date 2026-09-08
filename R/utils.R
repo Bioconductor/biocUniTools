@@ -625,9 +625,11 @@ uni_for_bioc <- function(branch) {
 #' @returns vector of the full path of binaries removed
 #'
 #' @examples
+#' \dontrun{
 #' bu <- uni_for_bioc("devel")
 #' repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
 #' remove_old_binaries(repo_root, bu$bioc_version, "windows", "x86_64")
+#' }
 #'
 #' @export
 remove_old_binaries <- function(repo_root, r_version, os, arch = NA_character_,

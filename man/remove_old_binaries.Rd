@@ -32,8 +32,10 @@ vector of the full path of binaries removed
 Remove old binaries if a new binary exists
 }
 \examples{
+\dontrun{
 bu <- uni_for_bioc("devel")
 repo_root <- paste0("/home/biocpush/PACKAGES/", bu$bioc_version, "/bioc")
 remove_old_binaries(repo_root, bu$bioc_version, "windows", "x86_64")
+}
 
 }
