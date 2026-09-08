@@ -76,13 +76,6 @@ get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
 #' The `cran_subpath` parameter should be TRUE to not use R Universe subpath
 #' for windows.
 #'
-#' `r_version`, `os`, and `arch` are vectorized: pass vectors of equal length
-#' (or length-1 values to be recycled) to resolve paths for multiple builds
-#' in one call. `repo_root` is typically a single scalar shared across builds.
-#' A `NA` `os` (no known platform for that row -- e.g. no binary built for it)
-#' resolves to `NA_character_` for that row rather than an error or a
-#' misleading `"src/contrib"` fallback.
-#'
 #' @param repo_root character
 #' @param r_version character
 #' @param os character

@@ -35,13 +35,6 @@ and macosx, \if{html}{\out{<compiler>}}-\if{html}{\out{<arch>}} for windows. CRA
 conventions for linux and windows, so Bioconductor has not yet adopted them.
 The \code{cran_subpath} parameter should be TRUE to not use R Universe subpath
 for windows.
-
-\code{r_version}, \code{os}, and \code{arch} are vectorized: pass vectors of equal length
-(or length-1 values to be recycled) to resolve paths for multiple builds
-in one call. \code{repo_root} is typically a single scalar shared across builds.
-A \code{NA} \code{os} (no known platform for that row -- e.g. no binary built for it)
-resolves to \code{NA_character_} for that row rather than an error or a
-misleading \code{"src/contrib"} fallback.
 }
 \examples{
 repo_root <- "/home/biocpush/PACKAGES/3.22/bioc"
