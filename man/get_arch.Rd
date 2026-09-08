@@ -18,5 +18,7 @@ character
 Get the arch
 }
 \examples{
+binaries_arch <- c(NA, "x86_64", "aarch64", NA)
 get_arch(binaries_arch, "arm64")
+
 }
