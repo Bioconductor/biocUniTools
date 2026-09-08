@@ -37,25 +37,35 @@ uni_pkg_file <- function(pkg, os, version) {
     paste0(pkg, "_", version, ".", ext)
 }
 
-#' Get macosx repo subpath by R version
+#' Get repo subpath by R version
 #'
-#' @param r_version R X.Y character
+#' @param os character OS name, e.g. "macosx", "windows", "linux"
 #' @param arch character x86_64 or arm64
+#' @param r_xy R X.Y character
+#' @param cran_subpath (default FALSE) uses CRAN style subpaths
 #'
 #' @returns character
 #' 
 #' @examples
-#' get_macosx_subpath("4.6", "arm64")
-#' 
+#' get_subpath("macosx", "arm64", "4.6")
+#' get_subpath(c("macosx", "windows"), c("arm64", "x86_64"), c("4.6", "4.5"))
 #'
 #' @export
-get_macosx_subpath <- function(r_version, arch) {
-    if (any(as.double(r_version) < 4.6 & arch == "arm64"))
+get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
+    is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
+    is_win <- !is.na(os) & stringr::str_detect(os, "win")
+
+    if (any(is_mac & as.double(r_xy) < 4.6 & arch == "arm64", na.rm = TRUE))
         stop("R version must be greater than or equal to 4.6 if arch is arm64")
 
-    ifelse(as.double(r_version) >= 4.6 & arch == "arm64",
-           subpath <- paste0("sonoma", "-", arch),
-           subpath <- paste0("big-sur", "-", arch))
+    dplyr::case_when(
+        is_mac & arch == "arm64" ~ paste("sonoma", arch, sep = "-"),
+        is_mac ~ paste("big-sur", arch, sep = "-"),
+        is_win & (as.double(r_xy) < 4.6 | cran_subpath) ~ "",
+        is_win & arch == "arm64" ~ "clang-arm64",
+        is_win ~ "gcc-x86_64",
+        .default = ""
+    )
 }
 
 #' Get repo path
@@ -66,8 +76,15 @@ get_macosx_subpath <- function(r_version, arch) {
 #' The `cran_subpath` parameter should be TRUE to not use R Universe subpath
 #' for windows.
 #'
+#' `r_version`, `os`, and `arch` are vectorized: pass vectors of equal length
+#' (or length-1 values to be recycled) to resolve paths for multiple builds
+#' in one call. `repo_root` is typically a single scalar shared across builds.
+#' A `NA` `os` (no known platform for that row -- e.g. no binary built for it)
+#' resolves to `NA_character_` for that row rather than an error or a
+#' misleading `"src/contrib"` fallback.
+#'
+#' @param repo_root character
 #' @param r_version character
-#' @param bioc_version character
 #' @param os character
 #' @param arch character x86_64 or arm64
 #' @param cran_subpath (default FALSE) uses CRAN style subpaths
@@ -77,12 +94,12 @@ get_macosx_subpath <- function(r_version, arch) {
 #' @examples
 #' repo_root <- "/home/biocpush/PACKAGES/3.22/bioc"
 #' get_repository_path(repo_root, "4.6.0", "windows", "arm64")
+#' get_repository_path(repo_root, c("4.6.0", "4.6.0"), c("windows", "macosx"),
+#'                     c("arm64", "arm64"))
 #'
 #' @export
 get_repository_path <- function(repo_root, r_version, os, arch = NA_character_,
                                 cran_subpath = FALSE) {
-    r_xy <- r_xy_ver(r_version)
-
     is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
     is_win <- !is.na(os) & stringr::str_detect(os, "win")
 
@@ -90,22 +107,20 @@ get_repository_path <- function(repo_root, r_version, os, arch = NA_character_,
         !stringr::str_detect(arch, "^(x86_64|arm64)$"))))
         stop("arch must be x86_64 or arm64")
 
-    subpath_arch <- dplyr::case_when(
-        is_mac ~ get_macosx_subpath(r_xy, arch),
-        is_win & arch == "arm64" ~ paste("clang", arch, sep = "-"),
-        is_win & arch == "x86_64" ~ paste("gcc", arch, sep = "-"),
-        .default = ""
-    )
-
+    r_xy <- r_xy_ver(r_version)
+    subpath <- get_subpath(os, arch, r_xy, cran_subpath)
     repo_path <- dplyr::case_when(
-        is_mac ~ file.path("bin", "macosx", subpath_arch, "contrib", r_xy),
-        is_win & cran_subpath ~ file.path("bin", "windows", "contrib", r_xy),
-        is_win & !cran_subpath ~ file.path("bin", "windows", subpath_arch,
-                                           "contrib", r_xy),
+        is.na(os) ~ NA_character_,
+        is_mac ~ file.path("bin", "macosx", subpath, "contrib", r_xy),
+        is_win ~ file.path("bin", "windows", subpath, "contrib", r_xy),
         .default = "src/contrib"
     )
 
-    file.path(repo_root, repo_path)
+    repo_path <- gsub("//+", "/", repo_path)
+
+    result <- file.path(repo_root, repo_path)
+    result[is.na(repo_path)] <- NA_character_
+    result
 }
 
 #' Get universe URL for an os and R version
@@ -150,7 +165,10 @@ get_binary_os <- function(os) {
 #' @returns character
 #'
 #' @examples
+#' binaries_arch <- c(NA, "x86_64", "aarch64", NA)
 #' get_arch(binaries_arch, "arm64")
+#'
+#' @export
 get_arch <- function(binaries_arch, job_arch) {
     dplyr::case_when(is.na(binaries_arch) & job_arch == "arm64" ~ "x86_64",
                      binaries_arch == "aarch64" & job_arch == "arm64" ~ "arm64",
@@ -394,7 +412,7 @@ get_jobs <- function(universe_df, r_version, universe) {
 #' raw_universe_df <- get_raw_uni_df(bu$universe)
 #' universe_df <- get_uni_df(raw_universe_df)
 #' jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
-#' filter_by_os_arch(jobs, "macosx", "arm64")
+#' filter_by_arch(jobs, "macosx", "arm64")
 #' 
 #' @export
 filter_by_arch <- function(df, os, arch = "x86_64") {
@@ -575,17 +593,18 @@ uni_for_bioc <- function(branch) {
     bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
     stopifnot(branch %in% c(bioc_yaml$versions, "release", "devel"))
 
-    if (branch == "devel") {
+    if (branch %in% c("devel", bioc_yaml$devel_version)) {
         bioc_version <- bioc_yaml$devel_version
         bioc_branch <- "devel"
         universe <- "bioc"
         r_version <- bioc_yaml$r_version_associated_with_devel
-    } else {
+    } else if (branch %in% c("release", bioc_yaml$release_version)) {
         bioc_version <- bioc_yaml$release_version
         bioc_branch <- "release"
         universe <- "bioc-release"
         r_version <- bioc_yaml$r_version_associated_with_release
-    }
+    } else
+        stop("Must be the devel or release branch")
     
     list(bioc_version = bioc_version,
          bioc_branch = bioc_branch,

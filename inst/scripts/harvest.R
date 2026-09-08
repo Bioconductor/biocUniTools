@@ -5,9 +5,8 @@ library(biocUniTools)
 
 
 # Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]
-# ARCH are only for macosx
-# Example: Rscript harvest.R 3.22 macosx arm64
-# Example: Rscript harvest.R 3.23 windows arm64
+# Example: Rscript harvest.R TRUE devel macosx arm64
+# Example: Rscript harvest.R FALSE 3.23 windows arm64
 
 msg <- "Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]"
 args <- commandArgs(trailingOnly=TRUE)
@@ -35,11 +34,10 @@ if (OS %in% c("macosx", "windows") && length(args) != 4) {
     ARCH <- args[4]
     LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
 } else if (OS == "windows" && length(args) == 4) {
-    stopifnot(args[5] %in% c("x86_64", "arm64"))
-    ARCH <- args[5]
+    stopifnot(args[4] %in% c("x86_64", "arm64"))
+    ARCH <- args[4]
     LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
 } else {
-    SUBPATH <- NA
     ARCH <- NA
     LOG_FILE_BASE <- paste("harvest", OS, sep = "-")
 }
