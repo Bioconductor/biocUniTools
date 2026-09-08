@@ -8,20 +8,20 @@ get_repository_path(
   repo_root,
   r_version,
   os,
-  macosx_name = NA_character_,
-  arch = NA_character_
+  arch = NA_character_,
+  cran_subpath = FALSE
 )
 }
 \arguments{
+\item{repo_root}{character}
+
 \item{r_version}{character}
 
 \item{os}{character}
 
-\item{macosx_name}{big-sur or sonoma}
-
 \item{arch}{character x86_64 or arm64}
 
-\item{bioc_version}{character}
+\item{cran_subpath}{(default FALSE) uses CRAN style subpaths}
 }
 \value{
 character
@@ -29,7 +29,17 @@ character
 \description{
 Get repo path
 }
+\details{
+R Universe has adopted \if{html}{\out{<os name>}}-\if{html}{\out{<arch>}} style path for linux and
+and macosx, \if{html}{\out{<compiler>}}-\if{html}{\out{<arch>}} for windows. CRAN has not adopted these
+conventions for linux and windows, so Bioconductor has not yet adopted them.
+The \code{cran_subpath} parameter should be TRUE to not use R Universe subpath
+for windows.
+}
 \examples{
-get_repository_path("/home/biocpush/PACKAGES/3.22/bioc", "4.6.0", "windows")
+repo_root <- "/home/biocpush/PACKAGES/3.22/bioc"
+get_repository_path(repo_root, "4.6.0", "windows", "arm64")
+get_repository_path(repo_root, c("4.6.0", "4.6.0"), c("windows", "macosx"),
+                    c("arm64", "arm64"))
 
 }

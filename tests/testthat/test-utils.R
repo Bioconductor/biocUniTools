@@ -29,54 +29,132 @@ test_that("get_binary_os gets abbreviation", {
 })
 
 test_that("uni_repo_url gets the universe url", {
-    expect_error(uni_repo_url("bioc", "4.6.0", "macosx", "ventura", "x86_64"),
-                 "macosx_name must be big-sur or sonoma")
-    expect_equal(uni_repo_url("bioc", "4.5.0", "macosx", "big-sur", "arm64"),
-                 "https://bioc.r-universe.dev/bin/macosx/big-sur-arm64/contrib/4.5")
-    expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "sonoma", "arm64"),
+    expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "x86_64"),
+                 "https://bioc.r-universe.dev/bin/macosx/big-sur-x86_64/contrib/4.6")
+    expect_equal(uni_repo_url("bioc", "4.6.0", "macosx", "arm64"),
                  "https://bioc.r-universe.dev/bin/macosx/sonoma-arm64/contrib/4.6")
-    expect_equal(uni_repo_url("bioc", "4.6.0", "windows"),
-                 "https://bioc.r-universe.dev/bin/windows/contrib/4.6")
+    expect_equal(uni_repo_url("bioc", "4.6.0", "windows", "arm64"),
+                 "https://bioc.r-universe.dev/bin/windows/clang-arm64/contrib/4.6")
+    expect_equal(uni_repo_url("bioc", "4.6.0", "windows", "x86_64"),
+                 "https://bioc.r-universe.dev/bin/windows/gcc-x86_64/contrib/4.6")
 })
 
-test_that("get_macosx_subpath returns correct paths", {
-    expect_equal(get_macosx_subpath("4.6", "arm64"), "sonoma-arm64")
-    expect_equal(get_macosx_subpath("4.6", "x86_64"), "big-sur-x86_64")
-    expect_equal(get_macosx_subpath("4.5", "x86_64"), "big-sur-x86_64")
-    expect_equal(get_macosx_subpath("4.5", "arm64"), "big-sur-arm64")
+test_that("get_subpath returns correct paths", {
+    expect_equal(get_subpath("macosx", "arm64", "4.6"), "sonoma-arm64")
+    expect_equal(get_subpath("macosx", "x86_64", "4.6"), "big-sur-x86_64")
+    expect_equal(get_subpath("macosx", "x86_64", "4.5"), "big-sur-x86_64")
+    expect_error(get_subpath("macosx", "arm64", "4.5"),
+                 "R version must be greater than or equal to 4.6 if arch is arm64")
+    expect_equal(get_subpath("windows", "x86_64", "4.5"), "")
+    expect_equal(get_subpath("windows", "arm64", "4.5"), "")
+    expect_equal(get_subpath("windows", "x86_64", "4.6"), "gcc-x86_64")
+    expect_equal(get_subpath("windows", "arm64", "4.6"), "clang-arm64")
+    expect_equal(get_subpath("windows", "arm64", "4.6", TRUE), "")
+    expect_equal(get_subpath("linux", NA_character_, "4.6"), "")
 })
 
 test_that("get_repository_path creates good paths", {
-    expect_error(get_repository_path("reporoot", "4.6", "macos",
-                                     macosx_name = "sonoma", arch = "x86_64"),
-                 "sonoma binaries are for arch == arm64 and >= R 4.6")
-    expect_error(get_repository_path("reporoot", "4.5", "macos",
-                                     macosx_name = "sonoma", arch = "arm64"),
-                 "sonoma binaries are for arch == arm64 and >= R 4.6")
     expect_error(get_repository_path("reporoot", "4.5", "macos"),
-                 "arch must not be NA for os == macosx")
-    expect_error(get_repository_path("reporoot", "4.6", "macosx",
-                                     macosx_name = "sonoma"),
-                 "arch must not be NA for os == macosx")
-    expect_error(get_repository_path("reporoot", "4.5", "macos",
-                                     macosx_name = "catalina", arch = "x86_64"),
-                 "macosx_name must be big-sur or sonoma")
-    expect_error(get_repository_path("reporoot", "4.5", "macos",
-                                     macosx_name = "big-sur", arch = "arm32"),
+                 "arch must be x86_64 or arm64")
+    expect_error(get_repository_path("reporoot", "4.6", "windows"),
                  "arch must be x86_64 or arm64")
     expect_equal(get_repository_path("reporoot", "4.5", "linux"),
                  "reporoot/src/contrib")
-    expect_equal(get_repository_path("reporoot", "4.6", "windows"),
-                 "reporoot/bin/windows/contrib/4.6")
-    expect_equal(get_repository_path("reporoot", "4.5", "macos",
-                                     macosx_name = "big-sur", arch = "arm64"),
-                 "reporoot/bin/macosx/big-sur-arm64/contrib/4.5")
-    expect_equal(get_repository_path("reporoot", "4.6", "macos",
-                                     macosx_name = "big-sur", arch = "x86_64"),
+    expect_equal(get_repository_path("reporoot", "4.6", "macos", "x86_64"),
                  "reporoot/bin/macosx/big-sur-x86_64/contrib/4.6")
-    expect_equal(get_repository_path("reporoot", "4.6", "macos",
-                                     macosx_name = "sonoma", arch = "arm64"),
-                 "reporoot/bin/macosx/sonoma-arm64/contrib/4.6")
+    expect_equal(get_repository_path("reporoot", "4.6", "macos", "x86_64", TRUE),
+                 "reporoot/bin/macosx/big-sur-x86_64/contrib/4.6")
+    expect_error(get_repository_path("reporoot", "4.5", "macos", "arm64"),
+                 "R version must be greater than or equal to 4.6 if arch is arm64")
+    expect_equal(get_repository_path("reporoot", "4.6", "windows", "arm64"),
+                 "reporoot/bin/windows/clang-arm64/contrib/4.6")
+    expect_equal(get_repository_path("reporoot", "4.6", "windows", "x86_64"),
+                 "reporoot/bin/windows/gcc-x86_64/contrib/4.6")
+    expect_equal(get_repository_path("reporoot", "4.6", "windows", "arm64", TRUE),
+                 "reporoot/bin/windows/contrib/4.6")
+    expect_equal(get_repository_path("reporoot", "4.6", "windows", "x86_64", TRUE),
+                 "reporoot/bin/windows/contrib/4.6")
+})
+
+test_that("get_subpath creates correct subpaths", {
+    result <- get_subpath(
+        os      = c("macosx", "macosx", "windows", "windows", "linux"),
+        arch    = c("arm64", "x86_64", "arm64", "x86_64", NA_character_),
+        r_xy    = c("4.6", "4.5", "4.5", "4.6", "4.6")
+    )
+    expect_equal(result, c("sonoma-arm64", "big-sur-x86_64", "", "gcc-x86_64", ""))
+})
+
+test_that("get_subpath in cran_subpath overrides", {
+    result <- get_subpath(
+        os           = c("windows", "windows"),
+        arch         = c("arm64",   "x86_64"),
+        r_xy         = c("4.6",     "4.6"),
+        cran_subpath = TRUE
+    )
+    expect_equal(result, c("", ""))
+})
+
+test_that("get_subpath errors if any row is mac + arm64 + r_xy < 4.6", {
+    expect_error(
+        get_subpath(
+            os   = c("macosx", "windows"),
+            arch = c("arm64",  "arm64"),
+            r_xy = c("4.5",    "4.5")
+        ),
+        "R version must be greater than or equal to 4.6 if arch is arm64"
+    )
+})
+
+test_that("get_repository_path returns the correct paths", {
+    result <- get_repository_path(
+        repo_root = "reporoot",
+        r_version = c("4.6.0", "4.6.0", "4.5.0"),
+        os        = c("macosx", "windows", "linux"),
+        arch      = c("arm64",  "x86_64",  NA_character_)
+    )
+    expect_equal(result, c(
+        "reporoot/bin/macosx/sonoma-arm64/contrib/4.6",
+        "reporoot/bin/windows/gcc-x86_64/contrib/4.6",
+        "reporoot/src/contrib"
+    ))
+})
+
+test_that("get_repository_path collapses empty windows subpath", {
+    result <- get_repository_path(
+        repo_root     = "reporoot",
+        r_version     = c("4.6.0", "4.6.0"),
+        os            = c("windows", "macosx"),
+        arch          = c("arm64",   "arm64"),
+        cran_subpath  = TRUE
+    )
+    expect_equal(result, c(
+        "reporoot/bin/windows/contrib/4.6",
+        "reporoot/bin/macosx/sonoma-arm64/contrib/4.6"
+    ))
+})
+
+test_that("get_subpath treats NA os as neither mac nor windows, not an error", {
+    result <- get_subpath(
+        os   = c("windows", NA_character_, "macosx"),
+        arch = c("x86_64",  NA_character_,  "arm64"),
+        r_xy = c("4.6",     "4.6",          "4.6")
+    )
+    expect_equal(result, c("gcc-x86_64", "", "sonoma-arm64"))
+})
+
+test_that("get_repository_path resolves NA_character_ for NA os rows in a mixed batch", {
+    result <- get_repository_path(
+        repo_root = "reporoot",
+        r_version = c("4.6.0", "4.6.0", "4.6.0"),
+        os        = c("windows", NA_character_, "macosx"),
+        arch      = c("x86_64",  NA_character_,  "arm64")
+    )
+    expect_equal(result, c(
+        "reporoot/bin/windows/gcc-x86_64/contrib/4.6",
+        NA_character_,
+        "reporoot/bin/macosx/sonoma-arm64/contrib/4.6"
+    ))
 })
 
 test_that("is_unsupported_platforms filters os-arch", {
@@ -111,12 +189,9 @@ test_that("is_unsupported_platforms filters os-arch", {
 })
 
 test_that("get_candidates gets R Universe data", {
+    bu <- uni_for_bioc("devel")
     # windows
-    bu <- list(universe = "bioc",
-               bioc_branch = "devel",
-               r_version = "4.6.0",
-               bioc_version = "3.23")
-    pkgs <- get_candidates(bu,  "windows")
+    pkgs <- get_candidates(bu,  "windows", "x86_64")
     expect_gt(nrow(pkgs), 0)
     
     pkg <- pkgs |>
@@ -124,15 +199,12 @@ test_that("get_candidates gets R Universe data", {
         dplyr::slice(1)
     version <- dplyr::pull(pkg, Version)
     package <- dplyr::pull(pkg, Package)
-    url <- file.path(uni_repo_url("bioc", "4.6.0", "windows"),
+    url <- file.path(uni_repo_url(bu$universe, bu$r_version, "windows", "x86_64"),
                      uni_pkg_file(package, "windows", version))
     expect_equal(dplyr::pull(pkg, artifact), url)
     
     # macosx x86_64
-    bu <- list(universe = "bioc-release",
-               bioc_branch = "release",
-               r_version = "4.5.0",
-               bioc_version = "3.22")
+    bu <- uni_for_bioc("release")
     pkgs <- get_candidates(bu, "macosx", arch = "x86_64")
     expect_gt(nrow(pkgs), 0)
     
@@ -141,8 +213,7 @@ test_that("get_candidates gets R Universe data", {
         dplyr::slice(1)
     version <- dplyr::pull(pkg, Version)
     package <- dplyr::pull(pkg, Package)
-    url <- file.path(uni_repo_url("bioc-release", "4.5.0", "macosx",
-                                  macosx_name = "big-sur", arch = "x86_64"),
+    url <- file.path(uni_repo_url(bu$universe, bu$r_version, "macosx", "x86_64"),
                      uni_pkg_file(package, "macosx", version))
     expect_equal(dplyr::pull(pkg, artifact), url)
 })

@@ -22,7 +22,7 @@ function filters specifically for data observed in R Universe, which could
 change in the future.
 \itemize{
 \item mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
-\item linux default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
+\item linux/win default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
 }
 }
 \examples{
@@ -30,6 +30,6 @@ bu <- uni_for_bioc("devel")
 raw_universe_df <- get_raw_uni_df(bu$universe)
 universe_df <- get_uni_df(raw_universe_df)
 jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
-filter_by_os_arch(jobs, "macosx", "arm64")
+filter_by_arch(jobs, "macosx", "arm64")
 
 }
