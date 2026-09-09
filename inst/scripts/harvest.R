@@ -53,7 +53,8 @@ options(max.print = 3000L)
 logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
-repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, ARCH)
+repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, ARCH,
+                                 cran_subpath = OS == "windows")
 candidates <- get_candidates(bu, os = OS, arch = ARCH, commit = TRUE)
 
 # Remove any candidates from the list that are currently in the repository
