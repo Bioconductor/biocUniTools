@@ -418,10 +418,10 @@ filter_by_arch <- function(df, os, arch = "x86_64") {
     } else if (os == "mac" && arch == "arm64") {
         dplyr::filter(df,
                       (binaries_arch == "aarch64") | (job_arch == "arm64" & is.na(binaries_arch)))
-    } else if (os %in% c("linux", "windows") && arch == "x86_64") {
+    } else if (os %in% c("linux", "win") && arch == "x86_64") {
         dplyr::filter(df,
                       (binaries_arch == "x86_64") | (job_arch == "x86_64" & is.na(binaries_arch)))
-    } else if (os %in% c("linux", "windows") && arch == "arm64") {
+    } else if (os %in% c("linux", "win") && arch == "arm64") {
         dplyr::filter(df,
                       (binaries_arch == "aarch64") | (job_arch == "x86_64" & is.na(binaries_arch)))
     } else {
