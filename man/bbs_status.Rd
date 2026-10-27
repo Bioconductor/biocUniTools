@@ -23,7 +23,8 @@ bbs_status(
 building on \code{platform}.}
 }
 \value{
-data.frame
+data.frame with attributes \code{node_info} (see \code{bbs_nodes()}) and
+\code{report_url}
 }
 \description{
 Returns one row per package with the version and commit the BBS used and the

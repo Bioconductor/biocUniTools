@@ -32,7 +32,8 @@ version and commit
 \item \code{result_match}: whether the results agree after \code{normalize_result()}
 }
 
-\code{NA} means there is nothing to compare.
+\code{NA} means there is nothing to compare. Attributes \code{bbs_node_info},
+\code{bbs_report_url}, and \code{universe_url} describe where the results come from.
 }
 \examples{
 \dontrun{
