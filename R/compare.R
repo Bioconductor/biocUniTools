@@ -40,7 +40,8 @@ normalize_result <- function(result) {
 #'   check` on both.
 #' * `result_match`: whether the results agree after `normalize_result()`
 #'
-#' `NA` means there is nothing to compare.
+#' `NA` means there is nothing to compare. Attributes `bbs_node_info`,
+#' `bbs_report_url`, and `universe_url` describe where the results come from.
 #'
 #' @param branch character "devel" or "release"
 #' @param type character one of `bioc_pkg_types()$type`
@@ -64,6 +65,8 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
         uni <- uni_status(branch, type, jobs = jobs)
 
     bioc_version <- stats::na.omit(c(bbs$bioc_version, uni$bioc_version))[1]
+    universe <- stats::na.omit(uni$universe)[1]
+    bbs_attrs <- attributes(bbs)[c("node_info", "report_url")]
     bbs <- bbs |>
         dplyr::select(-type, -bioc_version, -build_bin) |>
         dplyr::rename_with(~ paste0("bbs_", tolower(.x)), -Package)
@@ -91,7 +94,11 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
                         bbs_result, uni_result, result_match,
                         .after = Package) |>
         dplyr::arrange(Package) |>
-        as.data.frame()
+        as.data.frame() |>
+        structure(bbs_node_info = bbs_attrs$node_info,
+                  bbs_report_url = bbs_attrs$report_url,
+                  universe_url = if (!is.na(universe))
+                      paste0("https://", universe, ".r-universe.dev"))
 }
 
 #' Summarize a comparison

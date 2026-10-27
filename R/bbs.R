@@ -40,21 +40,29 @@ bbs_report_url <- function(branch, type = "software") {
                result = parts[, 5])
 }
 
-#' Get the platform of a build node, e.g., "x86_64-linux-gnu"
+#' Get details of a build node from its NodeInfo page
 #'
 #' @param report_url character from `bbs_report_url()`
 #' @param node character node name
 #'
-#' @returns character
+#' @returns data.frame with one row and columns node, os, arch, platform,
+#'     r_version
 #'
 #' @noRd
-.bbs_node_platform <- function(report_url, node) {
+.bbs_node_info <- function(report_url, node) {
     html <- paste(readLines(file.path(report_url,
                                       paste0(node, "-NodeInfo.html")),
                             warn = FALSE),
                   collapse = " ")
-    text <- gsub("&nbsp;", " ", gsub("<[^>]*>", " ", html))
-    stringr::str_match(text, "Platform:\\s*(\\S+)")[, 2]
+    text <- gsub("\\s+", " ", gsub("&nbsp;", " ", gsub("<[^>]*>", " ", html)))
+    field <- function(label, next_label)
+        trimws(stringr::str_match(
+            text, paste0(label, ":\\s*(.*?)\\s*", next_label))[, 2])
+    data.frame(node = node,
+               os = field("OS", "Arch:"),
+               arch = field("Arch", "Platform:"),
+               platform = field("Platform", "R version:"),
+               r_version = field("R version", "R environment"))
 }
 
 #' Get the build nodes of a build report
@@ -62,7 +70,7 @@ bbs_report_url <- function(branch, type = "software") {
 #' @param branch character "devel" or "release"
 #' @param type character one of `bioc_pkg_types()$type`
 #'
-#' @returns data.frame with columns node and platform
+#' @returns data.frame with columns node, os, arch, platform, r_version
 #'
 #' @examples
 #' bbs_nodes("devel", "software")
@@ -71,9 +79,7 @@ bbs_report_url <- function(branch, type = "software") {
 bbs_nodes <- function(branch, type = "software") {
     report_url <- bbs_report_url(branch, type)
     nodes <- unique(.read_bbs_status_db(report_url)$node)
-    data.frame(node = nodes,
-               platform = vapply(nodes, .bbs_node_platform, character(1),
-                                 report_url = report_url, USE.NAMES = FALSE))
+    do.call(rbind, lapply(nodes, .bbs_node_info, report_url = report_url))
 }
 
 #' Read package metadata from a build report
@@ -135,7 +141,8 @@ bbs_nodes <- function(branch, type = "software") {
 #' @param node character build node name. If `NULL` (default), the node
 #'     building on `platform`.
 #'
-#' @returns data.frame
+#' @returns data.frame with attributes `node_info` (see `bbs_nodes()`) and
+#'     `report_url`
 #'
 #' @examples
 #' \dontrun{
@@ -149,11 +156,10 @@ bbs_status <- function(branch, type = "software",
     bu <- uni_for_bioc(branch)
 
     status_db <- .read_bbs_status_db(report_url)
+    nodes <- do.call(rbind, lapply(unique(status_db$node), .bbs_node_info,
+                                   report_url = report_url))
     if (is.null(node)) {
-        nodes <- unique(status_db$node)
-        platforms <- vapply(nodes, .bbs_node_platform, character(1),
-                            report_url = report_url)
-        node <- nodes[platforms == platform]
+        node <- nodes$node[nodes$platform %in% platform]
         if (length(node) != 1)
             stop("Expected 1 node for platform '", platform, "', found ",
                  length(node))
@@ -179,5 +185,7 @@ bbs_status <- function(branch, type = "software",
                       deprecated, commit, commit_date, install, build, check,
                       build_bin, url) |>
         dplyr::arrange(Package) |>
-        as.data.frame()
+        as.data.frame() |>
+        structure(node_info = nodes[nodes$node == node, ],
+                  report_url = report_url)
 }

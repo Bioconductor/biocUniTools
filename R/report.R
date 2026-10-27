@@ -1,4 +1,8 @@
-#' Show a result as a colored badge, optionally linked
+#' Show a result as a Bootstrap badge, optionally linked
+#'
+#' @description OK and NOTE are green, WARNING is yellow, ERROR is red, and
+#' anything else (e.g., TIMEOUT, skipped) is gray. R Universe's overall status
+#' "success" is green and "failure" is red.
 #'
 #' @param result character
 #' @param url character or `NA`
@@ -7,23 +11,29 @@
 #'
 #' @noRd
 .badge <- function(result, url = NA_character_) {
-    level <- tolower(normalize_result(result))
-    level[is.na(level)] <- "none"
-    level[!level %in% c("ok", "warning", "error", "none")] <- "other"
-    label <- ifelse(is.na(result), "&#8212;", htmltools::htmlEscape(result))
-    badge <- sprintf('<span class="badge-result badge-%s">%s</span>', level,
-                     label)
-    ifelse(is.na(url), badge,
-           sprintf('<a href="%s" target="_blank">%s</a>', url, badge))
+    level <- normalize_result(result)
+    level <- dplyr::case_match(level,
+                               c("OK", "success") ~ "success",
+                               "WARNING" ~ "warning",
+                               c("ERROR", "failure") ~ "danger",
+                               NA ~ NA,
+                               .default = "secondary")
+    badge <- sprintf('<span class="badge text-bg-%s">%s</span>', level,
+                     htmltools::htmlEscape(result))
+    badge <- ifelse(is.na(url), badge,
+                    sprintf('<a href="%s" target="_blank">%s</a>', url, badge))
+    ifelse(is.na(result), '<span class="text-body-secondary">&#8212;</span>',
+           badge)
 }
 
-#' Show a logical as a check mark or cross
+#' Show a logical as a check mark or cross with text
 #'
 #' @noRd
 .mark <- function(x) {
-    dplyr::case_when(x ~ '<span class="mark-yes">&#10003;</span>',
-                     !x ~ '<span class="mark-no">&#10007;</span>',
-                     .default = '<span class="mark-none">&#8212;</span>')
+    dplyr::case_when(
+        x ~ '<span class="text-success">&#10003; Yes</span>',
+        !x ~ '<span class="text-danger fw-semibold">&#10007; No</span>',
+        .default = '<span class="text-body-secondary">&#8212;</span>')
 }
 
 #' Interactive table of a comparison
@@ -57,33 +67,33 @@ compare_table <- function(cmp) {
         uni_check = .badge(cmp$uni_check, cmp$uni_check_url),
         uni_binary_check = .badge(cmp$uni_binary_check),
         uni_bioccheck = .badge(cmp$uni_bioccheck, cmp$uni_bioccheck_url),
-        deprecated = ifelse(cmp$bbs_deprecated %in% TRUE, "deprecated", ""))
+        deprecated = ifelse(cmp$bbs_deprecated %in% TRUE,
+                            '<span class="badge text-bg-secondary">Deprecated</span>',
+                            ""))
     df$Package <- ifelse(is.na(cmp$bbs_url), df$Package,
                          sprintf('<a href="%s" target="_blank">%s</a>',
                                  cmp$bbs_url, df$Package))
 
     html <- function(name, ...)
         reactable::colDef(name = name, html = TRUE, ...)
-    compared <- list(style = list(background = "var(--compared-bg)"))
+    compared <- list(class = "compared")
     columns <- list(
         Package = html("Package", minWidth = 180, sticky = "left"),
         where = reactable::colDef(name = "Built by", minWidth = 120),
-        commit_match = html("Same commit", align = "center"),
-        result_match = html("Same result", align = "center"),
+        commit_match = html("Same commit"),
+        result_match = html("Same result"),
+        deprecated = html("Deprecated"),
         bbs_commit = reactable::colDef(name = "Commit"),
-        bbs_install = html("INSTALL"),
-        bbs_build = do.call(html, c(list("build"),
-                                    if (workflows) compared)),
-        bbs_check = do.call(html, c(list("check"),
-                                    if (!workflows) compared)),
+        bbs_install = html("Install"),
+        bbs_build = do.call(html, c(list("Build"), if (workflows) compared)),
+        bbs_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_commit = reactable::colDef(name = "Commit"),
         uni_status = html("Status"),
         uni_source_check = do.call(html, c(list("Source check"),
                                            if (workflows) compared)),
         uni_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_binary_check = html("Binary check"),
-        uni_bioccheck = html("BiocCheck"),
-        deprecated = reactable::colDef(name = "", minWidth = 100))
+        uni_bioccheck = html("BiocCheck"))
 
     reactable::reactable(
         df[, names(columns)],
@@ -91,7 +101,8 @@ compare_table <- function(cmp) {
         columnGroups = list(
             reactable::colGroup("Comparison",
                                 c("where", "commit_match", "result_match")),
-            reactable::colGroup("BBS", c("bbs_commit", "bbs_install",
+            reactable::colGroup("BBS", c("deprecated", "bbs_commit",
+                                         "bbs_install",
                                          "bbs_build", "bbs_check")),
             reactable::colGroup("R Universe",
                                 c("uni_commit", "uni_status",
@@ -135,7 +146,7 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
     num <- function(name, ...) reactable::colDef(name = name, align = "right",
                                                  ...)
     flag <- function(name) num(name, style = function(value)
-        if (value > 0) list(color = "var(--bad)", fontWeight = 600))
+        if (value > 0) list(color = "var(--bs-danger-text-emphasis)", fontWeight = 600))
     columns <- list(
         branch = reactable::colDef(name = "Branch"),
         type = reactable::colDef(name = "Type", html = TRUE, minWidth = 140),
