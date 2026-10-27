@@ -10,7 +10,7 @@
     level <- tolower(normalize_result(result))
     level[is.na(level)] <- "none"
     level[!level %in% c("ok", "warning", "error", "none")] <- "other"
-    label <- ifelse(is.na(result), "—", htmltools::htmlEscape(result))
+    label <- ifelse(is.na(result), "&#8212;", htmltools::htmlEscape(result))
     badge <- sprintf('<span class="badge-result badge-%s">%s</span>', level,
                      label)
     ifelse(is.na(url), badge,
@@ -21,9 +21,9 @@
 #'
 #' @noRd
 .mark <- function(x) {
-    dplyr::case_when(x ~ '<span class="mark-yes">✓</span>',
-                     !x ~ '<span class="mark-no">✗</span>',
-                     .default = '<span class="mark-none">—</span>')
+    dplyr::case_when(x ~ '<span class="mark-yes">&#10003;</span>',
+                     !x ~ '<span class="mark-no">&#10007;</span>',
+                     .default = '<span class="mark-none">&#8212;</span>')
 }
 
 #' Interactive table of a comparison
@@ -128,7 +128,7 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
     if (!is.null(link_fmt))
         df$type <- sprintf('<a href="%s">%s</a>',
                            sprintf(link_fmt, df$branch, df$type), df$type)
-    pct <- function(n, d) ifelse(d > 0, sprintf("%.0f%%", 100 * n / d), "—")
+    pct <- function(n, d) ifelse(d > 0, sprintf("%.0f%%", 100 * n / d), "&#8212;")
     df$commits_pct <- pct(df$commits_match, df$commits_match + df$commits_differ)
     df$results_pct <- pct(df$results_match, df$results_match + df$results_differ)
 
@@ -143,11 +143,11 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
         both = num("Both"),
         bbs_only = flag("BBS only"),
         universe_only = flag("R Universe only"),
-        commits_pct = num("Same commit"),
+        commits_pct = num("Same commit", html = TRUE),
         commits_differ = flag("Commit differs"),
-        results_pct = num("Same result"),
+        results_pct = num("Same result", html = TRUE),
         results_differ = flag("Result differs"),
-        check_diverged = flag("Check ≠ binary check"))
+        check_diverged = flag("Check differs from binary check"))
 
     reactable::reactable(df[, names(columns)], columns = columns,
                          compact = TRUE, highlight = TRUE, pagination = FALSE,

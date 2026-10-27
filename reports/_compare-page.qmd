@@ -38,7 +38,7 @@ if (!has_data) {
         tile(s$bbs_only + s$universe_only, "built by only one system"),
         tile(s$commits_differ, "commits differ"),
         tile(s$results_differ, "results differ"),
-        tile(s$check_diverged, "R Universe check ≠ binary check"),
+        tile(s$check_diverged, "R Universe check &#8800; binary check"),
         '</div>\n', sep = "\n")
 }
 ```
