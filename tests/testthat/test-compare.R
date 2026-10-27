@@ -31,3 +31,15 @@ test_that("compare_builds compares build to source check for workflows", {
     expect_equal(x$uni_result[1:2], c("OK", "ERROR"))
     expect_equal(x$result_match[1:2], c(TRUE, FALSE))
 })
+
+test_that("compare_summary counts matches and differences", {
+    uni$check_diverged <- c(FALSE, TRUE, FALSE)
+    s <- compare_summary(compare_builds("devel", "software", bbs = bbs,
+                                        uni = uni))
+    expect_equal(nrow(s), 1)
+    expect_equal(s$packages, 4)
+    expect_equal(c(s$both, s$bbs_only, s$universe_only), c(2, 1, 1))
+    expect_equal(c(s$commits_match, s$commits_differ), c(1, 1))
+    expect_equal(c(s$results_match, s$results_differ), c(2, 0))
+    expect_equal(s$check_diverged, 1)
+})

@@ -11,6 +11,7 @@ Depends: R (>= 4.6.0)
 Imports:
     BiocPkgTools,
     dplyr,
+    htmltools,
     httr2,
     jsonlite,
     purrr,
@@ -29,5 +30,6 @@ Suggests:
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: quarto
+Config/Needs/website: knitr, rmarkdown, reactable, yaml
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

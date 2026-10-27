@@ -1,0 +1,33 @@
+---
+title: "BBS and R Universe: summary"
+---
+
+```{r}
+#| include: false
+library(biocUniTools)
+config <- yaml::read_yaml("../config.yml")
+summary_file <- file.path("..", config$data_dir, "summary.rds")
+has_data <- file.exists(summary_file)
+if (has_data)
+    s <- readRDS(summary_file)
+```
+
+Each row compares one Bioconductor branch and package type on `r config$platform`.
+Workflows compare BBS `R CMD build` with R Universe source `R CMD check`; other
+types compare `R CMD check`. NOTE counts as OK; WARNINGS matches WARNING. Select a
+type for its packages.
+
+```{r}
+#| echo: false
+#| results: asis
+if (!has_data) {
+    cat("No data yet. Run `biocUniTools::write_comparisons(\"reports/config.yml\")`.\n")
+} else {
+    cat(sprintf("Updated %s.\n", format(attr(s, "created"), "%Y-%m-%d %H:%M %Z")))
+}
+```
+
+```{r}
+#| echo: false
+if (has_data) summary_table(s)
+```

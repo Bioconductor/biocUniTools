@@ -1,0 +1,6 @@
+^\.github$
+^_quarto\.yml$
+^_pkgdown\.yml$
+^docs$
+^reports$
+^\.quarto$

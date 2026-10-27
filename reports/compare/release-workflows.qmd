@@ -1,0 +1,11 @@
+---
+title: "Workflows: release"
+---
+
+```{r}
+#| include: false
+branch <- "release"
+type <- "workflows"
+```
+
+{{< include ../_compare-page.qmd >}}
