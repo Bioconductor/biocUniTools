@@ -24,7 +24,8 @@ Suggests:
     logger,
     quarto,
     reactable,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: quarto
