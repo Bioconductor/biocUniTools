@@ -4,6 +4,7 @@
 #' One row per Bioconductor package type with the name each system uses for it:
 #'
 #' * `type`: name used by biocUniTools functions
+#' * `label`: name for display
 #' * `manifest`: file name (without `.txt`) in the Bioconductor manifest
 #' * `bbs`: build report directory, e.g., `bioc` in `bioc-LATEST`
 #' * `universe`: `repository` value in R Universe's `_bioc` field
@@ -17,6 +18,7 @@
 bioc_pkg_types <- function() {
     data.frame(
         type = c("software", "data-experiment", "workflows", "books"),
+        label = c("Software", "Experiment Data", "Workflows", "Books"),
         manifest = c("software", "data-experiment", "workflows", "books"),
         bbs = c("bioc", "data-experiment", "workflows", "books"),
         universe = c("bioc", "data/experiment", "workflows", "books")

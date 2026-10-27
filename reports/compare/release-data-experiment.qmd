@@ -1,5 +1,5 @@
 ---
-title: "Experiment data: release"
+pagetitle: "Experiment data: release"
 ---
 
 ```{r}

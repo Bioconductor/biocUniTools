@@ -14,16 +14,24 @@ website:
             href: reports/compare/index.qmd
           - text: "---"
           - text: "devel"
-          - href: reports/compare/devel-software.qmd
-          - href: reports/compare/devel-data-experiment.qmd
-          - href: reports/compare/devel-workflows.qmd
-          - href: reports/compare/devel-books.qmd
+          - text: "Software"
+            href: reports/compare/devel-software.qmd
+          - text: "Experiment Data"
+            href: reports/compare/devel-data-experiment.qmd
+          - text: "Workflows"
+            href: reports/compare/devel-workflows.qmd
+          - text: "Books"
+            href: reports/compare/devel-books.qmd
           - text: "---"
           - text: "release"
-          - href: reports/compare/release-software.qmd
-          - href: reports/compare/release-data-experiment.qmd
-          - href: reports/compare/release-workflows.qmd
-          - href: reports/compare/release-books.qmd
+          - text: "Software"
+            href: reports/compare/release-software.qmd
+          - text: "Experiment Data"
+            href: reports/compare/release-data-experiment.qmd
+          - text: "Workflows"
+            href: reports/compare/release-workflows.qmd
+          - text: "Books"
+            href: reports/compare/release-books.qmd
 
 format:
   html:
