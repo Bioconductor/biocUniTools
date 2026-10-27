@@ -13,13 +13,13 @@ website:
           - text: "Summary"
             href: reports/compare/index.qmd
           - text: "---"
-          - section: "devel"
+          - text: "devel"
           - href: reports/compare/devel-software.qmd
           - href: reports/compare/devel-data-experiment.qmd
           - href: reports/compare/devel-workflows.qmd
           - href: reports/compare/devel-books.qmd
           - text: "---"
-          - section: "release"
+          - text: "release"
           - href: reports/compare/release-software.qmd
           - href: reports/compare/release-data-experiment.qmd
           - href: reports/compare/release-workflows.qmd
