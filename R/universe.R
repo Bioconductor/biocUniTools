@@ -51,6 +51,7 @@ uni_jobs <- function(branch) {
 #' * `source_check`: `R CMD check` of the source package, which builds vignettes
 #' * `check`: `R CMD check` of the binary job for `os` and `arch`
 #' * `binary_check`, `binary_status`: check result and status of the binary
+#' * `check_diverged`: `TRUE` if `check` and `binary_check` differ
 #' * `bioccheck`: result of `BiocCheck`
 #'
 #' Packages are assigned a type with `bioc_manifest()`. Packages not in any
@@ -124,9 +125,12 @@ uni_status <- function(branch, type = "software", os = "linux",
         dplyr::left_join(source, by = "Package") |>
         dplyr::left_join(binary, by = "Package") |>
         dplyr::left_join(bioccheck, by = "Package") |>
+        dplyr::mutate(check_diverged = !is.na(check) & !is.na(binary_check) &
+                          check != binary_check) |>
         dplyr::select(Package, Version, type, bioc_version, universe, commit,
                       commit_date, status, source_check, check, binary_check,
-                      binary_status, bioccheck, build_url, source_url,
+                      check_diverged, binary_status, bioccheck, build_url,
+                      source_url,
                       check_url, bioccheck_url) |>
         dplyr::arrange(Package) |>
         as.data.frame()
