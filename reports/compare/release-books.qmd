@@ -1,0 +1,11 @@
+---
+title: "Books: release"
+---
+
+```{r}
+#| include: false
+branch <- "release"
+type <- "books"
+```
+
+{{< include ../_compare-page.qmd >}}

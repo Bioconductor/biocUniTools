@@ -8,8 +8,25 @@ website:
     left:
       - text: "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes"
         href: vignettes/index.html
+      - text: "BBS vs R Universe"
+        menu:
+          - text: "Summary"
+            href: reports/compare/index.qmd
+          - text: "---"
+          - section: "devel"
+          - href: reports/compare/devel-software.qmd
+          - href: reports/compare/devel-data-experiment.qmd
+          - href: reports/compare/devel-workflows.qmd
+          - href: reports/compare/devel-books.qmd
+          - text: "---"
+          - section: "release"
+          - href: reports/compare/release-software.qmd
+          - href: reports/compare/release-data-experiment.qmd
+          - href: reports/compare/release-workflows.qmd
+          - href: reports/compare/release-books.qmd
 
 format:
   html:
     theme: cosmo
     toc: true
+    css: reports/compare.css

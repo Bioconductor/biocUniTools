@@ -63,6 +63,7 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
     if (is.null(uni))
         uni <- uni_status(branch, type, jobs = jobs)
 
+    bioc_version <- stats::na.omit(c(bbs$bioc_version, uni$bioc_version))[1]
     bbs <- bbs |>
         dplyr::select(-type, -bioc_version, -build_bin) |>
         dplyr::rename_with(~ paste0("bbs_", tolower(.x)), -Package)
@@ -75,6 +76,7 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
         dplyr::mutate(
             type = type,
             branch = branch,
+            bioc_version = bioc_version,
             where = dplyr::case_when(
                 is.na(uni_universe) ~ "bbs only",
                 is.na(bbs_node) ~ "universe only",
@@ -85,9 +87,97 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
             uni_result = if (workflows) uni_source_check else uni_check,
             result_match = normalize_result(bbs_result) ==
                 normalize_result(uni_result)) |>
-        dplyr::relocate(type, branch, where, version_match, commit_match,
+        dplyr::relocate(type, branch, bioc_version, where, version_match, commit_match,
                         bbs_result, uni_result, result_match,
                         .after = Package) |>
         dplyr::arrange(Package) |>
         as.data.frame()
+}
+
+#' Summarize a comparison
+#'
+#' @param cmp data.frame from `compare_builds()`
+#'
+#' @returns data.frame with one row per branch and type
+#'
+#' @examples
+#' \dontrun{
+#' compare_summary(compare_builds("devel", "books"))
+#' }
+#'
+#' @export
+compare_summary <- function(cmp) {
+    cmp |>
+        dplyr::group_by(branch, type) |>
+        dplyr::summarize(
+            packages = dplyr::n(),
+            both = sum(where == "both"),
+            bbs_only = sum(where == "bbs only"),
+            universe_only = sum(where == "universe only"),
+            commits_match = sum(commit_match, na.rm = TRUE),
+            commits_differ = sum(!commit_match, na.rm = TRUE),
+            results_match = sum(result_match, na.rm = TRUE),
+            results_differ = sum(!result_match, na.rm = TRUE),
+            check_diverged = sum(uni_check_diverged, na.rm = TRUE),
+            .groups = "drop") |>
+        as.data.frame()
+}
+
+#' Read a comparison report configuration
+#'
+#' @param file character path to a YAML file with `branches`, `types`, and
+#'     `data_dir`. Optional: `platform` (BBS), `os` and `arch` (R Universe).
+#'
+#' @returns list
+#'
+#' @noRd
+.read_compare_config <- function(file) {
+    config <- yaml::read_yaml(file)
+    defaults <- list(platform = "x86_64-linux-gnu", os = "linux",
+                     arch = "x86_64")
+    utils::modifyList(defaults, config)
+}
+
+#' Compare builds for every branch and type in a configuration
+#'
+#' @description
+#' Saves one `compare-<branch>-<type>.rds` per branch and type and a
+#' `summary.rds` in `data_dir`. Reports read these files, so the data is
+#' downloaded once.
+#'
+#' @param config character path to a YAML configuration. See
+#'     `system.file("reports", "config.yml", package = "biocUniTools")`.
+#'
+#' @returns data.frame summary, invisibly
+#'
+#' @examples
+#' \dontrun{
+#' write_comparisons("reports/config.yml")
+#' }
+#'
+#' @export
+write_comparisons <- function(config) {
+    config_dir <- dirname(config)
+    config <- .read_compare_config(config)
+    data_dir <- file.path(config_dir, config$data_dir)
+    dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
+
+    summaries <- list()
+    for (branch in config$branches) {
+        jobs <- uni_jobs(branch)
+        for (type in config$types) {
+            bbs <- bbs_status(branch, type, platform = config$platform)
+            uni <- uni_status(branch, type, os = config$os, arch = config$arch,
+                              jobs = jobs)
+            cmp <- compare_builds(branch, type, bbs = bbs, uni = uni)
+            attr(cmp, "created") <- Sys.time()
+            saveRDS(cmp, file.path(data_dir,
+                                   sprintf("compare-%s-%s.rds", branch, type)))
+            summaries[[paste(branch, type)]] <- compare_summary(cmp)
+        }
+    }
+    summary <- do.call(rbind, unname(summaries))
+    attr(summary, "created") <- Sys.time()
+    saveRDS(summary, file.path(data_dir, "summary.rds"))
+    invisible(summary)
 }

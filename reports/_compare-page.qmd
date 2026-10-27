@@ -1,0 +1,51 @@
+<!-- Shared body of each comparison page. Each page sets `branch` and `type`
+     and includes this file. -->
+
+```{r}
+#| include: false
+library(biocUniTools)
+config <- yaml::read_yaml("../config.yml")
+data_file <- file.path("..", config$data_dir,
+                       sprintf("compare-%s-%s.rds", branch, type))
+has_data <- file.exists(data_file)
+if (has_data) {
+    cmp <- readRDS(data_file)
+    s <- compare_summary(cmp)
+}
+tile <- function(value, label)
+    sprintf('<div class="stat-tile"><div class="value">%s</div><div class="label">%s</div></div>',
+            value, label)
+compared <- if (type == "workflows")
+    "BBS `R CMD build` and R Universe source `R CMD check`" else
+    "`R CMD check` on both"
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (!has_data) {
+    cat("No data yet. Run `biocUniTools::write_comparisons(\"reports/config.yml\")`.\n")
+} else {
+    cat(sprintf("Bioconductor %s (%s), %s. BBS node `%s` and R Universe `%s`. Updated %s.\n\n",
+                cmp$bioc_version[1], branch, config$platform,
+                stats::na.omit(cmp$bbs_node)[1],
+                stats::na.omit(cmp$uni_universe)[1],
+                format(attr(cmp, "created"), "%Y-%m-%d %H:%M %Z")))
+    cat(sprintf("Results compared: %s. NOTE counts as OK; WARNINGS matches WARNING.\n\n",
+                compared))
+    cat('<div class="stat-tiles">',
+        tile(s$packages, "packages"),
+        tile(s$bbs_only + s$universe_only, "built by only one system"),
+        tile(s$commits_differ, "commits differ"),
+        tile(s$results_differ, "results differ"),
+        tile(s$check_diverged, "R Universe check ≠ binary check"),
+        '</div>\n', sep = "\n")
+}
+```
+
+::: column-screen-inset
+```{r}
+#| echo: false
+if (has_data) compare_table(cmp)
+```
+:::
