@@ -27,7 +27,9 @@ if (!has_data) {
 }
 ```
 
+::: column-page
 ```{r}
 #| echo: false
 if (has_data) summary_table(s)
 ```
+:::
