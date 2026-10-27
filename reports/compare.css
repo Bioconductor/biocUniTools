@@ -6,3 +6,7 @@
 .compare-table, .summary-table { font-size: 0.875rem; }
 .compare-table .rt-th-group, .summary-table .rt-th { white-space: nowrap; }
 .compare-table .badge { min-width: 4.5em; }
+
+.compare-header { max-width: 48rem; }
+.compare-header dt { font-weight: 600; }
+.compare-bar { height: 0.75rem; }

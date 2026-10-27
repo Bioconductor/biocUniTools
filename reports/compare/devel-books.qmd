@@ -1,5 +1,5 @@
 ---
-title: "Books: devel"
+pagetitle: "Books: devel"
 ---
 
 ```{r}
