@@ -1,0 +1,10 @@
+# Rendered site
+/docs/
+/.quarto/
+**/*.quarto_ipynb
+
+# Data written by biocUniTools::write_comparisons()
+/reports/data/
+
+# Copied from the devel branch when rendering
+/vignettes/
