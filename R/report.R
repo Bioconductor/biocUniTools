@@ -61,13 +61,15 @@
            paste0(cmp$bbs_url, cmp$bbs_node, "-", stage, ".html"))
 }
 
-#' Show a logical as a check mark or cross with text
+#' Show a logical as a Bootstrap Icons check mark or cross with text
 #'
 #' @noRd
 .mark <- function(x) {
     dplyr::case_when(
-        x ~ '<span class="text-success-emphasis">&#10003; Yes</span>',
-        !x ~ '<span class="text-danger-emphasis">&#10007; No</span>',
+        x ~ paste0('<span class="text-success-emphasis">',
+                   '<i class="bi bi-check-lg" aria-hidden="true"></i> Yes</span>'),
+        !x ~ paste0('<span class="text-danger-emphasis">',
+                    '<i class="bi bi-x-lg" aria-hidden="true"></i> No</span>'),
         .default = '<span class="text-body-secondary">&#8212;</span>')
 }
 
