@@ -48,7 +48,7 @@ uni_jobs <- function(branch) {
 #' the result of each job:
 #'
 #' * `status`: overall R Universe build status
-#' * `source_check`: `R CMD check` of the source package, which builds vignettes
+#' * `source_build`: `R CMD build` of the source package, which builds vignettes
 #' * `check`: `R CMD check` of the binary job for `os` and `arch`
 #' * `binary_check`, `binary_status`: check result and status of the binary
 #' * `check_diverged`: `TRUE` if `check` and `binary_check` differ
@@ -109,7 +109,7 @@ uni_status <- function(branch, type = "software", os = "linux",
     }
     source <- jobs |>
         dplyr::filter(job_type == "source") |>
-        job_result("source_check", "source_url")
+        job_result("source_build", "source_url")
     bioccheck <- jobs |>
         dplyr::filter(job_type == "bioc-checks") |>
         job_result("bioccheck", "bioccheck_url")
@@ -128,7 +128,7 @@ uni_status <- function(branch, type = "software", os = "linux",
         dplyr::mutate(check_diverged = !is.na(check) & !is.na(binary_check) &
                           check != binary_check) |>
         dplyr::select(Package, Version, type, bioc_version, universe, commit,
-                      commit_date, status, source_check, check, binary_check,
+                      commit_date, status, source_build, check, binary_check,
                       check_diverged, binary_status, bioccheck, build_url,
                       source_url,
                       check_url, bioccheck_url) |>

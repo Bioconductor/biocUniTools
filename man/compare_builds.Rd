@@ -28,7 +28,7 @@ are prefixed with \code{bbs_} or \code{uni_}. Adds:
 \item \code{version_match}, \code{commit_match}: whether both systems built the same
 version and commit
 \item \code{bbs_result}, \code{uni_result}: the results compared. For workflows, BBS
-\verb{R CMD build} and R Universe's source \verb{R CMD check}. Otherwise, \verb{R CMD check} on both.
+\verb{R CMD build} and R Universe's source \verb{R CMD build}. Otherwise, \verb{R CMD check} on both.
 \item \code{result_match}: whether the results agree after \code{normalize_result()}
 }
 

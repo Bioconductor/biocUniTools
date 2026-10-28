@@ -19,7 +19,7 @@ if (has_data)
 ```
 
 Each row compares one Bioconductor branch and package type on `r config$platform`.
-Workflows compare BBS `R CMD build` with R Universe source `R CMD check`; other
+Workflows compare `R CMD build` on both; other
 types compare `R CMD check`. NOTE is treated as OK; WARNING(S) are treated the
 same. Select a type for its packages.
 

@@ -32,7 +32,7 @@ Returns one row per package with the version and commit R Universe built and
 the result of each job:
 \itemize{
 \item \code{status}: overall R Universe build status
-\item \code{source_check}: \verb{R CMD check} of the source package, which builds vignettes
+\item \code{source_build}: \verb{R CMD build} of the source package, which builds vignettes
 \item \code{check}: \verb{R CMD check} of the binary job for \code{os} and \code{arch}
 \item \code{binary_check}, \code{binary_status}: check result and status of the binary
 \item \code{check_diverged}: \code{TRUE} if \code{check} and \code{binary_check} differ
