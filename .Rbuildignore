@@ -4,3 +4,4 @@
 ^docs$
 ^reports$
 ^\.quarto$
+^index\.qmd$

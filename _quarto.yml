@@ -6,12 +6,10 @@ website:
   title: "biocUniTools"
   navbar:
     left:
-      - text: "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes"
-        href: vignettes/index.html
       - text: "BBS vs R Universe"
         menu:
           - text: "Summary"
-            href: reports/compare/index.qmd
+            href: index.qmd
           - text: "---"
           - text: "devel"
           - text: "Software"
@@ -32,6 +30,8 @@ website:
             href: reports/compare/release-workflows.qmd
           - text: "Books"
             href: reports/compare/release-books.qmd
+      - text: "Propagation status"
+        href: vignettes/index.qmd
 
 format:
   html:

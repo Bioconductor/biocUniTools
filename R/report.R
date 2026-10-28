@@ -177,9 +177,11 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
     if (!requireNamespace("reactable", quietly = TRUE))
         stop("Install 'reactable' to use summary_table()")
     df <- summary
-    if (!is.null(link_fmt))
-        df$type <- sprintf('<a href="%s">%s</a>',
-                           sprintf(link_fmt, df$branch, df$type), df$type)
+    types <- bioc_pkg_types()
+    label <- types$label[match(df$type, types$type)]
+    df$type <- if (is.null(link_fmt)) label else
+        sprintf('<a href="%s">%s</a>', sprintf(link_fmt, df$branch, df$type),
+                label)
     pct <- function(n, d) ifelse(d > 0, sprintf("%.0f%%", 100 * n / d), "&#8212;")
     df$commits_pct <- pct(df$commits_match, df$commits_match + df$commits_differ)
     df$results_pct <- pct(df$results_match, df$results_match + df$results_differ)
