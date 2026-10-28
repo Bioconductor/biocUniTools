@@ -19,9 +19,11 @@ if (has_data)
 ```
 
 Each row compares one Bioconductor branch and package type on `r config$platform`.
-Workflows compare `R CMD build` on both; other
-types compare `R CMD check`. NOTE is treated as OK; WARNING(S) are treated the
-same. Select a type for its packages.
+Workflows compare `R CMD build`. Others compare `R CMD check`.
+
+`NOTE` is treated as `OK`. `WARNING(S)` are treated the same.
+
+Select a type for its packages.
 
 ```{r}
 #| echo: false
