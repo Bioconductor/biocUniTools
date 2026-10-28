@@ -4,10 +4,14 @@
 \alias{get_raw_uni_df}
 \title{Get packages in an R Universe}
 \usage{
-get_raw_uni_df(uni)
+get_raw_uni_df(uni, packages = NULL)
 }
 \arguments{
 \item{uni}{character universe name}
+
+\item{packages}{character package names. If \code{NULL} (default), all packages
+in the universe. Otherwise, one request per package, which is faster for
+a few packages.}
 }
 \value{
 data.frame packages in a universe
@@ -16,6 +20,6 @@ data.frame packages in a universe
 Get packages in an R Universe
 }
 \examples{
-get_raw_uni_df("bioc")
+get_raw_uni_df("bioc", packages = c("BiocGenerics", "S4Vectors"))
 
 }

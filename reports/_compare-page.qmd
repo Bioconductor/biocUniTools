@@ -14,8 +14,13 @@ config <- yaml::read_yaml("../config.yml")
 data_file <- file.path("..", config$data_dir,
                        sprintf("compare-%s-%s.rds", branch, type))
 has_data <- file.exists(data_file)
-if (has_data)
+old_data <- FALSE
+if (has_data) {
     cmp <- readRDS(data_file)
+    # Data saved by an older biocUniTools may lack columns this page uses
+    old_data <- !all(c("uni_source_build", "uni_check_diverged") %in% names(cmp))
+    has_data <- !old_data
+}
 compared <- if (type == "workflows")
     "BBS `R CMD build` and R Universe source `R CMD build`" else
     "BBS `R CMD check` and R Universe `R CMD check`"
@@ -24,8 +29,13 @@ compared <- if (type == "workflows")
 ```{r}
 #| echo: false
 #| results: asis
-if (!has_data)
+if (old_data) {
+    cat("The saved data is from an older version of biocUniTools. Run",
+        "`pkgload::load_all(); write_comparisons(\"reports/config.yml\")`",
+        "from the repository to update it.\n")
+} else if (!has_data) {
     cat("No data yet. Run `biocUniTools::write_comparisons(\"reports/config.yml\")`.\n")
+}
 ```
 
 ```{r}

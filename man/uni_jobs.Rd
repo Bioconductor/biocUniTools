@@ -4,10 +4,13 @@
 \alias{uni_jobs}
 \title{Get all R Universe jobs for a Bioconductor branch}
 \usage{
-uni_jobs(branch)
+uni_jobs(branch, packages = NULL)
 }
 \arguments{
 \item{branch}{character "devel" or "release"}
+
+\item{packages}{character package names. If \code{NULL} (default), all
+packages in the universe, which takes a few minutes.}
 }
 \value{
 data.frame
