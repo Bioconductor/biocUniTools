@@ -28,8 +28,8 @@ jobs:
             local::.
           needs: website
 
-      - name: Install package
-        run: BiocManager::install("Bioconductor/biocUniTools")
+      - name: Compare BBS and R Universe builds
+        run: biocUniTools::write_comparisons("reports/config.yml")
         shell: Rscript {0}
 
       - name: Render

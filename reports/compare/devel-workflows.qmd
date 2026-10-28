@@ -1,0 +1,11 @@
+---
+pagetitle: "Workflows: devel"
+---
+
+```{r}
+#| include: false
+branch <- "devel"
+type <- "workflows"
+```
+
+{{< include ../_compare-page.qmd >}}

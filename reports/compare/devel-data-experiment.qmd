@@ -1,0 +1,11 @@
+---
+pagetitle: "Experiment data: devel"
+---
+
+```{r}
+#| include: false
+branch <- "devel"
+type <- "data-experiment"
+```
+
+{{< include ../_compare-page.qmd >}}

@@ -1,0 +1,11 @@
+---
+pagetitle: "Books: devel"
+---
+
+```{r}
+#| include: false
+branch <- "devel"
+type <- "books"
+```
+
+{{< include ../_compare-page.qmd >}}

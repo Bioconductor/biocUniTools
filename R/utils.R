@@ -1,6 +1,6 @@
 #' Limit for number of records to retrieve using universe package
 #' @noRd
-.LIMIT <- 3000L
+.LIMIT <- 5000L
 
 #' Get x.y version of R given x.y.z
 #'
