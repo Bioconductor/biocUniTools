@@ -153,7 +153,8 @@ compare_summary <- function(cmp) {
 #' downloaded once.
 #'
 #' @param config character path to a YAML configuration. See
-#'     `system.file("reports", "config.yml", package = "biocUniTools")`.
+#'     `reports/config.yml` on the `reports` branch of the biocUniTools
+#'     repository.
 #'
 #' @returns data.frame summary, invisibly
 #'

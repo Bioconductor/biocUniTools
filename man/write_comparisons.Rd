@@ -8,7 +8,8 @@ write_comparisons(config)
 }
 \arguments{
 \item{config}{character path to a YAML configuration. See
-\code{system.file("reports", "config.yml", package = "biocUniTools")}.}
+\code{reports/config.yml} on the \code{reports} branch of the biocUniTools
+repository.}
 }
 \value{
 data.frame summary, invisibly
