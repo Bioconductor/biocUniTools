@@ -14,7 +14,7 @@ htmltools tags
 }
 \description{
 For packages built by both systems, one bar each for commits
-and results: same (gray), differ (blue), and not compared (light gray).
+and results: same (light teal), differ (dark teal), and not compared (gray).
 }
 \examples{
 \dontrun{
