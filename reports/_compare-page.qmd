@@ -32,8 +32,13 @@ if (has_data) compare_header(cmp)
 if (has_data) compare_bars(cmp)
 ```
 
+```{r}
+#| echo: false
+if (has_data) compare_details(cmp)
+```
+
 <details>
-<summary>How to read this page</summary>
+<summary>Legend</summary>
 
 - **Same result**: `r compared` (the shaded columns) agree. NOTE is treated
   as OK; WARNING(S) are treated the same.

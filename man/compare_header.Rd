@@ -2,7 +2,7 @@
 % Please edit documentation in R/report.R
 \name{compare_header}
 \alias{compare_header}
-\title{Header describing where a comparison's results come from}
+\title{Title and update time of a comparison page}
 \usage{
 compare_header(cmp)
 }
@@ -13,7 +13,7 @@ compare_header(cmp)
 htmltools tags
 }
 \description{
-Header describing where a comparison's results come from
+Title and update time of a comparison page
 }
 \examples{
 \dontrun{
