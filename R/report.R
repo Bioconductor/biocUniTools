@@ -207,7 +207,7 @@ compare_header <- function(cmp) {
 #' Bars showing how many packages match in both systems
 #'
 #' @description For packages built by both systems, one bar each for commits
-#' and results: same (gray), differ (blue), and not compared (light gray).
+#' and results: same (light teal), differ (dark teal), and not compared (gray).
 #'
 #' @param cmp data.frame from `compare_builds()`
 #'
@@ -245,9 +245,9 @@ compare_bars <- function(cmp) {
                     fmt(s$both), fmt(differ)))),
             htmltools::div(
                 class = "progress-stacked compare-bar",
-                segment(same, s$both, "bg-secondary", "Same"),
-                segment(differ, s$both, "bg-primary", "Differ"),
-                segment(unknown, s$both, "bg-secondary-subtle",
+                segment(same, s$both, "bar-same", "Same"),
+                segment(differ, s$both, "bar-differ", "Differ"),
+                segment(unknown, s$both, "bar-unknown",
                         "Not compared")))
     }
     only <- sprintf("BBS only: %s. R Universe only: %s.",

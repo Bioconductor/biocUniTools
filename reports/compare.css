@@ -10,3 +10,9 @@
 .compare-header { max-width: 48rem; }
 .compare-header dt { font-weight: 600; }
 .compare-bar { height: 0.75rem; }
+
+/* Bars use Bioconductor colors (bioconductor.org/style/base/colors.css) */
+.compare-bar { --bs-progress-bg: transparent; gap: 2px; }
+.compare-bar .progress-bar.bar-same { background-color: #8bc0cf; }    /* --primary-p100 */
+.compare-bar .progress-bar.bar-differ { background-color: #035771; }  /* --primary-p400 */
+.compare-bar .progress-bar.bar-unknown { background-color: #e7e8ea; } /* --neutral-n75 */
