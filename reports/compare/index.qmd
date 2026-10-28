@@ -4,7 +4,13 @@ title: "BBS and R Universe: summary"
 
 ```{r}
 #| include: false
-library(biocUniTools)
+# Use the package source in this checkout if possible, so changes to R/ show
+# up without reinstalling
+if (file.exists("../../DESCRIPTION") && requireNamespace("pkgload", quietly = TRUE)) {
+    pkgload::load_all("../..", quiet = TRUE)
+} else {
+    library(biocUniTools)
+}
 config <- yaml::read_yaml("../config.yml")
 summary_file <- file.path("..", config$data_dir, "summary.rds")
 has_data <- file.exists(summary_file)
