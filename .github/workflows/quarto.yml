@@ -19,10 +19,10 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      # The package is checked out at the top level because the deploy step
+      # needs a git checkout there
       - name: Check out the package
         uses: actions/checkout@v4
-        with:
-          path: pkg
 
       - name: Check out the report site
         uses: actions/checkout@v4
@@ -36,7 +36,6 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          working-directory: pkg
           extra-packages: |
             local::.
           needs: website
@@ -44,7 +43,7 @@ jobs:
       - name: Copy vignettes into the site
         run: |
           mkdir -p site/vignettes
-          cp pkg/vignettes/*.qmd site/vignettes/
+          cp vignettes/*.qmd site/vignettes/
 
       - name: Compare BBS and R Universe builds
         working-directory: site
