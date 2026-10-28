@@ -36,7 +36,7 @@ bioc_pkg_types()
 
 ```{r}
 experiments <- bioc_manifest("devel", "data-experiment")
-experiments
+head(experiments)
 ```
 
 ## BBS results
@@ -51,7 +51,7 @@ bbs_nodes("devel", "data-experiment")
 
 ```{r}
 bbs <- bbs_status("devel", "data-experiment")
-bbs[, c("Package", "Version", "commit", "install", "build", "check")]
+head(bbs[, c("Package", "Version", "commit", "install", "build", "check")])
 ```
 
 ## R Universe results
@@ -68,8 +68,8 @@ Note: `source_build` is the result of `R CMD build` on the source package to bui
 
 ```{r}
 uni <- uni_status("devel", "data-experiment", jobs = jobs)
-uni[, c("Package", "Version", "commit", "status", "source_build", "check",
-        "bioccheck")]
+head(uni[, c("Package", "Version", "commit", "status", "source_build", "check",
+             "bioccheck")])
 ```
 
 ## Comparing results between the BBS and R Universe
@@ -82,8 +82,8 @@ normalize_result(c("OK", "NOTE", "WARNINGS", "WARNING", "ERROR"))
 
 ```{r}
 cmp <- compare_builds("devel", "data-experiment", bbs = bbs, uni = uni)
-cmp[, c("Package", "where", "commit_match", "bbs_result", "uni_result",
-        "result_match")]
+head(cmp[, c("Package", "where", "commit_match", "bbs_result", "uni_result",
+             "result_match")])
 ```
 
 For workflows, the BBS does not run `R CMD check`, so `compare_builds()` compares `R CMD build`.
