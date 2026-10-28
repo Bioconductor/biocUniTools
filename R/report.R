@@ -1,6 +1,7 @@
 #' Show a result as a Bootstrap badge, optionally linked
 #'
-#' @description OK and NOTE are green, WARNING is yellow, ERROR is red, and
+#' @description Uses Bootstrap's subtle colors: OK and NOTE are green,
+#' WARNING is yellow, ERROR is red, and
 #' anything else (e.g., TIMEOUT, skipped) is gray. R Universe's overall status
 #' "success" is green and "failure" is red.
 #'
@@ -18,12 +19,45 @@
                                c("ERROR", "failure") ~ "danger",
                                NA ~ NA,
                                .default = "secondary")
-    badge <- sprintf('<span class="badge text-bg-%s">%s</span>', level,
-                     htmltools::htmlEscape(result))
+    badge <- sprintf(paste0('<span class="badge rounded-pill fw-normal ',
+                            'bg-%1$s-subtle text-%1$s-emphasis ',
+                            'border border-%1$s-subtle">%2$s</span>'),
+                     level, htmltools::htmlEscape(result))
     badge <- ifelse(is.na(url), badge,
                     sprintf('<a href="%s" target="_blank">%s</a>', url, badge))
     ifelse(is.na(result), '<span class="text-body-secondary">&#8212;</span>',
            badge)
+}
+
+#' Link to a package's page on bioconductor.org
+#'
+#' @param pkg character
+#' @param type character one of `bioc_pkg_types()$type`
+#' @param branch character "devel" or "release"
+#'
+#' @returns character URL
+#'
+#' @noRd
+.landing_url <- function(pkg, type, branch) {
+    if (type == "books")
+        return(sprintf("https://bioconductor.org/books/%s/%s/", branch, pkg))
+    sprintf("https://bioconductor.org/packages/%s/%s/html/%s.html", branch,
+            .type_as(type, "universe"), pkg)
+}
+
+#' Link to the BBS report page of a package's stage, e.g., checksrc
+#'
+#' @param cmp data.frame from `compare_builds()`
+#' @param result character stage result
+#' @param stage character "install", "buildsrc", or "checksrc"
+#'
+#' @returns character URL, `NA` if there is no page
+#'
+#' @noRd
+.bbs_stage_url <- function(cmp, result, stage) {
+    ifelse(is.na(cmp$bbs_url) | is.na(result) | result == "skipped",
+           NA_character_,
+           paste0(cmp$bbs_url, cmp$bbs_node, "-", stage, ".html"))
 }
 
 #' Show a logical as a check mark or cross with text
@@ -59,20 +93,27 @@ compare_table <- function(cmp) {
         result_match = .mark(cmp$result_match),
         bbs_commit = cmp$bbs_commit,
         uni_commit = substr(cmp$uni_commit, 1, 7),
-        bbs_install = .badge(cmp$bbs_install),
-        bbs_build = .badge(cmp$bbs_build),
-        bbs_check = .badge(cmp$bbs_check),
+        bbs_install = .badge(cmp$bbs_install,
+                             .bbs_stage_url(cmp, cmp$bbs_install, "install")),
+        bbs_build = .badge(cmp$bbs_build,
+                           .bbs_stage_url(cmp, cmp$bbs_build, "buildsrc")),
+        bbs_check = .badge(cmp$bbs_check,
+                           .bbs_stage_url(cmp, cmp$bbs_check, "checksrc")),
         uni_status = .badge(cmp$uni_status, cmp$uni_build_url),
         uni_source_check = .badge(cmp$uni_source_check, cmp$uni_source_url),
         uni_check = .badge(cmp$uni_check, cmp$uni_check_url),
         uni_binary_check = .badge(cmp$uni_binary_check),
         uni_bioccheck = .badge(cmp$uni_bioccheck, cmp$uni_bioccheck_url),
         deprecated = ifelse(cmp$bbs_deprecated %in% TRUE,
-                            '<span class="badge text-bg-secondary">Deprecated</span>',
+                            paste0('<span class="badge rounded-pill fw-normal ',
+                                   'bg-secondary-subtle text-secondary-emphasis ',
+                                   'border border-secondary-subtle">',
+                                   'Deprecated</span>'),
                             ""))
-    df$Package <- ifelse(is.na(cmp$bbs_url), df$Package,
-                         sprintf('<a href="%s" target="_blank">%s</a>',
-                                 cmp$bbs_url, df$Package))
+    df$Package <- sprintf('<a href="%s" target="_blank">%s</a>',
+                          .landing_url(cmp$Package, cmp$type[1],
+                                       cmp$branch[1]),
+                          cmp$Package)
 
     html <- function(name, ...)
         reactable::colDef(name = name, html = TRUE, ...)
@@ -165,7 +206,7 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
                          class = "summary-table")
 }
 
-#' Header describing where a comparison's results come from
+#' Title and update time of a comparison page
 #'
 #' @param cmp data.frame from `compare_builds()`
 #'
@@ -180,14 +221,33 @@ summary_table <- function(summary, link_fmt = "%s-%s.html") {
 compare_header <- function(cmp) {
     types <- bioc_pkg_types()
     label <- types$label[types$type == cmp$type[1]]
+    created <- attr(cmp, "created")
+    htmltools::tagList(
+        htmltools::h1(sprintf("Bioconductor %s %s (%s)", label,
+                              cmp$bioc_version[1], cmp$branch[1])),
+        if (!is.null(created))
+            htmltools::p(class = "text-body-secondary",
+                         paste("Updated", format(created, "%Y-%m-%d %H:%M %Z"))))
+}
+
+#' Where a comparison's results come from, in a collapsed section
+#'
+#' @param cmp data.frame from `compare_builds()`
+#'
+#' @returns htmltools tags
+#'
+#' @examples
+#' \dontrun{
+#' compare_details(compare_builds("devel", "books"))
+#' }
+#'
+#' @export
+compare_details <- function(cmp) {
     node <- attr(cmp, "bbs_node_info")
     uni_url <- attr(cmp, "universe_url")
-    created <- attr(cmp, "created")
     link <- function(url, text)
         if (is.null(url)) NULL else htmltools::a(href = url, text)
     rows <- list(
-        Updated = if (!is.null(created))
-            format(created, "%Y-%m-%d %H:%M %Z"),
         `R Universe` = link(uni_url, sub("^https://", "", uni_url)),
         BBS = link(attr(cmp, "bbs_report_url"), "Build report"),
         Hostname = node$node,
@@ -196,12 +256,11 @@ compare_header <- function(cmp) {
         `R version` = node$r_version)
     rows <- Filter(Negate(is.null), rows)
     items <- lapply(names(rows), function(name)
-        list(htmltools::tags$dt(class = "col-sm-2", name),
-             htmltools::tags$dd(class = "col-sm-10 mb-1", rows[[name]])))
-    htmltools::tagList(
-        htmltools::h1(sprintf("Bioconductor %s %s (%s)", label,
-                              cmp$bioc_version[1], cmp$branch[1])),
-        htmltools::tags$dl(class = "row compare-header", items))
+        list(htmltools::tags$dt(paste0(name, ":")),
+             htmltools::tags$dd(rows[[name]])))
+    htmltools::tags$details(
+        htmltools::tags$summary("Build details"),
+        htmltools::tags$dl(class = "compare-details", items))
 }
 
 #' Bars showing how many packages match in both systems

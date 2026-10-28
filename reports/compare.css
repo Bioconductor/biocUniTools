@@ -1,14 +1,22 @@
-/* Colors come from Bootstrap (badges, text-success, text-danger). */
+/* Badge and text colors come from Bootstrap (subtle variants). */
 
 /* Shade the two columns being compared */
 .compare-table .compared { background: var(--bs-primary-bg-subtle); }
 
 .compare-table, .summary-table { font-size: 0.875rem; }
 .compare-table .rt-th-group, .summary-table .rt-th { white-space: nowrap; }
-.compare-table .badge { min-width: 4.5em; }
+.compare-table .badge { min-width: 5em; }
 
-.compare-header { max-width: 48rem; }
-.compare-header dt { font-weight: 600; }
+/* Build details: label and value on one line */
+.compare-details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.1rem 0.75rem;
+  margin: 0.5rem 0 0 1rem;
+}
+.compare-details dt { font-weight: 600; }
+.compare-details dd { margin: 0; }
+details { margin-bottom: 0.75rem; }
 .compare-bar { height: 0.75rem; }
 
 /* Bars use Bioconductor colors (bioconductor.org/style/base/colors.css) */
