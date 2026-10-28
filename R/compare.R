@@ -36,7 +36,7 @@ normalize_result <- function(result) {
 #' * `version_match`, `commit_match`: whether both systems built the same
 #'   version and commit
 #' * `bbs_result`, `uni_result`: the results compared. For workflows, BBS
-#'   `R CMD build` and R Universe's source `R CMD check`. Otherwise, `R CMD
+#'   `R CMD build` and R Universe's source `R CMD build`. Otherwise, `R CMD
 #'   check` on both.
 #' * `result_match`: whether the results agree after `normalize_result()`
 #'
@@ -87,7 +87,7 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
             version_match = bbs_version == uni_version,
             commit_match = substr(bbs_commit, 1, 7) == substr(uni_commit, 1, 7),
             bbs_result = if (workflows) bbs_build else bbs_check,
-            uni_result = if (workflows) uni_source_check else uni_check,
+            uni_result = if (workflows) uni_source_build else uni_check,
             result_match = normalize_result(bbs_result) ==
                 normalize_result(uni_result)) |>
         dplyr::relocate(type, branch, bioc_version, where, version_match, commit_match,

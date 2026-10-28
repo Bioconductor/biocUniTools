@@ -12,6 +12,7 @@
 #'
 #' @noRd
 .badge <- function(result, url = NA_character_) {
+    url <- rep_len(url, length(result))
     level <- normalize_result(result)
     level <- dplyr::case_match(level,
                                c("OK", "success") ~ "success",
@@ -100,7 +101,7 @@ compare_table <- function(cmp) {
         bbs_check = .badge(cmp$bbs_check,
                            .bbs_stage_url(cmp, cmp$bbs_check, "checksrc")),
         uni_status = .badge(cmp$uni_status, cmp$uni_build_url),
-        uni_source_check = .badge(cmp$uni_source_check, cmp$uni_source_url),
+        uni_source_build = .badge(cmp$uni_source_build, cmp$uni_source_url),
         uni_check = .badge(cmp$uni_check, cmp$uni_check_url),
         uni_binary_check = .badge(cmp$uni_binary_check),
         uni_bioccheck = .badge(cmp$uni_bioccheck, cmp$uni_bioccheck_url),
@@ -130,7 +131,7 @@ compare_table <- function(cmp) {
         bbs_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_commit = reactable::colDef(name = "Commit"),
         uni_status = html("Status"),
-        uni_source_check = do.call(html, c(list("Source check"),
+        uni_source_build = do.call(html, c(list("Source build"),
                                            if (workflows) compared)),
         uni_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_binary_check = html("Binary check"),
@@ -147,7 +148,7 @@ compare_table <- function(cmp) {
                                          "bbs_build", "bbs_check")),
             reactable::colGroup("R Universe",
                                 c("uni_commit", "uni_status",
-                                  "uni_source_check", "uni_check",
+                                  "uni_source_build", "uni_check",
                                   "uni_binary_check", "uni_bioccheck"))),
         searchable = TRUE, filterable = TRUE, compact = TRUE, striped = TRUE,
         highlight = TRUE, showPageSizeOptions = TRUE, defaultPageSize = 50,
@@ -284,7 +285,7 @@ compare_bars <- function(cmp) {
     s <- compare_summary(cmp)
     fmt <- function(x) format(x, big.mark = ",")
     result <- if (cmp$type[1] == "workflows")
-        "Results (BBS R CMD build vs. R Universe source check)" else
+        "Results (R CMD build)" else
         "Results (R CMD check)"
     segment <- function(n, total, class, label) {
         if (n == 0) return(NULL)
