@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Books: release – biocUniTools</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-55617497126496852ff9f5a59253c640.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/core-js-2.5.3/shim.min.js"></script>
+<script src="../../site_libs/react-18.2.0/react.min.js"></script>
+<script src="../../site_libs/react-18.2.0/react-dom.min.js"></script>
+<script src="../../site_libs/reactwidget-2.0.0/react-tools.js"></script>
+<link href="../../site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="../../site_libs/reactable-0.4.5/reactable.css" rel="stylesheet">
+<script src="../../site_libs/reactable-binding-0.4.5/reactable.js"></script>
+
+
+<link rel="stylesheet" href="../../reports/compare.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">biocUniTools</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bbs-vs-r-universe" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BBS vs R Universe</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-bbs-vs-r-universe">    
+        <li>
+    <a class="dropdown-item" href="../../index.html">
+ <span class="dropdown-text">Summary</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">devel</li>
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/devel-software.html">
+ <span class="dropdown-text">Software</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/devel-data-experiment.html">
+ <span class="dropdown-text">Experiment Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/devel-workflows.html">
+ <span class="dropdown-text">Workflows</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/devel-books.html">
+ <span class="dropdown-text">Books</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li class="dropdown-header">release</li>
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/release-software.html">
+ <span class="dropdown-text">Software</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/release-data-experiment.html">
+ <span class="dropdown-text">Experiment Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/release-workflows.html">
+ <span class="dropdown-text">Workflows</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../reports/compare/release-books.html">
+ <span class="dropdown-text">Books</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../vignettes/index.html"> 
+<span class="menu-text">Propagation status</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7">Bioconductor Books 3.23 (release)</h1></header>
+
+
+
+
+<!-- Shared body of each comparison page. Each page sets `branch` and `type`
+     and includes this file. -->
+<div class="cell">
+<div class="cell-output-display">
+
+<p class="text-body-secondary">Updated 2026-10-28 04:33 UTC</p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>13 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 13">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD check)</span>
+<span>13 packages in both R Universe and the BBS; 11 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 15.38%" title="Same: 2">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 84.62%" title="Differ: 11">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<details>
+<summary>Build details</summary>
+<dl class="compare-details">
+<dt>R Universe:</dt>
+<dd>
+<a href="https://bioc-release.r-universe.dev">bioc-release.r-universe.dev</a>
+</dd>
+<dt>BBS:</dt>
+<dd>
+<a href="https://bioconductor.org/checkResults/3.23/books-LATEST">Build report</a>
+</dd>
+<dt>Hostname:</dt>
+<dd>nebbiolo1</dd>
+<dt>OS:</dt>
+<dd>Linux (Ubuntu 24.04.4 LTS)</dd>
+<dt>Arch:</dt>
+<dd>x86_64</dd>
+<dt>R version:</dt>
+<dd>4.6.1 (2026-06-24) -- "Happy Hop"</dd>
+</dl>
+</details>
+</div>
+</div>
+<details>
+<summary>
+Legend
+</summary>
+<ul>
+<li><strong>Same result</strong>: BBS <code>R CMD check</code> and R Universe <code>R CMD check</code> (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.</li>
+<li><strong>Status</strong>: R Universe’s overall result for the package: success or failure.</li>
+<li><strong>Source build</strong>: R Universe <code>R CMD build</code> of the source package, which builds vignettes.</li>
+<li><strong>Binary check</strong>: <code>R CMD check</code> associated with the binary.</li>
+</ul>
+</details>
+<div class="column-screen-inset">
+<div class="cell">
+<div class="cell-output-display">
+<div class="reactable html-widget html-fill-item" id="htmlwidget-51eea4a499a8913aea20" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-51eea4a499a8913aea20">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Package":["<a href=\"https://bioconductor.org/books/release/BiocBookDemo/\" target=\"_blank\">BiocBookDemo<\/a>","<a href=\"https://bioconductor.org/books/release/OHCA/\" target=\"_blank\">OHCA<\/a>","<a href=\"https://bioconductor.org/books/release/OMA/\" target=\"_blank\">OMA<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA/\" target=\"_blank\">OSCA<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA.advanced/\" target=\"_blank\">OSCA.advanced<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA.basic/\" target=\"_blank\">OSCA.basic<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA.intro/\" target=\"_blank\">OSCA.intro<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA.multisample/\" target=\"_blank\">OSCA.multisample<\/a>","<a href=\"https://bioconductor.org/books/release/OSCA.workflows/\" target=\"_blank\">OSCA.workflows<\/a>","<a href=\"https://bioconductor.org/books/release/OSTA/\" target=\"_blank\">OSTA<\/a>","<a href=\"https://bioconductor.org/books/release/SingleRBook/\" target=\"_blank\">SingleRBook<\/a>","<a href=\"https://bioconductor.org/books/release/csawBook/\" target=\"_blank\">csawBook<\/a>","<a href=\"https://bioconductor.org/books/release/scrapbook/\" target=\"_blank\">scrapbook<\/a>"],"where":["both","both","both","both","both","both","both","both","both","both","both","both","both"],"commit_match":["<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>"],"result_match":["<span class=\"text-success-emphasis\">&#10003; Yes<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-danger-emphasis\">&#10007; No<\/span>","<span class=\"text-success-emphasis\">&#10003; Yes<\/span>"],"deprecated":["","","","","","","","","","","","",""],"bbs_commit":["d998031","f6c208b","7b65ff7","b1d002f","6fde3a7","71cb54c","9a0c8cf","2034ea2","89b8665","de4d0c8","3876c71","7cd2344","362f100"],"bbs_install":["<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/BiocBookDemo/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OHCA/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OMA/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.advanced/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.basic/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.intro/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.multisample/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.workflows/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSTA/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/SingleRBook/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/csawBook/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/scrapbook/nebbiolo1-install.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>"],"bbs_build":["<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/BiocBookDemo/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OHCA/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OMA/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.advanced/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.basic/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.intro/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.multisample/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.workflows/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSTA/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/SingleRBook/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/csawBook/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/scrapbook/nebbiolo1-buildsrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>"],"bbs_check":["<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/BiocBookDemo/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OHCA/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OMA/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<span class=\"badge rounded-pill fw-normal bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle\">skipped<\/span>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.basic/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.intro/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.multisample/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSCA.workflows/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/OSTA/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/SingleRBook/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/csawBook/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://bioconductor.org/checkResults/3.23/books-LATEST/scrapbook/nebbiolo1-checksrc.html\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>"],"uni_commit":["d998031","f6c208b","7b65ff7","b1d002f","6fde3a7","71cb54c","9a0c8cf","2034ea2","89b8665","de4d0c8","3876c71","7cd2344","362f100"],"uni_status":["<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558407123\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/40318693978\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046568667\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046538395\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046553107\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046545653\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046548084\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38892415192\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046550438\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046563755\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">failure<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558706399\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046543446\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046566149\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">success<\/span><\/a>"],"uni_source_build":["<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558407123/job/115833325233\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/40318693978/job/121559665003\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046568667/job/114197244170\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046538395/job/114197160922\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046553107/job/114197280025\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046545653/job/114197240470\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046548084/job/114197182356\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38892415192/job/116944947566\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046550438/job/114197183317\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046563755/job/114197307780\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558706399/job/115834276679\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046543446/job/114197175480\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046566149/job/114197237722\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">OK<\/span><\/a>"],"uni_check":["<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558407123/job/115834496300\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/40318693978/job/121574507148\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046568667/job/114199864033\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046538395/job/114198154031\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046553107/job/114199950747\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046545653/job/114201557581\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046548084/job/114200267191\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38892415192/job/116947500065\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046550438/job/114198926080\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046563755/job/114200937358\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558706399/job/115843796338\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046543446/job/114208440813\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046566149/job/114200300509\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>"],"uni_binary_check":["<span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span>","<span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span>","<span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span>"],"uni_bioccheck":["<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558407123/job/115834496182\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-danger-subtle text-danger-emphasis border border-danger-subtle\">ERROR<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/40318693978/job/121574507203\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046568667/job/114199863980\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046538395/job/114198154065\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046553107/job/114199950776\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046545653/job/114201557528\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046548084/job/114200267158\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38892415192/job/116947499953\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046550438/job/114198926075\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046563755/job/114200937298\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38558706399/job/115843796283\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046543446/job/114208440822\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-warning-subtle text-warning-emphasis border border-warning-subtle\">WARNING<\/span><\/a>","<a href=\"https://github.com/r-universe/bioc-release/actions/runs/38046566149/job/114200300513\" target=\"_blank\"><span class=\"badge rounded-pill fw-normal bg-success-subtle text-success-emphasis border border-success-subtle\">NOTE<\/span><\/a>"]},"columns":[{"id":"Package","name":"Package","type":"character","minWidth":180,"headerClassName":"rt-header","html":true,"sticky":"left"},{"id":"where","name":"Built by","type":"character","minWidth":120,"headerClassName":"rt-header"},{"id":"commit_match","name":"Same commit","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"result_match","name":"Same result","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"deprecated","name":"Deprecated","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"bbs_commit","name":"Commit","type":"character","minWidth":90,"headerClassName":"rt-header"},{"id":"bbs_install","name":"Install","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"bbs_build","name":"Build","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"bbs_check","name":"Check","type":"character","minWidth":90,"headerClassName":"rt-header","html":true,"className":"compared"},{"id":"uni_commit","name":"Commit","type":"character","minWidth":90,"headerClassName":"rt-header"},{"id":"uni_status","name":"Status","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"uni_source_build","name":"Source build","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"uni_check","name":"Check","type":"character","minWidth":90,"headerClassName":"rt-header","html":true,"className":"compared"},{"id":"uni_binary_check","name":"Binary check","type":"character","minWidth":90,"headerClassName":"rt-header","html":true},{"id":"uni_bioccheck","name":"BiocCheck","type":"character","minWidth":90,"headerClassName":"rt-header","html":true}],"columnGroups":[{"name":"Comparison","columns":["where","commit_match","result_match"]},{"name":"BBS","columns":["deprecated","bbs_commit","bbs_install","bbs_build","bbs_check"]},{"name":"R Universe","columns":["uni_commit","uni_status","uni_source_build","uni_check","uni_binary_check","uni_bioccheck"]}],"filterable":true,"searchable":true,"defaultPageSize":50,"showPageSizeOptions":true,"pageSizeOptions":[25,50,100,500],"highlight":true,"striped":true,"compact":true,"className":"compare-table","dataKey":"f3217342c57fa635dc6c46793e7562b7"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

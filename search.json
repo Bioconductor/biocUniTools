@@ -19,5 +19,68 @@
     "title": "Bioconductor in R Universe: Linux with Criteria on Commits and Vignettes",
     "section": "R Universe and Bioconductor release",
     "text": "R Universe and Bioconductor release\nhttps://bioc-release.r-universe.dev\n\n\n\n\n\n\n\n\n\n\nCode\nsessionInfo()\n\n\nR version 4.6.1 (2026-06-24)\nPlatform: x86_64-pc-linux-gnu\nRunning under: Ubuntu 24.04.5 LTS\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 \nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0\n\nlocale:\n [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       \n [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   \n [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          \n[10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   \n\ntime zone: UTC\ntzcode source: system (glibc)\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] purrr_1.2.2          reactable_0.4.5      httr2_1.3.0         \n[4] biocUniTools_0.0.102 dplyr_1.2.1          BiocPkgTools_1.30.1 \n[7] htmlwidgets_1.6.4   \n\nloaded via a namespace (and not attached):\n [1] xfun_0.62           gh_1.6.1            Biobase_2.72.0     \n [4] tzdb_0.5.0          vctrs_0.7.3         tools_4.6.1        \n [7] crosstalk_1.2.2     bitops_1.1-0        generics_0.1.4     \n[10] stats4_4.6.1        curl_8.1.0          RUnit_0.4.33.1     \n[13] tibble_3.3.1        RSQLite_3.53.3      blob_1.3.0         \n[16] pkgconfig_2.0.3     dbplyr_2.6.0        graph_1.90.0       \n[19] lifecycle_1.0.5     compiler_4.6.1      stringr_1.6.0      \n[22] biocViews_1.80.0    htmltools_0.5.9     RCurl_1.98-1.20    \n[25] yaml_2.3.12         pillar_1.11.1       tidyr_1.3.2        \n[28] DT_0.34.0           cachem_1.1.0        tidyselect_1.2.1   \n[31] rvest_1.0.5         digest_0.6.39       stringi_1.8.9      \n[34] fastmap_1.2.0       cli_3.6.6           magrittr_2.0.5     \n[37] RBGL_1.88.0         XML_3.99-0.25       readr_2.2.0        \n[40] withr_3.0.3         reactR_0.6.1        filelock_1.0.3     \n[43] bit64_4.8.6         lubridate_1.9.5     timechange_0.4.0   \n[46] rmarkdown_2.32      httr_1.4.9          igraph_2.3.4       \n[49] bit_4.6.0           otel_0.2.0          hms_1.1.4          \n[52] memoise_2.0.1       evaluate_1.0.5      knitr_1.52         \n[55] BiocFileCache_3.2.0 rlang_1.3.0         glue_1.8.1         \n[58] DBI_1.3.0           BiocManager_1.30.27 xml2_1.6.0         \n[61] BiocGenerics_0.58.1 jsonlite_2.0.0      R6_2.6.1"
+  },
+  {
+    "objectID": "reports/compare/devel-books.html",
+    "href": "reports/compare/devel-books.html",
+    "title": "Bioconductor Books 3.24 (devel)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:32 UTC\n\n\n\n\n\n\nCommits\n13 packages in both R Universe and the BBS; 0 differ\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n13 packages in both R Universe and the BBS; 11 differ\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo2\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/release-workflows.html",
+    "href": "reports/compare/release-workflows.html",
+    "title": "Bioconductor Workflows 3.23 (release)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:33 UTC\n\n\n\n\n\n\nCommits\n28 packages in both R Universe and the BBS; 0 differ\n\n\n\n\n\n\n\n\n\nResults (R CMD build)\n28 packages in both R Universe and the BBS; 6 differ\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc-release.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo1\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD build and R Universe source R CMD build (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/devel-data-experiment.html",
+    "href": "reports/compare/devel-data-experiment.html",
+    "title": "Bioconductor Experiment Data 3.24 (devel)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:32 UTC\n\n\n\n\n\n\nCommits\n439 packages in both R Universe and the BBS; 1 differ\n\n\n\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n439 packages in both R Universe and the BBS; 53 differ\n\n\n\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 1. R Universe check differs from binary check: 1.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo2\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/release-data-experiment.html",
+    "href": "reports/compare/release-data-experiment.html",
+    "title": "Bioconductor Experiment Data 3.23 (release)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:33 UTC\n\n\n\n\n\n\nCommits\n436 packages in both R Universe and the BBS; 0 differ\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n436 packages in both R Universe and the BBS; 52 differ\n\n\n\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc-release.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo1\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "BBS and R Universe",
+    "section": "",
+    "text": "Each row compares one Bioconductor branch and package type on x86_64-linux-gnu. Workflows compare R CMD build. Others compare R CMD check.\nNOTE is treated as OK. WARNING(S) are treated the same.\nSelect a type for its packages.\nUpdated 2026-10-28 04:33 UTC."
+  },
+  {
+    "objectID": "reports/compare/release-software.html",
+    "href": "reports/compare/release-software.html",
+    "title": "Bioconductor Software 3.23 (release)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:33 UTC\n\n\n\n\n\n\nCommits\n2,417 packages in both R Universe and the BBS; 3 differ\n\n\n\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n2,417 packages in both R Universe and the BBS; 193 differ\n\n\n\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 1. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc-release.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo1\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/release-books.html",
+    "href": "reports/compare/release-books.html",
+    "title": "Bioconductor Books 3.23 (release)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:33 UTC\n\n\n\n\n\n\nCommits\n13 packages in both R Universe and the BBS; 0 differ\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n13 packages in both R Universe and the BBS; 11 differ\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc-release.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo1\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/devel-software.html",
+    "href": "reports/compare/devel-software.html",
+    "title": "Bioconductor Software 3.24 (devel)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:32 UTC\n\n\n\n\n\n\nCommits\n2,473 packages in both R Universe and the BBS; 30 differ\n\n\n\n\n\n\n\n\n\n\n\n\nResults (R CMD check)\n2,473 packages in both R Universe and the BBS; 222 differ\n\n\n\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 4. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo2\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD check and R Universe R CMD check (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
+  },
+  {
+    "objectID": "reports/compare/devel-workflows.html",
+    "href": "reports/compare/devel-workflows.html",
+    "title": "Bioconductor Workflows 3.24 (devel)",
+    "section": "",
+    "text": "Updated 2026-10-28 04:32 UTC\n\n\n\n\n\n\nCommits\n29 packages in both R Universe and the BBS; 0 differ\n\n\n\n\n\n\n\n\n\nResults (R CMD build)\n29 packages in both R Universe and the BBS; 5 differ\n\n\n\n\n\n\n\n\n\n\nBBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.\n\n\n\n\n\nBuild details\n\nR Universe:\n\nbioc.r-universe.dev\n\nBBS:\n\nBuild report\n\nHostname:\nnebbiolo2\nOS:\nLinux (Ubuntu 24.04.4 LTS)\nArch:\nx86_64\nR version:\n4.6.1 (2026-06-24) -- \"Happy Hop\"\n\n\n\n\n\n\nLegend\n\n\nSame result: BBS R CMD build and R Universe source R CMD build (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.\nStatus: R Universe’s overall result for the package: success or failure.\nSource build: R Universe R CMD build of the source package, which builds vignettes.\nBinary check: R CMD check associated with the binary."
   }
 ]
