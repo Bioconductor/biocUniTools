@@ -65,8 +65,8 @@
 #' @noRd
 .mark <- function(x) {
     dplyr::case_when(
-        x ~ '<span class="text-success">&#10003; Yes</span>',
-        !x ~ '<span class="text-danger fw-semibold">&#10007; No</span>',
+        x ~ '<span class="text-success-emphasis">&#10003; Yes</span>',
+        !x ~ '<span class="text-danger-emphasis">&#10007; No</span>',
         .default = '<span class="text-body-secondary">&#8212;</span>')
 }
 
