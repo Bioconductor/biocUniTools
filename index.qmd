@@ -1,0 +1,44 @@
+---
+title: "BBS and R Universe"
+---
+
+```{r}
+#| include: false
+# Use a local biocUniTools checkout if BIOCUNITOOLS_SRC points to one, so
+# changes to its R/ show up without reinstalling
+src <- Sys.getenv("BIOCUNITOOLS_SRC")
+if (nzchar(src)) {
+    pkgload::load_all(src, quiet = TRUE)
+} else {
+    library(biocUniTools)
+}
+config <- yaml::read_yaml("reports/config.yml")
+summary_file <- file.path("reports", config$data_dir, "summary.rds")
+has_data <- file.exists(summary_file)
+if (has_data)
+    s <- readRDS(summary_file)
+```
+
+Each row compares one Bioconductor branch and package type on `r config$platform`.
+Workflows compare `R CMD build`. Others compare `R CMD check`.
+
+`NOTE` is treated as `OK`. `WARNING(S)` are treated the same.
+
+Select a type for its packages.
+
+```{r}
+#| echo: false
+#| results: asis
+if (!has_data) {
+    cat("No data yet. Run `biocUniTools::write_comparisons(\"reports/config.yml\")`.\n")
+} else {
+    cat(sprintf("Updated %s.\n", format(attr(s, "created"), "%Y-%m-%d %H:%M %Z")))
+}
+```
+
+::: column-page
+```{r}
+#| echo: false
+if (has_data) summary_table(s, link_fmt = "reports/compare/%s-%s.html")
+```
+:::
