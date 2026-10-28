@@ -1,10 +1,13 @@
+/* Softer body text: Bioconductor's darkest neutral instead of black */
+:root { --bs-body-color: #393e4c; --bs-emphasis-color: #393e4c; }
+
 /* Badge and text colors come from Bootstrap (subtle variants). */
 
 /* Shade the two columns being compared */
 .compare-table .compared { background: var(--bs-primary-bg-subtle); }
 
 .compare-table, .summary-table { font-size: 0.875rem; }
-.compare-table .rt-th-group, .summary-table .rt-th { white-space: nowrap; }
+.compare-table .rt-th-group { white-space: nowrap; }
 .compare-table .badge { min-width: 5em; }
 
 /* Build details: label and value on one line */
