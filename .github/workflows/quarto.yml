@@ -1,10 +1,14 @@
+# Renders the report site on the `reports` branch with biocUniTools from this
+# branch, and publishes it to `gh-pages`. Scheduled workflows only run from the
+# default branch, so this file lives here rather than on `reports`.
+
 on:
   push:
     branches: [devel]
   pull_request:
     branches: [devel]
   schedule:
-    - cron: "30 16 * * *" # 2:30pm ET 
+    - cron: "30 16 * * *" # 2:30pm ET
   workflow_dispatch:
 
 name: quarto
@@ -15,29 +19,46 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the package
+        uses: actions/checkout@v4
+        with:
+          path: pkg
 
-      - uses: quarto-dev/quarto-actions/setup@v2 
+      - name: Check out the report site
+        uses: actions/checkout@v4
+        with:
+          ref: reports
+          path: site
+
+      - uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          working-directory: pkg
           extra-packages: |
-            any::remotes
             local::.
           needs: website
 
+      - name: Copy vignettes into the site
+        run: |
+          mkdir -p site/vignettes
+          cp pkg/vignettes/*.qmd site/vignettes/
+
       - name: Compare BBS and R Universe builds
+        working-directory: site
         run: biocUniTools::write_comparisons("reports/config.yml")
         shell: Rscript {0}
 
       - name: Render
+        working-directory: site
         run: quarto render
 
       - name: Deploy to GitHub pages
+        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
           branch: gh-pages
-          folder: docs
+          folder: site/docs

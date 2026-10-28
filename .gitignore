@@ -5,6 +5,4 @@ docs
 
 /.quarto/
 
-/reports/data/
-
 **/*.quarto_ipynb

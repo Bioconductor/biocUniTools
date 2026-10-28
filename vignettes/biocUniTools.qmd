@@ -109,7 +109,8 @@ compare_summary(cmp)
 ## Reports
 
 The BBS and R Universe report pages on the biocUniTools website are made from
-this data. `write_comparisons()` saves a comparison for every branch and type
+this data. Their source is on the `reports` branch of the biocUniTools
+repository. `write_comparisons()` saves a comparison for every branch and type
 listed in a YAML configuration, and the report pages read the saved files:
 
 ```{r}
