@@ -1,0 +1,143 @@
+---
+title: "Getting started with biocUniTools"
+format:
+  html:
+    toc: true
+engine: knitr
+vignette: >
+  %\VignetteIndexEntry{Getting started with biocUniTools}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+biocUniTools gets Bioconductor build results from the Bioconductor Build System
+(BBS) and from R Universe, and compares them. This vignette uses the devel
+books because there are only a few of them; every function also works for
+`"release"` and the other package types.
+
+```{r}
+#| message: false
+library(biocUniTools)
+```
+
+## Bioconductor branches and package types
+
+`uni_for_bioc()` gives the Bioconductor version, R version, and universe for a
+branch.
+
+```{r}
+bu <- uni_for_bioc("devel")
+bu
+```
+
+Each package type has a different name in each system. `bioc_pkg_types()`
+lists them; functions take the `type` column.
+
+```{r}
+bioc_pkg_types()
+```
+
+`bioc_manifest()` lists the packages of a type in a branch.
+
+```{r}
+books <- bioc_manifest("devel", "books")
+books
+```
+
+## BBS results
+
+`bbs_nodes()` lists the BBS build machines for a type.
+
+```{r}
+bbs_nodes("devel", "books")
+```
+
+`bbs_status()` returns one row per package from one build machine, by default
+the one building on Linux x86_64. It has the version and commit the BBS built
+and the result of each stage.
+
+```{r}
+bbs <- bbs_status("devel", "books")
+bbs[, c("Package", "Version", "commit", "install", "build", "check")]
+```
+
+## R Universe results
+
+`uni_jobs()` downloads R Universe data for a branch. Without `packages`, it
+downloads the whole universe, which takes a few minutes; it can then be reused
+for every type.
+
+```{r}
+jobs <- uni_jobs("devel", packages = books)
+```
+
+`uni_status()` returns one row per package of a type. `source_build` is the
+`R CMD build` of the source package, which builds vignettes. `check` is the
+`R CMD check` of the Linux x86_64 binary job.
+
+```{r}
+uni <- uni_status("devel", "books", jobs = jobs)
+uni[, c("Package", "Version", "commit", "status", "source_build", "check",
+        "bioccheck")]
+```
+
+## Comparing BBS and R Universe
+
+`compare_builds()` joins both by package. It adds whether both systems built
+the same commit and whether their results agree. Results are compared after
+`normalize_result()`, which treats NOTE as OK and WARNING(S) the same.
+
+```{r}
+normalize_result(c("OK", "NOTE", "WARNINGS", "WARNING", "ERROR"))
+```
+
+```{r}
+cmp <- compare_builds("devel", "books", bbs = bbs, uni = uni)
+cmp[, c("Package", "where", "commit_match", "bbs_result", "uni_result",
+        "result_match")]
+```
+
+For workflows, BBS does not run `R CMD check`, so `compare_builds()` compares
+`R CMD build` on both instead.
+
+`compare_summary()` counts the matches and differences.
+
+```{r}
+compare_summary(cmp)
+```
+
+## Reports
+
+The BBS and R Universe report pages on the biocUniTools website are made from
+this data. `write_comparisons()` saves a comparison for every branch and type
+listed in a YAML configuration, and the report pages read the saved files:
+
+```{r}
+#| eval: false
+write_comparisons("reports/config.yml")
+```
+
+`compare_table()`, `compare_header()`, `compare_bars()`, and
+`compare_details()` make the parts of each page, so you can use them in your
+own reports.
+
+## Changing where data comes from
+
+The locations of the Bioconductor manifest and the BBS reports can be changed
+with options. `{git_branch}`, `{type}`, and `{version}` are filled in.
+
+```{r}
+#| eval: false
+options(
+    biocUniTools.manifest_url =
+        "https://raw.githubusercontent.com/bioc/manifest/{git_branch}/{type}.txt",
+    biocUniTools.bbs_url =
+        "https://bioconductor.org/checkResults/{version}/{type}-LATEST"
+)
+```
+
+## Session information
+
+```{r}
+sessionInfo()
+```

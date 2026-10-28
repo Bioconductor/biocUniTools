@@ -171,19 +171,32 @@ get_arch <- function(binaries_arch, job_arch) {
 #' Get packages in an R Universe
 #'
 #' @param uni character universe name
+#' @param packages character package names. If `NULL` (default), all packages
+#'     in the universe. Otherwise, one request per package, which is faster for
+#'     a few packages.
 #'
 #' @returns data.frame packages in a universe
 #'
 #' @examples
-#' get_raw_uni_df("bioc")
+#' get_raw_uni_df("bioc", packages = c("BiocGenerics", "S4Vectors"))
 #'
 #' @export
-get_raw_uni_df <- function(uni) {
+get_raw_uni_df <- function(uni, packages = NULL) {
     uni_api_url <- paste0("https://", uni, ".r-universe.dev/api/packages/")
-    pkgs <- httr2::request(uni_api_url) |>
-        httr2::req_url_query(limit = as.integer(.LIMIT)) |>
-        httr2::req_perform() |>
-        httr2::resp_body_json(simplifyVector = FALSE)
+    if (is.null(packages)) {
+        pkgs <- httr2::request(uni_api_url) |>
+            httr2::req_url_query(limit = as.integer(.LIMIT)) |>
+            httr2::req_perform() |>
+            httr2::resp_body_json(simplifyVector = FALSE)
+    } else {
+        pkgs <- lapply(packages, function(pkg) {
+            tryCatch(httr2::request(paste0(uni_api_url, pkg)) |>
+                         httr2::req_perform() |>
+                         httr2::resp_body_json(simplifyVector = FALSE),
+                     httr2_http_404 = function(e) NULL)
+        })
+        pkgs <- Filter(Negate(is.null), pkgs)
+    }
     jsonlite::fromJSON(jsonlite::toJSON(pkgs, auto_unbox = TRUE), flatten = TRUE)
 }
 

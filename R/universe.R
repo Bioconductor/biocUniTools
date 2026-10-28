@@ -23,6 +23,8 @@
 #' output with a `bioc_type` column, the package type R Universe reports.
 #'
 #' @param branch character "devel" or "release"
+#' @param packages character package names. If `NULL` (default), all
+#'     packages in the universe, which takes a few minutes.
 #'
 #' @returns data.frame
 #'
@@ -34,9 +36,9 @@
 #' }
 #'
 #' @export
-uni_jobs <- function(branch) {
+uni_jobs <- function(branch, packages = NULL) {
     bu <- uni_for_bioc(branch)
-    raw_df <- get_raw_uni_df(bu$universe)
+    raw_df <- get_raw_uni_df(bu$universe, packages)
     raw_df$bioc_type <- .uni_bioc_type(raw_df, bu$bioc_branch)
     get_jobs(get_uni_df(raw_df), bu$r_version, bu$universe)
 }
@@ -85,6 +87,12 @@ uni_status <- function(branch, type = "software", os = "linux",
     if ("bioc_type" %in% names(jobs))
         in_type <- in_type | (in_none & jobs$bioc_type %in% type)
     jobs <- jobs[in_type, ]
+
+    # Columns R Universe only includes when some package has them
+    optional <- c("_failure.version", "_failure.buildurl", "_status",
+                  "_buildurl")
+    for (col in setdiff(optional, names(jobs)))
+        jobs[[col]] <- NA_character_
 
     pkgs <- jobs |>
         dplyr::distinct(Package, .keep_all = TRUE) |>

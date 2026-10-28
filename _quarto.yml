@@ -6,6 +6,8 @@ website:
   title: "biocUniTools"
   navbar:
     left:
+      - text: "Get started"
+        href: vignettes/biocUniTools.qmd
       - text: "BBS vs R Universe"
         menu:
           - text: "Summary"
