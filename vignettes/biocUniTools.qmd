@@ -25,13 +25,6 @@ library(biocUniTools)
 bu <- uni_for_bioc("devel")
 bu
 ```
-
-Each package type has a different name in each system. `bioc_pkg_types()` lists them; functions take the `type` column.
-
-```{r}
-bioc_pkg_types()
-```
-
 `bioc_manifest()` lists the packages of a type in a branch.
 
 ```{r}
