@@ -4,3 +4,7 @@ docs
 .Rhistory
 
 /.quarto/
+
+/reports/data/
+
+**/*.quarto_ipynb

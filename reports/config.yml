@@ -1,0 +1,14 @@
+# Configuration for the BBS and R Universe comparison reports.
+# Data is written by biocUniTools::write_comparisons("reports/config.yml").
+
+# Bioconductor branches and package types to compare
+branches: [devel, release]
+types: [software, data-experiment, workflows, books]
+
+# Where to save the data, relative to this file
+data_dir: data
+
+# BBS build node platform and R Universe binary job to compare
+platform: x86_64-linux-gnu
+os: linux
+arch: x86_64
