@@ -63,6 +63,21 @@ if (has_data) compare_details(cmp)
 - **Source build**: R Universe `R CMD build` of the source package, which
   builds vignettes.
 - **Binary check**: `R CMD check` associated with the binary.
+- **Download rank**: Bioconductor's rank among packages of this type by
+  distinct IPs in the last 12 months, as on bioconductor.org package pages. 1
+  is the most downloaded.
+- **Downloads / month**: distinct IPs in the last 12 months divided by 12.
+- **Strong reverse deps**: Bioconductor packages that depend on, import, or
+  link to the package. Expand a row to see them and the packages that suggest
+  it.
+
+From R Universe:
+
+- **Used by** (`_usedby`): packages anywhere in R Universe that use the
+  package.
+- **Mentions** (`_mentions`): mentions in scientific papers.
+- **Score** (`_score`): R Universe's package score.
+- **Commits (12 weeks)** (`_updates`): commits in the last 12 weeks.
 
 </details>
 
