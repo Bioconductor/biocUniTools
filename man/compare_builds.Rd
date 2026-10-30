@@ -4,7 +4,14 @@
 \alias{compare_builds}
 \title{Compare BBS and R Universe builds}
 \usage{
-compare_builds(branch, type = "software", bbs = NULL, uni = NULL, jobs = NULL)
+compare_builds(
+  branch,
+  type = "software",
+  bbs = NULL,
+  uni = NULL,
+  jobs = NULL,
+  downloads = bioc_downloads(branch, type)
+)
 }
 \arguments{
 \item{branch}{character "devel" or "release"}
@@ -16,6 +23,9 @@ compare_builds(branch, type = "software", bbs = NULL, uni = NULL, jobs = NULL)
 \item{uni}{data.frame from \code{uni_status()}. If \code{NULL} (default), downloaded.}
 
 \item{jobs}{data.frame from \code{uni_jobs()}, used when \code{uni} is \code{NULL}.}
+
+\item{downloads}{data.frame from \code{bioc_downloads()}, downloaded by default.
+\code{NULL} to leave out download statistics.}
 }
 \value{
 data.frame
@@ -30,6 +40,8 @@ version and commit
 \item \code{bbs_result}, \code{uni_result}: the results compared. For workflows, BBS
 \verb{R CMD build} and R Universe's source \verb{R CMD build}. Otherwise, \verb{R CMD check} on both.
 \item \code{result_match}: whether the results agree after \code{normalize_result()}
+\item \code{downloads_12mo}, \code{downloads_month}, \code{download_rank}, \code{ranked}: from
+\code{bioc_downloads()}
 }
 
 \code{NA} means there is nothing to compare. Attributes \code{bbs_node_info},

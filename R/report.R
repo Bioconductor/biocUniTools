@@ -61,6 +61,36 @@
            paste0(cmp$bbs_url, cmp$bbs_node, "-", stage, ".html"))
 }
 
+#' Expandable row listing a package's reverse dependencies
+#'
+#' @param cmp data.frame from `compare_builds()`
+#'
+#' @returns function for reactable's `details`, or `NULL` if there are no
+#'     reverse dependencies
+#'
+#' @noRd
+.revdeps_details <- function(cmp) {
+    if (!"uni_revdeps" %in% names(cmp))
+        return(NULL)
+    strong <- cmp$uni_revdeps
+    suggests <- cmp$uni_revdeps_suggests
+    if (all(lengths(strong) == 0 & lengths(suggests) == 0))
+        return(NULL)
+    item <- function(label, pkgs)
+        if (length(pkgs))
+            htmltools::p(htmltools::strong(sprintf("%s (%d): ", label,
+                                                   length(pkgs))),
+                         paste(pkgs, collapse = ", "))
+    function(index) {
+        if (length(strong[[index]]) == 0 && length(suggests[[index]]) == 0)
+            return(NULL)
+        htmltools::div(
+            class = "revdeps-details",
+            item("Strong reverse dependencies", strong[[index]]),
+            item("Suggested by", suggests[[index]]))
+    }
+}
+
 #' Show a logical as a Bootstrap Icons check mark or cross with text
 #'
 #' @noRd
@@ -113,6 +143,17 @@ compare_table <- function(cmp) {
                                    'border border-secondary-subtle">',
                                    'Deprecated</span>'),
                             ""))
+    # Importance columns, NA when compare_builds() did not add them
+    col <- function(name) if (name %in% names(cmp)) cmp[[name]] else
+        rep(NA, nrow(cmp))
+    df$download_rank <- col("download_rank")
+    df$downloads_month <- round(col("downloads_month"))
+    df$n_revdeps <- col("uni_n_revdeps")
+    df$usedby <- col("uni_usedby")
+    df$mentions <- col("uni_mentions")
+    df$score <- round(col("uni_score"), 1)
+    df$commits_12wk <- col("uni_commits_12wk")
+    ranked <- stats::na.omit(col("ranked"))[1]
     df$Package <- sprintf('<a href="%s" target="_blank">%s</a>',
                           .landing_url(cmp$Package, cmp$type[1],
                                        cmp$branch[1]),
@@ -121,6 +162,10 @@ compare_table <- function(cmp) {
     html <- function(name, ...)
         reactable::colDef(name = name, html = TRUE, ...)
     compared <- list(class = "compared")
+    num <- function(name, ...)
+        reactable::colDef(name = name, align = "right", sortNALast = TRUE,
+                          na = "\u2014", format = reactable::colFormat(separators = TRUE),
+                          ...)
     columns <- list(
         Package = html("Package", minWidth = 180, sticky = "left"),
         where = reactable::colDef(name = "Built by", minWidth = 120),
@@ -137,7 +182,17 @@ compare_table <- function(cmp) {
                                            if (workflows) compared)),
         uni_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_binary_check = html("Binary check"),
-        uni_bioccheck = html("BiocCheck"))
+        uni_bioccheck = html("BiocCheck"),
+        download_rank = num("Download rank", cell = function(value)
+            if (is.na(value)) "\u2014" else
+                paste(format(value, big.mark = ","), "/",
+                      format(ranked, big.mark = ","))),
+        downloads_month = num("Downloads / month"),
+        n_revdeps = num("Strong reverse deps"),
+        usedby = num("Used by (R Universe)"),
+        mentions = num("Mentions"),
+        score = num("Score"),
+        commits_12wk = num("Commits (12 weeks)"))
 
     reactable::reactable(
         df[, names(columns)],
@@ -151,7 +206,12 @@ compare_table <- function(cmp) {
             reactable::colGroup("R Universe",
                                 c("uni_commit", "uni_status",
                                   "uni_source_build", "uni_check",
-                                  "uni_binary_check", "uni_bioccheck"))),
+                                  "uni_binary_check", "uni_bioccheck")),
+            reactable::colGroup("Importance",
+                                c("download_rank", "downloads_month",
+                                  "n_revdeps", "usedby", "mentions", "score",
+                                  "commits_12wk"))),
+        details = .revdeps_details(cmp),
         searchable = TRUE, filterable = TRUE, compact = TRUE, striped = TRUE,
         highlight = TRUE, showPageSizeOptions = TRUE, defaultPageSize = 50,
         pageSizeOptions = c(25, 50, 100, 500),
