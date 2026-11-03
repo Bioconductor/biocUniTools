@@ -39,6 +39,8 @@ normalize_result <- function(result) {
 #'   `R CMD build` and R Universe's source `R CMD build`. Otherwise, `R CMD
 #'   check` on both.
 #' * `result_match`: whether the results agree after `normalize_result()`
+#' * `downloads_12mo`, `downloads_month`, `download_rank`, `ranked`: from
+#'   `bioc_downloads()`
 #'
 #' `NA` means there is nothing to compare. Attributes `bbs_node_info`,
 #' `bbs_report_url`, and `universe_url` describe where the results come from.
@@ -48,6 +50,8 @@ normalize_result <- function(result) {
 #' @param bbs data.frame from `bbs_status()`. If `NULL` (default), downloaded.
 #' @param uni data.frame from `uni_status()`. If `NULL` (default), downloaded.
 #' @param jobs data.frame from `uni_jobs()`, used when `uni` is `NULL`.
+#' @param downloads data.frame from `bioc_downloads()`, downloaded by default.
+#'     `NULL` to leave out download statistics.
 #'
 #' @returns data.frame
 #'
@@ -58,11 +62,14 @@ normalize_result <- function(result) {
 #'
 #' @export
 compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
-                           jobs = NULL) {
+                           jobs = NULL,
+                           downloads = bioc_downloads(branch, type)) {
     if (is.null(bbs))
         bbs <- bbs_status(branch, type)
     if (is.null(uni))
         uni <- uni_status(branch, type, jobs = jobs)
+    if (is.null(downloads))
+        downloads <- data.frame(Package = character())
 
     bioc_version <- stats::na.omit(c(bbs$bioc_version, uni$bioc_version))[1]
     universe <- stats::na.omit(uni$universe)[1]
@@ -76,6 +83,7 @@ compare_builds <- function(branch, type = "software", bbs = NULL, uni = NULL,
 
     workflows <- type == "workflows"
     dplyr::full_join(bbs, uni, by = "Package") |>
+        dplyr::left_join(downloads, by = "Package") |>
         dplyr::mutate(
             type = type,
             branch = branch,

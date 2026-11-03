@@ -17,6 +17,7 @@ One row per Bioconductor package type with the name each system uses for it:
 \item \code{manifest}: file name (without \code{.txt}) in the Bioconductor manifest
 \item \code{bbs}: build report directory, e.g., \code{bioc} in \code{bioc-LATEST}
 \item \code{universe}: \code{repository} value in R Universe's \verb{_bioc} field
+\item \code{stats}: download statistics directory and file prefix, \code{NA} if none
 }
 }
 \examples{

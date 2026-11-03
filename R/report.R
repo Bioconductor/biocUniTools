@@ -61,6 +61,33 @@
            paste0(cmp$bbs_url, cmp$bbs_node, "-", stage, ".html"))
 }
 
+#' Expandable row listing a package's reverse dependencies
+#'
+#' @param strong list of character vectors of strong reverse dependencies
+#' @param suggests list of character vectors of packages that suggest it
+#'
+#' @returns function for reactable's `details`, or `NULL` if there are no
+#'     reverse dependencies
+#'
+#' @noRd
+.revdeps_details <- function(strong, suggests) {
+    if (all(lengths(strong) == 0 & lengths(suggests) == 0))
+        return(NULL)
+    item <- function(label, pkgs)
+        if (length(pkgs))
+            htmltools::p(htmltools::strong(sprintf("%s (%d): ", label,
+                                                   length(pkgs))),
+                         paste(pkgs, collapse = ", "))
+    function(index) {
+        if (length(strong[[index]]) == 0 && length(suggests[[index]]) == 0)
+            return(NULL)
+        htmltools::div(
+            class = "revdeps-details",
+            item("Strong reverse dependencies", strong[[index]]),
+            item("Suggested by", suggests[[index]]))
+    }
+}
+
 #' Show a logical as a Bootstrap Icons check mark or cross with text
 #'
 #' @noRd
