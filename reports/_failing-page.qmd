@@ -18,6 +18,9 @@ files <- files[file.exists(files)]
 cmps <- lapply(files, readRDS)
 has_data <- length(cmps) > 0 &&
     all(vapply(cmps, function(x) "uni_n_revdeps" %in% names(x), logical(1)))
+errors_file <- file.path("..", config$data_dir,
+                         sprintf("errors-%s.rds", branch))
+errors <- if (file.exists(errors_file)) readRDS(errors_file)
 if (has_data) {
     failing <- compare_failing(cmps)
     types <- bioc_pkg_types()
@@ -47,6 +50,11 @@ if (!has_data) {
 }
 ```
 
+```{r}
+#| echo: false
+if (has_data && !is.null(errors)) error_summary_table(errors)
+```
+
 <details>
 <summary>Legend</summary>
 
@@ -55,6 +63,20 @@ if (!has_data) {
 - **R Universe**: the first job that fails: source build or check, with
   ERROR, FAIL, or TIMEOUT, or the overall status if only that failed. Links to
   the job.
+- **R Universe error**: the step that failed and the likely cause, found in
+  the job's log. Links to the log. Expand a row to see the first error lines.
+  Causes:
+  - *Hub resource*: an ExperimentHub or AnnotationHub download failed.
+  - *Network/web service*: a download or web service failed.
+  - *Missing package*: a package is not available, for example archived on
+    CRAN.
+  - *Missing cached data*: data the package expects in a cache was missing.
+  - *External tool*: Python, Java, Conda, LaTeX, or a command line tool.
+  - *Dependency changed*: a function or class the package uses changed or was
+    removed.
+  - *Timeout*: the job ran out of time.
+  - *Test expectation failed*: a test's result no longer matched.
+  - *Other*: none of the above, often a bug in the package.
 - **Downloads / month**: distinct IPs downloading the package from
   Bioconductor in the last 12 months, divided by 12.
 - **Strong reverse deps**: Bioconductor packages that depend on, import, or
@@ -69,6 +91,6 @@ if (!has_data) {
 ::: column-screen-inset
 ```{r}
 #| echo: false
-if (has_data) failing_table(failing)
+if (has_data) failing_table(failing, errors)
 ```
 :::
