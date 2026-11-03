@@ -37,7 +37,18 @@ the result of each job:
 \item \code{binary_check}, \code{binary_status}: check result and status of the binary
 \item \code{check_diverged}: \code{TRUE} if \code{check} and \code{binary_check} differ
 \item \code{bioccheck}: result of \code{BiocCheck}
+\item \code{n_revdeps}, \code{revdeps}: number and names of packages in the universe with
+a strong dependency (Depends, Imports, LinkingTo) on the package
+\item \code{revdeps_suggests}: names of packages in the universe that suggest it
+\item \code{usedby}: R Universe's count of packages anywhere in R Universe that use
+it
+\item \code{score}: R Universe's package score
+\item \code{mentions}: R Universe's count of mentions in scientific papers
+\item \code{commits_12wk}: commits in the last 12 weeks
 }
+
+Reverse dependencies are found among the packages in \code{jobs}, so they are
+complete only when \code{jobs} has the whole universe.
 
 Packages are assigned a type with \code{bioc_manifest()}. Packages not in any
 manifest use the type R Universe reports, if any.

@@ -8,6 +8,7 @@
 #' * `manifest`: file name (without `.txt`) in the Bioconductor manifest
 #' * `bbs`: build report directory, e.g., `bioc` in `bioc-LATEST`
 #' * `universe`: `repository` value in R Universe's `_bioc` field
+#' * `stats`: download statistics directory and file prefix, `NA` if none
 #'
 #' @returns data.frame
 #'
@@ -21,7 +22,8 @@ bioc_pkg_types <- function() {
         label = c("Software", "Experiment Data", "Workflows", "Books"),
         manifest = c("software", "data-experiment", "workflows", "books"),
         bbs = c("bioc", "data-experiment", "workflows", "books"),
-        universe = c("bioc", "data/experiment", "workflows", "books")
+        universe = c("bioc", "data/experiment", "workflows", "books"),
+        stats = c("bioc", "experiment", "workflows", NA)
     )
 }
 
