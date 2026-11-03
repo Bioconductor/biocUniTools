@@ -16,8 +16,10 @@ data.frame summary, invisibly
 }
 \description{
 Saves one \verb{compare-<branch>-<type>.rds} per branch and type and a
-\code{summary.rds} in \code{data_dir}. Reports read these files, so the data is
-downloaded once.
+\code{summary.rds} in \code{data_dir}. If the configuration has \code{errors: true}, also
+saves \verb{errors-<branch>.rds} from \code{uni_errors()}, with R Universe logs cached
+in \code{data_dir/logs}. Reports read these files, so the data is downloaded
+once.
 }
 \examples{
 \dontrun{
