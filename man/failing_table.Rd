@@ -4,10 +4,13 @@
 \alias{failing_table}
 \title{Interactive table of failing packages}
 \usage{
-failing_table(failing)
+failing_table(failing, errors = NULL)
 }
 \arguments{
 \item{failing}{data.frame from \code{compare_failing()}}
+
+\item{errors}{data.frame from \code{uni_errors()}, or \code{NULL} to leave out R
+Universe errors}
 }
 \value{
 reactable htmlwidget

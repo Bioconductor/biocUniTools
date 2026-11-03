@@ -141,7 +141,8 @@ compare_summary <- function(cmp) {
 #' Read a comparison report configuration
 #'
 #' @param file character path to a YAML file with `branches`, `types`, and
-#'     `data_dir`. Optional: `platform` (BBS), `os` and `arch` (R Universe).
+#'     `data_dir`. Optional: `platform` (BBS), `os` and `arch` (R Universe),
+#'     and `errors` (default `true`).
 #'
 #' @returns list
 #'
@@ -149,7 +150,7 @@ compare_summary <- function(cmp) {
 .read_compare_config <- function(file) {
     config <- yaml::read_yaml(file)
     defaults <- list(platform = "x86_64-linux-gnu", os = "linux",
-                     arch = "x86_64")
+                     arch = "x86_64", errors = TRUE)
     utils::modifyList(defaults, config)
 }
 
@@ -157,8 +158,10 @@ compare_summary <- function(cmp) {
 #'
 #' @description
 #' Saves one `compare-<branch>-<type>.rds` per branch and type and a
-#' `summary.rds` in `data_dir`. Reports read these files, so the data is
-#' downloaded once.
+#' `summary.rds` in `data_dir`. If the configuration has `errors: true`, also
+#' saves `errors-<branch>.rds` from `uni_errors()`, with R Universe logs cached
+#' in `data_dir/logs`. Reports read these files, so the data is downloaded
+#' once.
 #'
 #' @param config character path to a YAML configuration. See
 #'     `reports/config.yml` on the `reports` branch of the biocUniTools
@@ -179,8 +182,11 @@ write_comparisons <- function(config) {
     dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
 
     summaries <- list()
+    log_dir <- file.path(data_dir, "logs")
+    logs_used <- character()
     for (branch in config$branches) {
         jobs <- uni_jobs(branch)
+        cmps <- list()
         for (type in config$types) {
             bbs <- bbs_status(branch, type, platform = config$platform)
             uni <- uni_status(branch, type, os = config$os, arch = config$arch,
@@ -190,8 +196,19 @@ write_comparisons <- function(config) {
             saveRDS(cmp, file.path(data_dir,
                                    sprintf("compare-%s-%s.rds", branch, type)))
             summaries[[paste(branch, type)]] <- compare_summary(cmp)
+            cmps[[type]] <- cmp
+        }
+        if (isTRUE(config$errors)) {
+            errors <- uni_errors(compare_failing(cmps), cache_dir = log_dir)
+            attr(errors, "created") <- Sys.time()
+            saveRDS(errors, file.path(data_dir,
+                                      sprintf("errors-%s.rds", branch)))
+            logs_used <- c(logs_used, paste0(basename(errors$log_url), ".log"))
         }
     }
+    # Remove cached logs of jobs that no longer fail
+    old_logs <- setdiff(list.files(log_dir, "\\.log$"), logs_used)
+    unlink(file.path(log_dir, old_logs))
     summary <- do.call(rbind, unname(summaries))
     attr(summary, "created") <- Sys.time()
     saveRDS(summary, file.path(data_dir, "summary.rds"))

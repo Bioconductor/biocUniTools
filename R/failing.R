@@ -92,6 +92,8 @@ compare_failing <- function(cmp) {
 #' Interactive table of failing packages
 #'
 #' @param failing data.frame from `compare_failing()`
+#' @param errors data.frame from `uni_errors()`, or `NULL` to leave out R
+#'     Universe errors
 #'
 #' @returns reactable htmlwidget
 #'
@@ -101,7 +103,7 @@ compare_failing <- function(cmp) {
 #' }
 #'
 #' @export
-failing_table <- function(failing) {
+failing_table <- function(failing, errors = NULL) {
     if (!requireNamespace("reactable", quietly = TRUE))
         stop("Install 'reactable' to use failing_table()")
     types <- bioc_pkg_types()
@@ -131,6 +133,20 @@ failing_table <- function(failing) {
         mentions = failing$mentions,
         commits_12wk = failing$commits_12wk)
 
+    excerpts <- rep(list(character()), nrow(failing))
+    if (!is.null(errors)) {
+        i <- match(paste(failing$Package, failing$type),
+                   paste(errors$Package, errors$type))
+        df$error <- ifelse(
+            is.na(i) | is.na(errors$error_cause[i]),
+            '<span class="text-body-secondary">&#8212;</span>',
+            sprintf('%s &middot; <a href="%s" target="_blank">%s</a>',
+                    htmltools::htmlEscape(errors$error_step[i]),
+                    errors$log_url[i],
+                    htmltools::htmlEscape(errors$error_cause[i])))
+        excerpts[!is.na(i)] <- errors$error_excerpt[i[!is.na(i)]]
+    }
+
     html <- function(name, ...)
         reactable::colDef(name = name, html = TRUE, ...)
     num <- function(name, ...)
@@ -138,21 +154,78 @@ failing_table <- function(failing) {
                           na = "\u2014",
                           format = reactable::colFormat(separators = TRUE),
                           ...)
+    columns <- list(
+        Package = html("Package", minWidth = 160),
+        type = reactable::colDef(name = "Type", minWidth = 120),
+        deprecated = html("Deprecated", minWidth = 110),
+        bbs_failure = html("BBS", minWidth = 150),
+        uni_failure = html("R Universe", minWidth = 170),
+        error = html("R Universe error", minWidth = 200),
+        downloads_month = num("Downloads / month"),
+        n_revdeps = num("Strong reverse deps"),
+        mentions = num("Mentions"),
+        commits_12wk = num("Commits (12 weeks)"))
+    # The error column is only there when errors are given
+    columns <- columns[names(columns) %in% names(df)]
     reactable::reactable(
-        df,
-        columns = list(
-            Package = html("Package", minWidth = 160),
-            type = reactable::colDef(name = "Type", minWidth = 120),
-            deprecated = html("Deprecated", minWidth = 110),
-            bbs_failure = html("BBS", minWidth = 150),
-            uni_failure = html("R Universe", minWidth = 170),
-            downloads_month = num("Downloads / month"),
-            n_revdeps = num("Strong reverse deps"),
-            mentions = num("Mentions"),
-            commits_12wk = num("Commits (12 weeks)")),
-        details = .revdeps_details(failing$revdeps, failing$revdeps_suggests),
+        df[, names(columns)],
+        columns = columns,
+        details = .failing_details(excerpts, failing$revdeps,
+                                   failing$revdeps_suggests),
         searchable = TRUE, filterable = TRUE, compact = TRUE, striped = TRUE,
         highlight = TRUE, showPageSizeOptions = TRUE, defaultPageSize = 50,
         pageSizeOptions = c(25, 50, 100, 500),
         class = "compare-table")
+}
+
+#' Expandable row with a package's R Universe error and reverse dependencies
+#'
+#' @param excerpts list of character vectors of error lines
+#' @param strong list of character vectors of strong reverse dependencies
+#' @param suggests list of character vectors of packages that suggest it
+#'
+#' @returns function for reactable's `details`, or `NULL` if there is nothing
+#'     to show
+#'
+#' @noRd
+.failing_details <- function(excerpts, strong, suggests) {
+    revdeps <- .revdeps_details(strong, suggests)
+    if (is.null(revdeps) && all(lengths(excerpts) == 0))
+        return(NULL)
+    function(index) {
+        error <- if (length(excerpts[[index]]))
+            htmltools::pre(class = "error-excerpt",
+                           paste(excerpts[[index]], collapse = "\n"))
+        deps <- if (!is.null(revdeps)) revdeps(index)
+        if (is.null(error) && is.null(deps))
+            return(NULL)
+        htmltools::div(class = "failing-details", error, deps)
+    }
+}
+
+#' Number of failing packages per R Universe error cause
+#'
+#' @param errors data.frame from `uni_errors()`
+#'
+#' @returns htmltools table, causes from most to least common
+#'
+#' @examples
+#' \dontrun{
+#' failing <- compare_failing(compare_builds("devel", "books"))
+#' error_summary_table(uni_errors(failing))
+#' }
+#'
+#' @export
+error_summary_table <- function(errors) {
+    causes <- sort(table(errors$error_cause), decreasing = TRUE)
+    rows <- lapply(names(causes), function(cause)
+        htmltools::tags$tr(htmltools::tags$td(cause),
+                           htmltools::tags$td(class = "text-end",
+                                              causes[[cause]])))
+    htmltools::tags$table(
+        class = "table table-sm error-summary",
+        htmltools::tags$thead(htmltools::tags$tr(
+            htmltools::tags$th("R Universe error"),
+            htmltools::tags$th(class = "text-end", "Packages"))),
+        htmltools::tags$tbody(rows))
 }
