@@ -1,0 +1,11 @@
+---
+pagetitle: "Failing packages: devel"
+toc: false
+---
+
+```{r}
+#| include: false
+branch <- "devel"
+```
+
+{{< include ../_failing-page.qmd >}}
