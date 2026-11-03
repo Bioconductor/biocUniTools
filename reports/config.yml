@@ -12,3 +12,6 @@ data_dir: data
 platform: x86_64-linux-gnu
 os: linux
 arch: x86_64
+
+# Download R Universe logs of failing packages and find the cause of errors
+errors: true
