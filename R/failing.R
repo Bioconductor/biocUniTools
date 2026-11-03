@@ -154,23 +154,22 @@ failing_table <- function(failing, errors = NULL) {
                           na = "\u2014",
                           format = reactable::colFormat(separators = TRUE),
                           ...)
-    df <- df[, intersect(c("Package", "type", "deprecated", "bbs_failure",
-                           "uni_failure", "error", "downloads_month",
-                           "n_revdeps", "mentions", "commits_12wk"),
-                         names(df))]
+    columns <- list(
+        Package = html("Package", minWidth = 160),
+        type = reactable::colDef(name = "Type", minWidth = 120),
+        deprecated = html("Deprecated", minWidth = 110),
+        bbs_failure = html("BBS", minWidth = 150),
+        uni_failure = html("R Universe", minWidth = 170),
+        error = html("R Universe error", minWidth = 200),
+        downloads_month = num("Downloads / month"),
+        n_revdeps = num("Strong reverse deps"),
+        mentions = num("Mentions"),
+        commits_12wk = num("Commits (12 weeks)"))
+    # The error column is only there when errors are given
+    columns <- columns[names(columns) %in% names(df)]
     reactable::reactable(
-        df,
-        columns = list(
-            Package = html("Package", minWidth = 160),
-            type = reactable::colDef(name = "Type", minWidth = 120),
-            deprecated = html("Deprecated", minWidth = 110),
-            bbs_failure = html("BBS", minWidth = 150),
-            uni_failure = html("R Universe", minWidth = 170),
-            error = html("R Universe error", minWidth = 200),
-            downloads_month = num("Downloads / month"),
-            n_revdeps = num("Strong reverse deps"),
-            mentions = num("Mentions"),
-            commits_12wk = num("Commits (12 weeks)")),
+        df[, names(columns)],
+        columns = columns,
         details = .failing_details(excerpts, failing$revdeps,
                                    failing$revdeps_suggests),
         searchable = TRUE, filterable = TRUE, compact = TRUE, striped = TRUE,
