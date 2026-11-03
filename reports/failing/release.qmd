@@ -1,0 +1,11 @@
+---
+pagetitle: "Failing packages: release"
+toc: false
+---
+
+```{r}
+#| include: false
+branch <- "release"
+```
+
+{{< include ../_failing-page.qmd >}}
