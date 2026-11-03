@@ -32,6 +32,12 @@ website:
             href: reports/compare/release-workflows.qmd
           - text: "Books"
             href: reports/compare/release-books.qmd
+      - text: "Failing packages"
+        menu:
+          - text: "devel"
+            href: reports/failing/devel.qmd
+          - text: "release"
+            href: reports/failing/release.qmd
       - text: "Propagation status"
         href: vignettes/index.qmd
 
