@@ -27,3 +27,7 @@ details { margin-bottom: 0.75rem; }
 .compare-bar .progress-bar.bar-same { background-color: #8bc0cf; }    /* --primary-p100 */
 .compare-bar .progress-bar.bar-differ { background-color: #035771; }  /* --primary-p400 */
 .compare-bar .progress-bar.bar-unknown { background-color: #e7e8ea; } /* --neutral-n75 */
+
+/* Failing packages: error excerpt and per-cause counts */
+.error-excerpt { font-size: 0.8rem; white-space: pre-wrap; margin: 0.25rem 0 0.75rem; }
+.error-summary { max-width: 24rem; }
