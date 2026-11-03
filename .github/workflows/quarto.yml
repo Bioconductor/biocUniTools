@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [devel]
   schedule:
-    - cron: "30 16 * * *" # 2:30pm ET
+    - cron: "30 16 * * *" # 16:30 UTC
   workflow_dispatch:
 
 name: quarto
@@ -44,6 +44,15 @@ jobs:
         run: |
           mkdir -p site/vignettes
           cp vignettes/*.qmd site/vignettes/
+
+      # R Universe logs are downloaded once per failing job, so keep them
+      # between runs
+      - name: Cache R Universe logs
+        uses: actions/cache@v4
+        with:
+          path: site/reports/data/logs
+          key: uni-logs-${{ github.run_id }}
+          restore-keys: uni-logs-
 
       - name: Compare BBS and R Universe builds
         working-directory: site
