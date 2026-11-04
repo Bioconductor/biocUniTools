@@ -189,6 +189,9 @@ parse_uni_log <- function(log, source = FALSE) {
 #'     rate limits these links
 #' @param max_failures integer number of failed downloads in a row after which
 #'     the rest are skipped. Cached logs are still used.
+#' @param max_downloads number of logs to download, in the order of `failing`.
+#'     The rest are skipped, so with a cache they are downloaded in a later
+#'     run. Cached logs are still used.
 #'
 #' @returns data.frame with columns Package, type, branch, error_step,
 #'     error_cause, error_excerpt (a list column), and log_url
@@ -201,7 +204,7 @@ parse_uni_log <- function(log, source = FALSE) {
 #'
 #' @export
 uni_errors <- function(failing, cache_dir = NULL, delay = 1,
-                       max_failures = 10L) {
+                       max_failures = 10L, max_downloads = Inf) {
     job_url <- failing$uni_failure_url
     jobs <- stringr::str_match(job_url,
                                "github.com/r-universe/([^/]+)/actions/runs/[0-9]+/job/([0-9]+)")
@@ -215,11 +218,17 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1,
                                         jobs[rows, 2], jobs[rows, 3]))
     out$error_excerpt <- I(rep(list(character()), length(rows)))
     failures <- 0L
+    downloads <- 0L
+    skipped <- 0L
     for (i in seq_along(rows)) {
         cached <- !is.null(cache_dir) &&
             file.exists(file.path(cache_dir, paste0(jobs[rows[i], 3], ".log")))
-        if (!cached && failures >= max_failures)
+        if (!cached && (failures >= max_failures || downloads >= max_downloads)) {
+            skipped <- skipped + 1L
             next
+        }
+        if (!cached)
+            downloads <- downloads + 1L
         log <- uni_job_log(jobs[rows[i], 2], jobs[rows[i], 3], cache_dir)
         if (!cached && delay > 0)
             Sys.sleep(delay)
@@ -238,6 +247,7 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1,
         out$error_excerpt[[i]] <- parsed$excerpt
     }
     message("Found errors in ", sum(!is.na(out$error_cause)), " of ",
-            nrow(out), " R Universe logs")
+            nrow(out), " R Universe logs",
+            if (skipped > 0) paste0("; skipped downloading ", skipped))
     out
 }
