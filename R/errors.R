@@ -64,8 +64,8 @@ uni_error_rules <- function() {
 #' @param job character job ID
 #' @param cache_dir character directory to save logs in, or `NULL` for none
 #'
-#' @returns character vector of log lines without timestamps, `NULL` if the
-#'     log could not be downloaded
+#' @returns character vector of log lines without timestamps, `NULL` with a
+#'     message if the log could not be downloaded
 #'
 #' @examples
 #' \dontrun{
@@ -86,7 +86,11 @@ uni_job_log <- function(universe, job, cache_dir = NULL) {
                 httr2::req_retry(max_tries = 3) |>
                 httr2::req_perform(path = path)
             TRUE
-        }, error = function(e) FALSE)
+        }, error = function(e) {
+            message("Could not download the log of job ", job, ": ",
+                    conditionMessage(e))
+            FALSE
+        })
         if (!ok) {
             unlink(path)
             return(NULL)
@@ -183,6 +187,8 @@ parse_uni_log <- function(log, source = FALSE) {
 #' @param cache_dir character directory to save logs in, or `NULL` for none
 #' @param delay numeric seconds to wait between downloads, because R Universe
 #'     rate limits these links
+#' @param max_failures integer number of failed downloads in a row after which
+#'     the rest are skipped. Cached logs are still used.
 #'
 #' @returns data.frame with columns Package, type, branch, error_step,
 #'     error_cause, error_excerpt (a list column), and log_url
@@ -194,7 +200,8 @@ parse_uni_log <- function(log, source = FALSE) {
 #' }
 #'
 #' @export
-uni_errors <- function(failing, cache_dir = NULL, delay = 1) {
+uni_errors <- function(failing, cache_dir = NULL, delay = 1,
+                       max_failures = 10L) {
     job_url <- failing$uni_failure_url
     jobs <- stringr::str_match(job_url,
                                "github.com/r-universe/([^/]+)/actions/runs/[0-9]+/job/([0-9]+)")
@@ -207,19 +214,30 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1) {
                       log_url = sprintf("https://%s.r-universe.dev/api/actions/logs/%s",
                                         jobs[rows, 2], jobs[rows, 3]))
     out$error_excerpt <- I(rep(list(character()), length(rows)))
+    failures <- 0L
     for (i in seq_along(rows)) {
         cached <- !is.null(cache_dir) &&
             file.exists(file.path(cache_dir, paste0(jobs[rows[i], 3], ".log")))
+        if (!cached && failures >= max_failures)
+            next
         log <- uni_job_log(jobs[rows[i], 2], jobs[rows[i], 3], cache_dir)
         if (!cached && delay > 0)
             Sys.sleep(delay)
-        if (is.null(log))
+        if (is.null(log)) {
+            failures <- failures + 1L
+            if (failures == max_failures)
+                message("Stopped downloading logs after ", max_failures,
+                        " failures in a row")
             next
+        }
+        failures <- 0L
         parsed <- parse_uni_log(
             log, source = startsWith(failing$uni_failure[rows[i]], "source"))
         out$error_step[i] <- parsed$step
         out$error_cause[i] <- parsed$cause
         out$error_excerpt[[i]] <- parsed$excerpt
     }
+    message("Found errors in ", sum(!is.na(out$error_cause)), " of ",
+            nrow(out), " R Universe logs")
     out
 }
