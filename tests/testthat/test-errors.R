@@ -60,3 +60,23 @@ test_that("uni_errors stops downloading after repeated failures", {
     expect_equal(calls, 2)
     expect_true(all(is.na(e$error_cause)))
 })
+
+test_that("uni_errors downloads at most max_downloads logs", {
+    failing <- data.frame(
+        Package = c("a", "b", "c"), type = "software", branch = "devel",
+        uni_failure = "check: ERROR",
+        uni_failure_url = sprintf(
+            "https://github.com/r-universe/bioc/actions/runs/1/job/%d", 1:3))
+    calls <- 0
+    local_mocked_bindings(uni_job_log = function(...) {
+        calls <<- calls + 1
+        "Error: there is no package called 'x'"
+    })
+    expect_message(e <- uni_errors(failing, delay = 0, max_downloads = 2),
+                   "skipped downloading 1")
+    expect_equal(calls, 2)
+    expect_equal(e$error_cause, c("Missing package", "Missing package", NA))
+    expect_equal(attr(e, "max_downloads"), 2)
+    expect_equal(attr(e, "skipped"), 1)
+    expect_equal(attr(e, "failed"), 0)
+})

@@ -142,7 +142,8 @@ compare_summary <- function(cmp) {
 #'
 #' @param file character path to a YAML file with `branches`, `types`, and
 #'     `data_dir`. Optional: `platform` (BBS), `os` and `arch` (R Universe),
-#'     and `errors` (default `true`).
+#'     `errors` (default `true`), and `max_log_downloads`, the number of R
+#'     Universe logs to download per run across branches (default 400).
 #'
 #' @returns list
 #'
@@ -150,7 +151,7 @@ compare_summary <- function(cmp) {
 .read_compare_config <- function(file) {
     config <- yaml::read_yaml(file)
     defaults <- list(platform = "x86_64-linux-gnu", os = "linux",
-                     arch = "x86_64", errors = TRUE)
+                     arch = "x86_64", errors = TRUE, max_log_downloads = 400)
     utils::modifyList(defaults, config)
 }
 
@@ -199,7 +200,10 @@ write_comparisons <- function(config) {
             cmps[[type]] <- cmp
         }
         if (isTRUE(config$errors)) {
-            errors <- uni_errors(compare_failing(cmps), cache_dir = log_dir)
+            errors <- uni_errors(
+                compare_failing(cmps), cache_dir = log_dir,
+                max_downloads = config$max_log_downloads /
+                    length(config$branches))
             attr(errors, "created") <- Sys.time()
             saveRDS(errors, file.path(data_dir,
                                       sprintf("errors-%s.rds", branch)))
