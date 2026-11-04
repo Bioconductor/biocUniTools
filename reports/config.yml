@@ -15,3 +15,7 @@ arch: x86_64
 
 # Download R Universe logs of failing packages and find the cause of errors
 errors: true
+
+# R Universe logs to download per run, split between branches. Logs are
+# cached, so the rest are downloaded in later runs.
+max_log_downloads: 400
