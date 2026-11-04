@@ -54,20 +54,15 @@ if (!has_data) {
 #| include: false
 show_errors <- has_data && !is.null(errors)
 if (show_errors) {
-    max_downloads <- attr(errors, "max_downloads")
-    without <- sum(is.na(errors$error_cause))
-    cap <- if (is.numeric(max_downloads) && is.finite(max_downloads))
-        sprintf(paste("To go easy on R Universe, each daily run downloads at",
-                      "most %s new logs for this branch, most downloaded",
-                      "packages first."),
-                format(max_downloads, big.mark = ",")) else ""
-    missing <- if (without > 0)
-        sprintf(paste("%s of %s packages failing in R Universe have no error",
-                      "yet; their logs will be downloaded in a later run."),
-                format(without, big.mark = ","),
-                format(nrow(errors), big.mark = ",")) else
-        sprintf("All %s packages failing in R Universe have an error.",
-                format(nrow(errors), big.mark = ","))
+    max_downloads <- if (is.null(config$max_log_downloads)) 400 else
+        config$max_log_downloads
+    note <- sprintf(paste("Note: Daily R Universe errors are capped at %s,",
+                          "which is split between %s. Errors for the most",
+                          "downloaded packages are requested first and other",
+                          "packages later."),
+                    format(max_downloads, big.mark = ","),
+                    paste(sort(config$branches, decreasing = TRUE),
+                          collapse = " and "))
 }
 ```
 
@@ -76,7 +71,7 @@ if (show_errors) {
 #| results: asis
 if (show_errors) {
     cat("<details>\n<summary>R Universe errors</summary>\n\n")
-    cat(cap, missing, "\n\n")
+    cat(note, "\n\n")
 }
 ```
 
