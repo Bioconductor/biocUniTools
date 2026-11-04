@@ -76,4 +76,7 @@ test_that("uni_errors downloads at most max_downloads logs", {
                    "skipped downloading 1")
     expect_equal(calls, 2)
     expect_equal(e$error_cause, c("Missing package", "Missing package", NA))
+    expect_equal(attr(e, "max_downloads"), 2)
+    expect_equal(attr(e, "skipped"), 1)
+    expect_equal(attr(e, "failed"), 0)
 })

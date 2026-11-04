@@ -81,9 +81,10 @@ uni_job_log <- function(universe, job, cache_dir = NULL) {
             dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
         url <- sprintf("https://%s.r-universe.dev/api/actions/logs/%s",
                        universe, job)
+        # One attempt, to go easy on R Universe; a log that fails is tried
+        # again in a later run
         ok <- tryCatch({
             httr2::request(url) |>
-                httr2::req_retry(max_tries = 3) |>
                 httr2::req_perform(path = path)
             TRUE
         }, error = function(e) {
@@ -194,7 +195,10 @@ parse_uni_log <- function(log, source = FALSE) {
 #'     run. Cached logs are still used.
 #'
 #' @returns data.frame with columns Package, type, branch, error_step,
-#'     error_cause, error_excerpt (a list column), and log_url
+#'     error_cause, error_excerpt (a list column), and log_url. Attributes
+#'     `max_downloads`, `skipped` (logs not downloaded because of
+#'     `max_downloads` or `max_failures`), and `failed` (downloads that
+#'     failed).
 #'
 #' @examples
 #' \dontrun{
@@ -204,7 +208,7 @@ parse_uni_log <- function(log, source = FALSE) {
 #'
 #' @export
 uni_errors <- function(failing, cache_dir = NULL, delay = 1,
-                       max_failures = 10L, max_downloads = Inf) {
+                       max_failures = 3L, max_downloads = Inf) {
     job_url <- failing$uni_failure_url
     jobs <- stringr::str_match(job_url,
                                "github.com/r-universe/([^/]+)/actions/runs/[0-9]+/job/([0-9]+)")
@@ -220,6 +224,7 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1,
     failures <- 0L
     downloads <- 0L
     skipped <- 0L
+    failed <- 0L
     for (i in seq_along(rows)) {
         cached <- !is.null(cache_dir) &&
             file.exists(file.path(cache_dir, paste0(jobs[rows[i], 3], ".log")))
@@ -234,6 +239,7 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1,
             Sys.sleep(delay)
         if (is.null(log)) {
             failures <- failures + 1L
+            failed <- failed + 1L
             if (failures == max_failures)
                 message("Stopped downloading logs after ", max_failures,
                         " failures in a row")
@@ -249,5 +255,6 @@ uni_errors <- function(failing, cache_dir = NULL, delay = 1,
     message("Found errors in ", sum(!is.na(out$error_cause)), " of ",
             nrow(out), " R Universe logs",
             if (skipped > 0) paste0("; skipped downloading ", skipped))
-    out
+    structure(out, max_downloads = max_downloads, skipped = skipped,
+              failed = failed)
 }
