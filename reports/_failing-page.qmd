@@ -53,17 +53,9 @@ if (!has_data) {
 ```{r}
 #| include: false
 show_errors <- has_data && !is.null(errors)
-if (show_errors) {
-    max_downloads <- if (is.null(config$max_log_downloads)) 400 else
-        config$max_log_downloads
-    note <- sprintf(paste("Note: Daily R Universe errors are capped at %s,",
-                          "which is split between %s. Errors for the most",
-                          "downloaded packages are requested first and other",
-                          "packages later."),
-                    format(max_downloads, big.mark = ","),
-                    paste(sort(config$branches, decreasing = TRUE),
-                          collapse = " and "))
-}
+note <- paste("Note: Daily R Universe errors are updated a few packages at",
+              "a time. Errors for the most downloaded packages are",
+              "requested first.")
 ```
 
 ```{r}
