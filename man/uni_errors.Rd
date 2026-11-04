@@ -8,7 +8,7 @@ uni_errors(
   failing,
   cache_dir = NULL,
   delay = 1,
-  max_failures = 10L,
+  max_failures = 3L,
   max_downloads = Inf
 )
 }
@@ -29,7 +29,10 @@ run. Cached logs are still used.}
 }
 \value{
 data.frame with columns Package, type, branch, error_step,
-error_cause, error_excerpt (a list column), and log_url
+error_cause, error_excerpt (a list column), and log_url. Attributes
+\code{max_downloads}, \code{skipped} (logs not downloaded because of
+\code{max_downloads} or \code{max_failures}), and \code{failed} (downloads that
+failed).
 }
 \description{
 Downloads the log of each package's first failing R Universe job, the
