@@ -14,8 +14,8 @@ uni_job_log(universe, job, cache_dir = NULL)
 \item{cache_dir}{character directory to save logs in, or \code{NULL} for none}
 }
 \value{
-character vector of log lines without timestamps, \code{NULL} if the
-log could not be downloaded
+character vector of log lines without timestamps, \code{NULL} with a
+message if the log could not be downloaded
 }
 \description{
 Downloads the log R Universe links to from a package's check table. Logs

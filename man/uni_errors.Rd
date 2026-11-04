@@ -4,7 +4,7 @@
 \alias{uni_errors}
 \title{Errors of packages failing in R Universe}
 \usage{
-uni_errors(failing, cache_dir = NULL, delay = 1)
+uni_errors(failing, cache_dir = NULL, delay = 1, max_failures = 10L)
 }
 \arguments{
 \item{failing}{data.frame from \code{compare_failing()}}
@@ -13,6 +13,9 @@ uni_errors(failing, cache_dir = NULL, delay = 1)
 
 \item{delay}{numeric seconds to wait between downloads, because R Universe
 rate limits these links}
+
+\item{max_failures}{integer number of failed downloads in a row after which
+the rest are skipped. Cached logs are still used.}
 }
 \value{
 data.frame with columns Package, type, branch, error_step,
