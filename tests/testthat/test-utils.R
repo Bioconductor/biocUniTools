@@ -121,12 +121,13 @@ test_that("get_repository_path returns the correct paths", {
         repo_root = "reporoot",
         r_version = c("4.6.0", "4.6.0", "4.5.0"),
         os        = c("macosx", "windows", "linux"),
-        arch      = c("arm64",  "x86_64",  NA_character_)
+        arch      = c("arm64",  "x86_64",  "x86_64"),
+        distro    = c(NA,       NA,        "resolute")
     )
     expect_equal(result, c(
         "reporoot/bin/macosx/sonoma-arm64/contrib/4.6",
         "reporoot/bin/windows/gcc-x86_64/contrib/4.6",
-        "reporoot/src/contrib"
+        "reporoot/bin/linux/resolute-x86_64/contrib/4.5"
     ))
 })
 
