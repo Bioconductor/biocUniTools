@@ -166,32 +166,20 @@ uni_repo_url <- function(uni, r_version, os = NA_character_,
     type <- match.arg(type)
     universe <- paste0("https://", uni, ".r-universe.dev")
     if (type == "source")
-        return(get_repository_path(universe, r_version, type = "source"))
+        return(file.path(universe, "src", "contrib"))
 
-    n <- max(length(universe), length(r_version), length(os), length(arch),
-             length(distro))
-    universe <- rep_len(universe, n)
-    r_version <- rep_len(r_version, n)
-    os <- rep_len(os, n)
-    arch <- rep_len(arch, n)
-    distro <- rep_len(distro, n)
-
-    is_linux <- !is.na(os) & stringr::str_detect(os, "linux")
-    url <- rep(NA_character_, n)
-    if (any(!is_linux))
-        url[!is_linux] <- get_repository_path(universe[!is_linux],
-                                              r_version[!is_linux],
-                                              os[!is_linux], arch[!is_linux])
-    # Without a distro there is no linux binary to point to
-    is_linux <- is_linux & !is.na(distro)
-    if (any(is_linux)) {
-        url[is_linux] <- file.path(universe[is_linux], "bin", "linux",
-                                   paste(distro[is_linux], arch[is_linux],
-                                         sep = "-"),
-                                   r_xy_ver(r_version[is_linux]), "src",
-                                   "contrib")
-    }
-    url
+    is_linux <- !is.na(os) & grepl("linux", os)
+    dplyr::case_when(
+        # R Universe: bin/linux/<distro>-<arch>/<R x.y>/src/contrib
+        is_linux & !is.na(distro) ~ file.path(universe, "bin", "linux",
+                                              paste(distro, arch, sep = "-"),
+                                              r_xy_ver(r_version), "src",
+                                              "contrib"),
+        # A linux job without a binary has nothing to download
+        is_linux ~ NA_character_,
+        # Windows and macOS use the same layout as Bioconductor
+        .default = get_repository_path(universe, r_version,
+                                       ifelse(is_linux, NA, os), arch))
 }
 
 #' Get OS abbreviation
