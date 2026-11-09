@@ -15,7 +15,8 @@ get_jobs(universe_df, r_version, universe)
 data.frame packages in a universe
 }
 \description{
-Adds artifact and job_url
+Adds job_url and artifact, the download link of the binary or
+source package a job built, \code{NA} if the job failed
 }
 \examples{
 bu <- uni_for_bioc("devel")

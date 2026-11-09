@@ -51,6 +51,8 @@ test_that("get_subpath returns correct paths", {
     expect_equal(get_subpath("windows", "arm64", "4.6"), "clang-arm64")
     expect_equal(get_subpath("windows", "arm64", "4.6", TRUE), "")
     expect_equal(get_subpath("linux", NA_character_, "4.6"), "")
+    expect_equal(get_subpath("linux", "arm64", "4.6", distro = "resolute"),
+                 "resolute-arm64")
 })
 
 test_that("get_repository_path creates good paths", {
@@ -58,8 +60,16 @@ test_that("get_repository_path creates good paths", {
                  "arch must be x86_64 or arm64")
     expect_error(get_repository_path("reporoot", "4.6", "windows"),
                  "arch must be x86_64 or arm64")
-    expect_equal(get_repository_path("reporoot", "4.5", "linux"),
+    expect_equal(get_repository_path("reporoot", "4.5", type = "source"),
                  "reporoot/src/contrib")
+    expect_equal(get_repository_path("reporoot", "4.6", "linux", "x86_64",
+                                     distro = "resolute"),
+                 "reporoot/bin/linux/resolute-x86_64/contrib/4.6")
+    expect_error(get_repository_path("reporoot", "4.6", "linux", "x86_64"),
+                 "distro is required")
+    expect_error(get_repository_path("reporoot", "4.6", "linux",
+                                     distro = "resolute"),
+                 "arch must be x86_64 or arm64")
     expect_equal(get_repository_path("reporoot", "4.6", "macos", "x86_64"),
                  "reporoot/bin/macosx/big-sur-x86_64/contrib/4.6")
     expect_equal(get_repository_path("reporoot", "4.6", "macos", "x86_64", TRUE),
@@ -263,7 +273,7 @@ test_that("uni_for_bioc gets correct universe", {
 
 test_that("remove_old_binaries only removes older binaries", {
     repo <- tempdir()
-    repo_path <- get_repository_path(repo, "4.6.0", "linux")
+    repo_path <- get_repository_path(repo, "4.6.0", type = "source")
     
     pkgs <- c("mytestpkg_1.2.3.tar.gz",
               "mytestpkg_1.3.0.tar.gz",
@@ -277,7 +287,7 @@ test_that("remove_old_binaries only removes older binaries", {
         file.create(file.path(repo_path, pkg))
     
     removed <- expect_no_warning(
-        remove_old_binaries(repo, "4.6.0", "linux", test = TRUE)
+        remove_old_binaries(repo, "4.6.0", test = TRUE, type = "source")
     )
     
     # older versions should be marked for removal

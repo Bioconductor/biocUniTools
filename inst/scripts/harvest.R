@@ -5,10 +5,19 @@ library(biocUniTools)
 
 
 # Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]
+#        Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] source
 # Example: Rscript harvest.R TRUE devel macosx arm64
 # Example: Rscript harvest.R FALSE 3.23 windows arm64
+# Example: Rscript harvest.R FALSE 3.23 linux x86_64
+# Example: Rscript harvest.R FALSE devel source
+#
+# Binaries must pass R CMD check and the source build, and have the same
+# commit as BBS. Source packages must pass the source build and R CMD check on
+# Linux x86_64, and have the same commit as BBS.
 
-msg <- "Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]"
+msg <- paste("Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]",
+             "or Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] source",
+             sep = "\n")
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 3)
@@ -24,22 +33,20 @@ bu <- tryCatch(
     })
 BIOC_VERSION <- bu$bioc_version
 
-stopifnot(args[3] %in% c("windows", "linux", "macosx"))
-OS <- args[3]
-
-if (OS %in% c("macosx", "windows") && length(args) != 4) {
-    stop(msg, call.=FALSE)
-} else if (OS == "macosx" && length(args) == 4) {
-    stopifnot(args[4] %in% c("x86_64", "arm64"))
-    ARCH <- args[4]
-    LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
-} else if (OS == "windows" && length(args) == 4) {
-    stopifnot(args[4] %in% c("x86_64", "arm64"))
-    ARCH <- args[4]
-    LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
+stopifnot(args[3] %in% c("windows", "linux", "macosx", "source"))
+if (args[3] == "source") {
+    TYPE <- "source"
+    OS <- NA_character_
+    ARCH <- NA_character_
+    LOG_FILE_BASE <- "harvest-source"
 } else {
-    ARCH <- NA
-    LOG_FILE_BASE <- paste("harvest", OS, sep = "-")
+    TYPE <- "binary"
+    OS <- args[3]
+    if (length(args) != 4)
+        stop(msg, call. = FALSE)
+    stopifnot(args[4] %in% c("x86_64", "arm64"))
+    ARCH <- args[4]
+    LOG_FILE_BASE <- paste("harvest", OS, ARCH, sep = "-")
 }
 
 REPO_ROOT <- file.path("/home/biocpush/PACKAGES", BIOC_VERSION, "bioc")
@@ -53,14 +60,29 @@ options(max.print = 3000L)
 logger::log_appender(logger::appender_file(LOG_PATH))
 logger::log_info("{Sys.time()} Start")
 
+candidates <- get_candidates(bu, os = OS, arch = ARCH, type = TYPE,
+                             commit = TRUE)
+
+# Linux binaries are built for one distribution, which is part of the path
+DISTRO <- NA_character_
+if (TYPE == "binary" && OS == "linux") {
+    DISTRO <- unique(stats::na.omit(candidates$binaries_distro))
+    if (length(DISTRO) != 1)
+        stop("Expected linux binaries for one distribution, found: ",
+             paste(DISTRO, collapse = ", "))
+}
+
 repo_path <- get_repository_path(REPO_ROOT, bu$r_version, OS, ARCH,
-                                 cran_subpath = OS == "windows")
-candidates <- get_candidates(bu, os = OS, arch = ARCH, commit = TRUE)
+                                 cran_subpath = OS %in% "windows",
+                                 type = TYPE, distro = DISTRO)
+dir.create(repo_path, showWarnings = FALSE, recursive = TRUE)
 
 # Remove any candidates from the list that are currently in the repository
 binaries <- list.files(repo_path, pattern = ".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
 candidates <- candidates |>
-    dplyr::mutate(File = uni_pkg_file(Package, OS, Version)) |>
+    dplyr::mutate(File = uni_pkg_file(Package,
+                                      if (TYPE == "source") "source" else OS,
+                                      Version)) |>
     dplyr::filter(!File %in% binaries)
 
 # Check for version downgrades against what is currently in the repo
@@ -101,12 +123,12 @@ if (nrow(candidates) >= 1) {
     # Log successful downloads
     successful <- downloaded[downloaded$success, ]
     if (nrow(successful) >= 1)
-        logger::log_info("Downloaded {nrow(successful)} binaries: {successful$destfile}")
+        logger::log_info("Downloaded {nrow(successful)} {TYPE} packages: {successful$destfile}")
     
     # Log failed downloads
     failed <- downloaded[!downloaded$success, ]
     if (nrow(failed) >= 1) {
-        logger::log_warn("Failed to download {nrow(failed)} binaries:")
+        logger::log_warn("Failed to download {nrow(failed)} {TYPE} packages:")
         for (i in seq_len(nrow(failed))) {
             logger::log_warn("  {failed$url[i]} - status: {failed$status_code[i]}, error: {failed$error[i]}")
         }
@@ -119,16 +141,17 @@ if (nrow(candidates) >= 1) {
         }
     }
 } else {
-    logger::log_info("No new binaries available.")
+    logger::log_info("No new {TYPE} packages available.")
 }
 
 prefix <- ifelse(TEST_REMOVAL, "[TEST] ", "")
 removed <- remove_old_binaries(REPO_ROOT, bu$r_version, OS, ARCH,
-                               test = TEST_REMOVAL)
+                               test = TEST_REMOVAL, type = TYPE,
+                               distro = DISTRO)
 if (length(removed) >= 1) {
     logger::log_info("{prefix}Removed {removed}")
 } else {
-    logger::log_info("{prefix}No binaries to remove.")
+    logger::log_info("{prefix}No {TYPE} packages to remove.")
 }
 
 logger::log_info("{Sys.time()} End")
