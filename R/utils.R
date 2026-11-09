@@ -500,6 +500,8 @@ get_jobs <- function(universe_df, r_version, universe) {
 filter_by_arch <- function(df, os, arch = "x86_64") {
     if (os == "linux" && is.na(arch))
         arch <- "x86_64"
+    if (is.na(arch))
+        return(df)
 
     if (os == "mac" && arch == "x86_64") {
         dplyr::filter(df,
