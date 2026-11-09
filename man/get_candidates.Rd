@@ -6,37 +6,56 @@
 \usage{
 get_candidates(
   bu,
-  os,
+  os = NA_character_,
   arch = NA_character_,
+  type = c("binary", "source"),
   vignettes = TRUE,
   commit = FALSE,
   unsupported_platforms = TRUE,
-  check = c("NOTE", "WARNING", "OK")
+  check = c("NOTE", "WARNING", "OK"),
+  jobs = NULL
 )
 }
 \arguments{
 \item{bu}{result of uni_for_bioc}
 
-\item{os}{character}
+\item{os}{character, for binaries}
 
-\item{arch}{character (default NA_character_) x86_64 or arm64}
+\item{arch}{character (default NA_character_) x86_64 or arm64, for binaries}
 
-\item{vignettes}{logical (default TRUE) Check status of source / vignettes}
+\item{type}{character "binary" (default) or "source"}
+
+\item{vignettes}{logical (default TRUE) Check status of source / vignettes,
+for binaries}
 
 \item{commit}{logical (default FALSE) Check commit hash in RU and BBS?}
 
 \item{unsupported_platforms}{logical (default TRUE) Check for unsupported
-platforms}
+platforms, for binaries}
+
+\item{check}{character results that pass}
+
+\item{jobs}{data.frame from \code{get_jobs()}. If \code{NULL} (default), downloaded.}
 }
 \value{
-data.frame of filtered candidate packages
+data.frame of filtered candidate packages, with \code{artifact} the
+download link
 }
 \description{
-Filters packages by same commit in  BBS, vignettes passing, or
-check status values.
+Filters binary or source packages that R Universe built by
+check results and, optionally, the same commit in BBS.
+
+Binary candidates are binaries for \code{os} and \code{arch} whose check passed,
+optionally with a passing source build (\code{vignettes}) and the same commit as
+BBS (\code{commit}). Source candidates have a passing source build and a passing
+Linux x86_64 \verb{R CMD check}, optionally with the same commit as BBS
+(\code{commit}).
 }
 \examples{
+\dontrun{
 bu <- uni_for_bioc("devel")
-candidates <- get_candidates(bu, "windows", commit = TRUE)
+candidates <- get_candidates(bu, "windows", "x86_64", commit = TRUE)
+sources <- get_candidates(bu, type = "source", commit = TRUE)
+}
 
 }

@@ -4,24 +4,42 @@
 \alias{uni_repo_url}
 \title{Get universe URL for an os and R version}
 \usage{
-uni_repo_url(uni, r_version, os, arch = NA_character_)
+uni_repo_url(
+  uni,
+  r_version,
+  os = NA_character_,
+  arch = NA_character_,
+  type = c("binary", "source"),
+  distro = NA_character_
+)
 }
 \arguments{
 \item{uni}{character universe name}
 
 \item{r_version}{character}
 
-\item{os}{character}
+\item{os}{character, ignored when \code{type} is "source"}
 
 \item{arch}{character x86_64 or arm64}
+
+\item{type}{character "binary" (default) or "source"}
+
+\item{distro}{character Linux distribution codename, e.g. "resolute",
+needed for linux binaries}
 }
 \value{
-character
+character, \code{NA} for linux binaries without \code{distro}
 }
 \description{
 Get universe URL for an os and R version
 }
+\details{
+R Universe puts linux binaries in
+\verb{bin/linux/<distro>-<arch>/<R x.y>/src/contrib}.
+}
 \examples{
 uni_repo_url("bioc", "4.5.3", "windows", "x86_64")
+uni_repo_url("bioc", "4.6.1", "linux", "x86_64", distro = "resolute")
+uni_repo_url("bioc", "4.6.1", type = "source")
 
 }

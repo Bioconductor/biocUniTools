@@ -7,9 +7,11 @@
 remove_old_binaries(
   repo_root,
   r_version,
-  os,
+  os = NA_character_,
   arch = NA_character_,
-  test = TRUE
+  test = TRUE,
+  type = c("binary", "source"),
+  distro = NA_character_
 )
 }
 \arguments{
@@ -24,6 +26,12 @@ remove_old_binaries(
 
 \item{test}{logical (default TRUE) don't remove, only print packages marked
 for removal}
+
+\item{type}{character "binary" (default) or "source", to remove old source
+packages from \code{src/contrib}}
+
+\item{distro}{character Linux distribution codename, required for linux
+binaries}
 }
 \value{
 vector of the full path of binaries removed

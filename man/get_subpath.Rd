@@ -4,7 +4,7 @@
 \alias{get_subpath}
 \title{Get repo subpath by R version}
 \usage{
-get_subpath(os, arch, r_xy, cran_subpath = FALSE)
+get_subpath(os, arch, r_xy, cran_subpath = FALSE, distro = NA_character_)
 }
 \arguments{
 \item{os}{character OS name, e.g. "macosx", "windows", "linux"}
@@ -14,6 +14,9 @@ get_subpath(os, arch, r_xy, cran_subpath = FALSE)
 \item{r_xy}{R X.Y character}
 
 \item{cran_subpath}{(default FALSE) uses CRAN style subpaths}
+
+\item{distro}{character Linux distribution codename, e.g. "resolute", used
+for linux}
 }
 \value{
 character
@@ -24,5 +27,6 @@ Get repo subpath by R version
 \examples{
 get_subpath("macosx", "arm64", "4.6")
 get_subpath(c("macosx", "windows"), c("arm64", "x86_64"), c("4.6", "4.5"))
+get_subpath("linux", "x86_64", "4.6", distro = "resolute")
 
 }

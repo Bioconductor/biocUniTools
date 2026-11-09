@@ -7,9 +7,11 @@
 get_repository_path(
   repo_root,
   r_version,
-  os,
+  os = NA_character_,
   arch = NA_character_,
-  cran_subpath = FALSE
+  cran_subpath = FALSE,
+  type = c("binary", "source"),
+  distro = NA_character_
 )
 }
 \arguments{
@@ -17,11 +19,17 @@ get_repository_path(
 
 \item{r_version}{character}
 
-\item{os}{character}
+\item{os}{character, ignored when \code{type} is "source"}
 
 \item{arch}{character x86_64 or arm64}
 
 \item{cran_subpath}{(default FALSE) uses CRAN style subpaths}
+
+\item{type}{character "binary" (default) or "source". Source packages are
+in \code{src/contrib}.}
+
+\item{distro}{character Linux distribution codename, e.g. "resolute",
+required for linux binaries}
 }
 \value{
 character
@@ -41,5 +49,8 @@ repo_root <- "/home/biocpush/PACKAGES/3.22/bioc"
 get_repository_path(repo_root, "4.6.0", "windows", "arm64")
 get_repository_path(repo_root, c("4.6.0", "4.6.0"), c("windows", "macosx"),
                     c("arm64", "arm64"))
+get_repository_path(repo_root, "4.6.0", "linux", "x86_64",
+                    distro = "resolute")
+get_repository_path(repo_root, "4.6.0", type = "source")
 
 }

@@ -43,17 +43,22 @@ uni_pkg_file <- function(pkg, os, version) {
 #' @param arch character x86_64 or arm64
 #' @param r_xy R X.Y character
 #' @param cran_subpath (default FALSE) uses CRAN style subpaths
+#' @param distro character Linux distribution codename, e.g. "resolute", used
+#'     for linux
 #'
 #' @returns character
 #' 
 #' @examples
 #' get_subpath("macosx", "arm64", "4.6")
 #' get_subpath(c("macosx", "windows"), c("arm64", "x86_64"), c("4.6", "4.5"))
+#' get_subpath("linux", "x86_64", "4.6", distro = "resolute")
 #'
 #' @export
-get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
+get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE,
+                        distro = NA_character_) {
     is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
     is_win <- !is.na(os) & stringr::str_detect(os, "win")
+    is_linux <- !is.na(os) & stringr::str_detect(os, "linux")
 
     if (any(is_mac & as.double(r_xy) < 4.6 & arch == "arm64", na.rm = TRUE))
         stop("R version must be greater than or equal to 4.6 if arch is arm64")
@@ -64,6 +69,7 @@ get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
         is_win & (as.double(r_xy) < 4.6 | cran_subpath) ~ "",
         is_win & arch == "arm64" ~ "clang-arm64",
         is_win ~ "gcc-x86_64",
+        is_linux & !is.na(distro) & !is.na(arch) ~ paste(distro, arch, sep = "-"),
         .default = ""
     )
 }
@@ -78,9 +84,13 @@ get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
 #'
 #' @param repo_root character
 #' @param r_version character
-#' @param os character
+#' @param os character, ignored when `type` is "source"
 #' @param arch character x86_64 or arm64
 #' @param cran_subpath (default FALSE) uses CRAN style subpaths
+#' @param type character "binary" (default) or "source". Source packages are
+#'     in `src/contrib`.
+#' @param distro character Linux distribution codename, e.g. "resolute",
+#'     required for linux binaries
 #'
 #' @returns character
 #'
@@ -89,24 +99,37 @@ get_subpath <- function(os, arch, r_xy, cran_subpath = FALSE) {
 #' get_repository_path(repo_root, "4.6.0", "windows", "arm64")
 #' get_repository_path(repo_root, c("4.6.0", "4.6.0"), c("windows", "macosx"),
 #'                     c("arm64", "arm64"))
+#' get_repository_path(repo_root, "4.6.0", "linux", "x86_64",
+#'                     distro = "resolute")
+#' get_repository_path(repo_root, "4.6.0", type = "source")
 #'
 #' @export
-get_repository_path <- function(repo_root, r_version, os, arch = NA_character_,
-                                cran_subpath = FALSE) {
+get_repository_path <- function(repo_root, r_version, os = NA_character_,
+                                arch = NA_character_, cran_subpath = FALSE,
+                                type = c("binary", "source"),
+                                distro = NA_character_) {
+    type <- match.arg(type)
+    if (type == "source")
+        return(file.path(repo_root, "src/contrib"))
+
     is_mac <- !is.na(os) & stringr::str_detect(os, "mac")
     is_win <- !is.na(os) & stringr::str_detect(os, "win")
+    is_linux <- !is.na(os) & stringr::str_detect(os, "linux")
 
-    if (any((is_mac | is_win) & (is.na(arch) |
+    if (any((is_mac | is_win | is_linux) & (is.na(arch) |
         !stringr::str_detect(arch, "^(x86_64|arm64)$"))))
         stop("arch must be x86_64 or arm64")
+    if (any(is_linux & is.na(distro)))
+        stop("distro is required for linux binaries")
 
     r_xy <- r_xy_ver(r_version)
-    subpath <- get_subpath(os, arch, r_xy, cran_subpath)
+    subpath <- get_subpath(os, arch, r_xy, cran_subpath, distro)
     repo_path <- dplyr::case_when(
         is.na(os) ~ NA_character_,
         is_mac ~ file.path("bin", "macosx", subpath, "contrib", r_xy),
         is_win ~ file.path("bin", "windows", subpath, "contrib", r_xy),
-        .default = "src/contrib"
+        is_linux ~ file.path("bin", "linux", subpath, "contrib", r_xy),
+        .default = NA_character_
     )
 
     repo_path <- gsub("//+", "/", repo_path)
@@ -118,20 +141,57 @@ get_repository_path <- function(repo_root, r_version, os, arch = NA_character_,
 
 #' Get universe URL for an os and R version
 #'
+#' @details R Universe puts linux binaries in
+#' `bin/linux/<distro>-<arch>/<R x.y>/src/contrib`.
+#'
 #' @param uni character universe name
 #' @param r_version character
-#' @param os character
+#' @param os character, ignored when `type` is "source"
 #' @param arch character x86_64 or arm64
+#' @param type character "binary" (default) or "source"
+#' @param distro character Linux distribution codename, e.g. "resolute",
+#'     needed for linux binaries
 #'
-#' @returns character
+#' @returns character, `NA` for linux binaries without `distro`
 #'
 #' @examples
 #' uni_repo_url("bioc", "4.5.3", "windows", "x86_64")
+#' uni_repo_url("bioc", "4.6.1", "linux", "x86_64", distro = "resolute")
+#' uni_repo_url("bioc", "4.6.1", type = "source")
 #'
 #' @export
-uni_repo_url <- function(uni, r_version, os, arch = NA_character_) {
+uni_repo_url <- function(uni, r_version, os = NA_character_,
+                         arch = NA_character_, type = c("binary", "source"),
+                         distro = NA_character_) {
+    type <- match.arg(type)
     universe <- paste0("https://", uni, ".r-universe.dev")
-    get_repository_path(universe, r_version, os, arch, cran_subpath = FALSE)
+    if (type == "source")
+        return(get_repository_path(universe, r_version, type = "source"))
+
+    n <- max(length(universe), length(r_version), length(os), length(arch),
+             length(distro))
+    universe <- rep_len(universe, n)
+    r_version <- rep_len(r_version, n)
+    os <- rep_len(os, n)
+    arch <- rep_len(arch, n)
+    distro <- rep_len(distro, n)
+
+    is_linux <- !is.na(os) & stringr::str_detect(os, "linux")
+    url <- rep(NA_character_, n)
+    if (any(!is_linux))
+        url[!is_linux] <- get_repository_path(universe[!is_linux],
+                                              r_version[!is_linux],
+                                              os[!is_linux], arch[!is_linux])
+    # Without a distro there is no linux binary to point to
+    is_linux <- is_linux & !is.na(distro)
+    if (any(is_linux)) {
+        url[is_linux] <- file.path(universe[is_linux], "bin", "linux",
+                                   paste(distro[is_linux], arch[is_linux],
+                                         sep = "-"),
+                                   r_xy_ver(r_version[is_linux]), "src",
+                                   "contrib")
+    }
+    url
 }
 
 #' Get OS abbreviation
@@ -352,7 +412,8 @@ get_uni_df <- function(raw_df) {
 
 #' Get jobs for an R Universe build
 #'
-#' @description Adds artifact and job_url
+#' @description Adds job_url and artifact, the download link of the binary or
+#' source package a job built, `NA` if the job failed
 #'
 #' @param universe_df data.frame output of get_uni_df
 #' @param bu result of uni_for_bioc
@@ -369,6 +430,12 @@ get_uni_df <- function(raw_df) {
 
 get_jobs <- function(universe_df, r_version, universe) {
 
+    if (!"binaries_distro" %in% names(universe_df))
+        universe_df$binaries_distro <- NA_character_
+    failed <- c("FAIL", "ERROR", "CANCELLED")
+    in_repo <- function(url, file)
+        ifelse(is.na(url), NA_character_, file.path(url, file))
+
     # Packages without an explicit binaries_arch have universal binaries
     binary_rows <- universe_df |>
         dplyr::filter(
@@ -376,22 +443,31 @@ get_jobs <- function(universe_df, r_version, universe) {
             job_r_xy == r_xy_ver(r_version)) |>
         dplyr::mutate(
             artifact = ifelse(
-                binaries_check %in% c("FAIL", "ERROR", "CANCELLED") |
-                    jobs_check %in% c("FAIL", "ERROR", "CANCELLED") |
+                binaries_check %in% failed | jobs_check %in% failed |
                     binaries_status == "failure",
                 NA_character_,
-                file.path(uni_repo_url(universe, binary_r_xy,
-                                       get_binary_os(binary_os),
-                                       arch = get_arch(binaries_arch,
-                                                       job_arch)),
-                          uni_pkg_file(Package, binary_os,
-                                       binaries_version))))
+                in_repo(uni_repo_url(universe, binary_r_xy,
+                                     get_binary_os(binary_os),
+                                     arch = get_arch(binaries_arch, job_arch),
+                                     distro = binaries_distro),
+                        uni_pkg_file(Package, binary_os, binaries_version))))
 
-    nonbinary_rows <- universe_df |>
-        dplyr::filter(job_type != "binary") |>
+    # Source packages are built by the source job
+    source_rows <- universe_df |>
+        dplyr::filter(job_type == "source") |>
+        dplyr::mutate(
+            artifact = ifelse(
+                jobs_check %in% failed | is.na(Version),
+                NA_character_,
+                in_repo(uni_repo_url(universe, r_version, type = "source"),
+                        uni_pkg_file(Package, "source", Version))))
+
+    other_rows <- universe_df |>
+        dplyr::filter(!job_type %in% c("binary", "source")) |>
         dplyr::mutate(artifact = NA_character_)
 
-    updated_universe_df <- dplyr::bind_rows(binary_rows, nonbinary_rows) |>
+    updated_universe_df <- dplyr::bind_rows(binary_rows, source_rows,
+                                            other_rows) |>
         dplyr::mutate(job_url = ifelse(is.na(job_id), NA_character_,
                                       file.path(`_buildurl`, "job", job_id))) |>
         dplyr::arrange(Package)
@@ -505,34 +581,54 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 
 #' Get candidate packages in R Universe based on criteria
 #'
-#' @description Filters packages by same commit in  BBS, vignettes passing, or
-#' check status values.
+#' @description Filters binary or source packages that R Universe built by
+#' check results and, optionally, the same commit in BBS.
+#'
+#' Binary candidates are binaries for `os` and `arch` whose check passed,
+#' optionally with a passing source build (`vignettes`) and the same commit as
+#' BBS (`commit`). Source candidates have a passing source build and a passing
+#' Linux x86_64 `R CMD check`, optionally with the same commit as BBS
+#' (`commit`).
 #'
 #' @param bu result of uni_for_bioc
-#' @param os character
-#' @param arch character (default NA_character_) x86_64 or arm64
-#' @param vignettes logical (default TRUE) Check status of source / vignettes
+#' @param os character, for binaries
+#' @param arch character (default NA_character_) x86_64 or arm64, for binaries
+#' @param type character "binary" (default) or "source"
+#' @param vignettes logical (default TRUE) Check status of source / vignettes,
+#'     for binaries
 #' @param commit logical (default FALSE) Check commit hash in RU and BBS?
 #' @param unsupported_platforms logical (default TRUE) Check for unsupported
-#' platforms
+#'     platforms, for binaries
+#' @param check character results that pass
+#' @param jobs data.frame from `get_jobs()`. If `NULL` (default), downloaded.
 #'
-#' @returns data.frame of filtered candidate packages
+#' @returns data.frame of filtered candidate packages, with `artifact` the
+#'     download link
 #'
 #' @examples
+#' \dontrun{
 #' bu <- uni_for_bioc("devel")
-#' candidates <- get_candidates(bu, "windows", commit = TRUE)
+#' candidates <- get_candidates(bu, "windows", "x86_64", commit = TRUE)
+#' sources <- get_candidates(bu, type = "source", commit = TRUE)
+#' }
 #'
 #' @export
-get_candidates <- function(bu, os, arch = NA_character_, vignettes = TRUE,
+get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
+                           type = c("binary", "source"), vignettes = TRUE,
                            commit = FALSE, unsupported_platforms = TRUE,
-                           check = c("NOTE", "WARNING", "OK")) {
+                           check = c("NOTE", "WARNING", "OK"), jobs = NULL) {
+    type <- match.arg(type)
+    if (is.null(jobs)) {
+        raw_universe_df <- get_raw_uni_df(bu$universe)
+        universe_df <- get_uni_df(raw_universe_df)
+        jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
+    }
+    if (type == "source")
+        return(.source_candidates(bu, jobs, commit, check))
 
     os <- get_binary_os(os)
-    raw_universe_df <- get_raw_uni_df(bu$universe)
-    universe_df <- get_uni_df(raw_universe_df)
-    jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
     candidates <- jobs |>
-        dplyr::filter(job_os == os)
+        dplyr::filter(job_type == "binary", job_os == os)
 
     if (!is.na(arch))
         candidates <- candidates |>
@@ -552,15 +648,7 @@ get_candidates <- function(bu, os, arch = NA_character_, vignettes = TRUE,
     }
 
     if (commit) {
-        bbs_info <- BiocPkgTools::biocBuildReport(version = bu$bioc_version,
-                                                  pkgType = "software")
-        bbs_builds <- bbs_info |>
-            dplyr::rename(Package = pkg, Version = version,
-                          BBS_commit = git_last_commit) |>
-            dplyr::select(Package, Version, BBS_commit, Deprecated) |>
-            dplyr::distinct()
-
-        candidates <- merge(candidates, bbs_builds,
+        candidates <- merge(candidates, .bbs_commits(bu),
                             by = c("Package", "Version"))
 
         candidates <- candidates |>
@@ -573,15 +661,60 @@ get_candidates <- function(bu, os, arch = NA_character_, vignettes = TRUE,
     if (unsupported_platforms) {
         candidates <- candidates |>
             dplyr::filter(
-                job_type == "source" |
-                    !purrr::pmap_lgl(
-                        list(`Config/Bioconductor/UnsupportedPlatforms`,
-                             job_os,
-                             job_arch),
-                        is_unsupported_platform
-                    )
-            )
+                !purrr::pmap_lgl(
+                    list(`Config/Bioconductor/UnsupportedPlatforms`,
+                         job_os,
+                         job_arch),
+                    is_unsupported_platform))
     }
+
+    candidates |>
+        dplyr::arrange(Package)
+}
+
+#' Commits BBS built for software packages
+#'
+#' @param bu result of uni_for_bioc
+#'
+#' @returns data.frame with columns Package, Version, BBS_commit, Deprecated
+#'
+#' @noRd
+.bbs_commits <- function(bu) {
+    BiocPkgTools::biocBuildReport(version = bu$bioc_version,
+                                  pkgType = "software") |>
+        dplyr::rename(Package = pkg, Version = version,
+                      BBS_commit = git_last_commit) |>
+        dplyr::select(Package, Version, BBS_commit, Deprecated) |>
+        dplyr::distinct()
+}
+
+#' Source packages that pass, for `get_candidates()`
+#'
+#' @param bu result of uni_for_bioc
+#' @param jobs data.frame from `get_jobs()`
+#' @param commit logical whether to require the same commit as BBS
+#' @param check character results that pass
+#'
+#' @returns data.frame
+#'
+#' @noRd
+.source_candidates <- function(bu, jobs, commit, check) {
+    linux_checks <- jobs |>
+        dplyr::filter(job_type == "binary", job_os == "linux") |>
+        filter_by_arch("linux", "x86_64") |>
+        dplyr::distinct(Package, Version, .keep_all = TRUE) |>
+        dplyr::select(Package, Version, linux_check = jobs_check)
+
+    candidates <- jobs |>
+        dplyr::filter(job_type == "source", jobs_check %in% check,
+                      !is.na(artifact)) |>
+        dplyr::inner_join(linux_checks, by = c("Package", "Version")) |>
+        dplyr::filter(linux_check %in% check)
+
+    if (commit)
+        candidates <- candidates |>
+            dplyr::inner_join(.bbs_commits(bu), by = c("Package", "Version")) |>
+            dplyr::filter(BBS_commit == substr(RemoteSha, 1, 7))
 
     candidates |>
         dplyr::arrange(Package)
@@ -625,6 +758,10 @@ uni_for_bioc <- function(branch) {
 #' @param r_version R x.y.z version
 #' @param os name, full or abbreviation
 #' @param arch x86_64 or arm64
+#' @param type character "binary" (default) or "source", to remove old source
+#'     packages from `src/contrib`
+#' @param distro character Linux distribution codename, required for linux
+#'     binaries
 #' @param test logical (default TRUE) don't remove, only print packages marked
 #'     for removal
 #'
@@ -638,10 +775,13 @@ uni_for_bioc <- function(branch) {
 #' }
 #'
 #' @export
-remove_old_binaries <- function(repo_root, r_version, os, arch = NA_character_,
-                                test = TRUE) {
+remove_old_binaries <- function(repo_root, r_version, os = NA_character_,
+                                arch = NA_character_, test = TRUE,
+                                type = c("binary", "source"),
+                                distro = NA_character_) {
     binaries_path <- get_repository_path(repo_root, r_version, os, arch,
-                                         cran_subpath = TRUE)
+                                         cran_subpath = TRUE, type = type,
+                                         distro = distro)
     files <- list.files(binaries_path, pattern=".*._[0-9]+\\.[0-9]+\\.[0-9]+\\..*")
     binaries <- data.frame(file = files,
                            latest = NA_character_)
