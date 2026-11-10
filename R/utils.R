@@ -430,7 +430,7 @@ get_jobs <- function(universe_df, r_version, universe) {
             job_type == "binary",
             job_r_xy == r_xy_ver(r_version)) |>
         dplyr::mutate(
-            artifact = ifelse(
+            artifact = as.character(ifelse(
                 binaries_check %in% failed | jobs_check %in% failed |
                     binaries_status == "failure",
                 NA_character_,
@@ -438,17 +438,17 @@ get_jobs <- function(universe_df, r_version, universe) {
                                      get_binary_os(binary_os),
                                      arch = get_arch(binaries_arch, job_arch),
                                      distro = binaries_distro),
-                        uni_pkg_file(Package, binary_os, binaries_version))))
+                        uni_pkg_file(Package, binary_os, binaries_version)))))
 
     # Source packages are built by the source job
     source_rows <- universe_df |>
         dplyr::filter(job_type == "source") |>
         dplyr::mutate(
-            artifact = ifelse(
+            artifact = as.character(ifelse(
                 jobs_check %in% failed | is.na(Version),
                 NA_character_,
                 in_repo(uni_repo_url(universe, r_version, type = "source"),
-                        uni_pkg_file(Package, "source", Version))))
+                        uni_pkg_file(Package, "source", Version)))))
 
     other_rows <- universe_df |>
         dplyr::filter(!job_type %in% c("binary", "source")) |>
@@ -683,6 +683,8 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
             dplyr::filter(job_type == "binary", job_os == os)
         if (!is.na(arch))
             rows <- filter_by_arch(rows, os, arch)
+        if (os == "mac" && arch %in% "arm64")
+            rows$artifact <- .mac_arm64_artifact(rows)
         rules <- list()
         source_job <- match(key(rows), key(source_jobs))
         job_urls <- list(source_ok = source_jobs$job_url[source_job],
@@ -730,6 +732,30 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
     }
     rows |>
         dplyr::arrange(Package)
+}
+
+#' Link a Mac binary built for both architectures to the arm64 folder
+#'
+#' @description A binary without compiled code works on both Mac
+#' architectures. `get_jobs()` links it to the x86_64 (big-sur) folder, and R
+#' Universe serves the same file from the arm64 (sonoma) folder, which is
+#' where arm64 binaries are expected.
+#'
+#' @param rows data.frame of mac binary jobs from `get_jobs()`
+#'
+#' @returns character artifacts
+#'
+#' @noRd
+.mac_arm64_artifact <- function(rows) {
+    r_xy <- rows$binary_r_xy
+    x86 <- paste0("/bin/macosx/", get_subpath("mac", "x86_64", r_xy), "/")
+    arm <- paste0("/bin/macosx/", get_subpath("mac", "arm64", r_xy), "/")
+    universal <- is.na(rows$binaries_arch) & !is.na(rows$artifact) &
+        !is.na(r_xy)
+    out <- rows$artifact
+    out[universal] <- vapply(which(universal), function(i)
+        sub(x86[i], arm[i], out[i], fixed = TRUE), character(1))
+    out
 }
 
 #' Commits BBS built, for every package type

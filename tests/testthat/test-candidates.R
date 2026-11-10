@@ -67,3 +67,25 @@ test_that("get_candidates source can require the BBS commit", {
     x <- get_candidates(list(), type = "source", commit = TRUE, jobs = jobs)
     expect_equal(nrow(x), 0)
 })
+
+test_that("mac binaries for both architectures use each target's folder", {
+    mac <- data.frame(
+        Package = "m", Version = "1.0.0", RemoteSha = "mmmmmmm1",
+        job_type = "binary", job_os = "mac", job_arch = "arm64",
+        job_r_xy = "4.6", jobs_check = "OK", binary_os = "mac",
+        binary_r_xy = "4.6", binaries_version = "1.0.0",
+        binaries_arch = NA_character_, binaries_distro = NA_character_,
+        binaries_check = "OK", binaries_status = "success", job_id = 9L,
+        `_buildurl` = "https://github.com/r-universe/bioc/actions/runs/1",
+        `Config/Bioconductor/UnsupportedPlatforms` = NA_character_,
+        check.names = FALSE)
+    mac_jobs <- get_jobs(mac, "4.6.1", "bioc")
+    arm <- get_candidates(list(), "macosx", "arm64", vignettes = FALSE,
+                          jobs = mac_jobs)
+    x86 <- get_candidates(list(), "macosx", "x86_64", vignettes = FALSE,
+                          jobs = mac_jobs)
+    expect_equal(arm$artifact, paste0("https://bioc.r-universe.dev/bin/macosx/",
+                                      "sonoma-arm64/contrib/4.6/m_1.0.0.tgz"))
+    expect_equal(x86$artifact, paste0("https://bioc.r-universe.dev/bin/macosx/",
+                                      "big-sur-x86_64/contrib/4.6/m_1.0.0.tgz"))
+})
