@@ -612,7 +612,9 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
                        unsupported_platforms = unsupported_platforms,
                        check = check, jobs = jobs) |>
         dplyr::filter(propagates) |>
-        dplyr::select(-propagates, -reason, -failure_url)
+        dplyr::select(-dplyr::any_of(c("propagates", "reason", "failure_url",
+                                       "source_ok", "check_ok", "platform_ok",
+                                       "commit_ok")))
 }
 
 #' Check which R Universe packages can propagate to Bioconductor
@@ -633,9 +635,12 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
 #'     BBS_commit, and Deprecated, used when `commit` is `TRUE`. If `NULL`
 #'     (default), read with `bbs_status()` for every package type.
 #'
-#' @returns data.frame of jobs with logical columns for each rule that applies,
-#'     `propagates`, `reason`, the rules a package fails, and `failure_url`,
-#'     the R Universe job of the first failing build or check
+#' @returns data.frame of jobs with the results the rules use
+#'     (`vignettes_check`, the source build, for binaries; `linux_check` for
+#'     source packages; `BBS_commit` and `Deprecated` if `commit`), logical
+#'     columns for each rule that applies, `propagates`, `reason`, the rules a
+#'     package fails, and `failure_url`, the R Universe job of the first
+#'     failing build or check
 #'
 #' @examples
 #' \dontrun{
@@ -672,6 +677,7 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
             filter_by_arch("linux", "x86_64") |>
             one_per_package()
         linux_job <- match(key(rows), key(linux))
+        rows$linux_check <- linux$jobs_check[linux_job]
         rules <- list(
             source_ok = rows$jobs_check %in% check & !is.na(rows$artifact),
             check_ok = linux$jobs_check[linux_job] %in% check)
@@ -689,8 +695,10 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
         source_job <- match(key(rows), key(source_jobs))
         job_urls <- list(source_ok = source_jobs$job_url[source_job],
                          check_ok = rows$job_url)
-        if (vignettes)
-            rules$source_ok <- source_jobs$jobs_check[source_job] %in% check
+        if (vignettes) {
+            rows$vignettes_check <- source_jobs$jobs_check[source_job]
+            rules$source_ok <- rows$vignettes_check %in% check
+        }
         if (commit)
             rules$check_ok <- rows$binaries_check %in% check &
                 rows$jobs_check %in% check &
