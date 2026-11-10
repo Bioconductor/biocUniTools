@@ -29,16 +29,14 @@ BBS_commit, and Deprecated. If \code{NULL} (default), read with
 data.frame with one row per package and columns Package, type,
 Version, deprecated, uni_commit and bbs_commit (the commits R Universe
 and BBS built), and, for each target id, a logical column whether it
-propagates, \verb{<id>_reason}, why not, \verb{<id>_artifact}, the file to
-download if it propagates, and \verb{<id>_failure_url}, the R Universe job
-that failed if it does not. A package with no job for a
-target does not propagate, with reason "not built". Targets that do not
-apply to a package's type are \code{NA}.
+propagates, \verb{<id>_artifact}, the file to download if it does, and
+\verb{<id>_job_url}, the target's R Universe job if it does not. Targets
+that do not apply to a package's type are \code{NA}.
 }
 \description{
-Applies \code{propagation_checks()} with the rules \code{harvest.R} uses, requiring
-the same commit as BBS, for each of \code{targets} and every package of \code{types}
-in the branch's manifest.
+Uses \code{get_candidates()}, requiring the same commit as BBS, for each of
+\code{targets} and every package of \code{types} in the branch's manifest. A package
+propagates to a target if it is one of the target's candidates.
 }
 \examples{
 \dontrun{

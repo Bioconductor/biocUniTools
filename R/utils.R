@@ -628,10 +628,11 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
         jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
     }
     key <- function(df) paste(df$Package, df$Version)
+    source_jobs <- jobs |>
+        dplyr::filter(job_type == "source")
 
     if (type == "source") {
-        candidates <- jobs |>
-            dplyr::filter(job_type == "source")
+        candidates <- source_jobs
 
         # The source build passed, so there is a source package
         candidates <- candidates |>
@@ -659,8 +660,6 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
             candidates$artifact <- .mac_arm64_artifact(candidates)
 
         if (vignettes) {
-            source_jobs <- jobs |>
-                dplyr::filter(job_type == "source")
             vignettes_check <- source_jobs$jobs_check[match(key(candidates),
                                                             key(source_jobs))]
             candidates <- candidates[vignettes_check %in% check, ]
@@ -694,120 +693,6 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
     }
 
     candidates |>
-        dplyr::arrange(Package)
-}
-
-#' Check which R Universe packages can propagate to Bioconductor
-#'
-#' @description
-#' Applies the rules of `get_candidates()` to every package and reports which
-#' rules each one fails. For binaries, a package propagates when its binary
-#' for `os` and `arch` passed `R CMD check` and built (if `commit`), the
-#' source build passed (if `vignettes`), R Universe built the same commit as
-#' BBS (if `commit`), and the platform is supported (if
-#' `unsupported_platforms`). For source packages, the source build passed,
-#' `R CMD check` on Linux x86_64 passed, and, if `commit`, the commit is the
-#' same as BBS.
-#'
-#' @inheritParams get_candidates
-#' @param bbs data.frame of BBS commits with columns Package, Version,
-#'     BBS_commit, and Deprecated, used when `commit` is `TRUE`. If `NULL`
-#'     (default), read with `bbs_status()` for every package type.
-#'
-#' @returns data.frame of jobs with `propagates`, `reason`, the rules a
-#'     package fails, and `failure_url`, the R Universe job of the first
-#'     failing build or check
-#'
-#' @examples
-#' \dontrun{
-#' bu <- uni_for_bioc("devel")
-#' propagation_checks(bu, type = "source", commit = TRUE)
-#' }
-#'
-#' @export
-propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
-                               type = c("binary", "source"), vignettes = TRUE,
-                               commit = FALSE, unsupported_platforms = TRUE,
-                               check = c("NOTE", "WARNING", "OK"), jobs = NULL,
-                               bbs = NULL) {
-    type <- match.arg(type)
-    if (is.null(jobs)) {
-        raw_universe_df <- get_raw_uni_df(bu$universe)
-        universe_df <- get_uni_df(raw_universe_df)
-        jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
-    }
-    if (commit && is.null(bbs))
-        bbs <- .bbs_commits(bu)
-    key <- function(df) paste(df$Package, df$Version)
-    one_per_package <- function(df)
-        dplyr::distinct(df, Package, Version, .keep_all = TRUE)
-
-    source_jobs <- jobs |>
-        dplyr::filter(job_type == "source") |>
-        one_per_package()
-
-    if (type == "source") {
-        rows <- source_jobs
-        linux <- jobs |>
-            dplyr::filter(job_type == "binary", job_os == "linux") |>
-            filter_by_arch("linux", "x86_64") |>
-            one_per_package()
-        linux_job <- match(key(rows), key(linux))
-        rules <- list(
-            source_ok = rows$jobs_check %in% check & !is.na(rows$artifact),
-            check_ok = linux$jobs_check[linux_job] %in% check)
-        job_urls <- list(source_ok = rows$job_url,
-                         check_ok = linux$job_url[linux_job])
-    } else {
-        os <- get_binary_os(os)
-        rows <- jobs |>
-            dplyr::filter(job_type == "binary", job_os == os)
-        if (!is.na(arch))
-            rows <- filter_by_arch(rows, os, arch)
-        if (os == "mac" && arch %in% "arm64")
-            rows$artifact <- .mac_arm64_artifact(rows)
-        rules <- list()
-        source_job <- match(key(rows), key(source_jobs))
-        job_urls <- list(source_ok = source_jobs$job_url[source_job],
-                         check_ok = rows$job_url)
-        if (vignettes)
-            rules$source_ok <- source_jobs$jobs_check[source_job] %in% check
-        if (commit)
-            rules$check_ok <- rows$binaries_check %in% check &
-                rows$jobs_check %in% check &
-                rows$binaries_status %in% "success"
-        if (unsupported_platforms)
-            rules$platform_ok <- !purrr::pmap_lgl(
-                list(rows$`Config/Bioconductor/UnsupportedPlatforms`,
-                     rows$job_os, rows$job_arch),
-                is_unsupported_platform)
-    }
-    if (commit) {
-        bbs_commit <- bbs$BBS_commit[match(key(rows), key(bbs))]
-        same <- substr(rows$RemoteSha, 1, 7) == bbs_commit
-        # Packages not in BBS have no commit to compare, so they fail
-        rules$commit_ok <- !is.na(same) & same
-    }
-
-    labels <- c(source_ok = "source build failed",
-                check_ok = if (type == "source") "linux check failed" else
-                    "check failed",
-                platform_ok = "unsupported platform",
-                commit_ok = "commit differs from BBS")
-    passed <- if (length(rules)) Reduce(`&`, rules) else
-        rep(TRUE, nrow(rows))
-    rows$propagates <- passed
-    rows$reason <- vapply(seq_len(nrow(rows)), function(i) {
-        failed <- names(rules)[!vapply(rules, `[`, logical(1), i)]
-        paste(labels[failed], collapse = "; ")
-    }, character(1))
-    # Link to the first failing job; the commit and platform rules have none
-    rows$failure_url <- NA_character_
-    for (rule in rev(intersect(c("source_ok", "check_ok"), names(rules)))) {
-        failed <- !rules[[rule]]
-        rows$failure_url[failed] <- job_urls[[rule]][failed]
-    }
-    rows |>
         dplyr::arrange(Package)
 }
 

@@ -89,17 +89,3 @@ test_that("mac binaries for both architectures use each target's folder", {
     expect_equal(x86$artifact, paste0("https://bioc.r-universe.dev/bin/macosx/",
                                       "big-sur-x86_64/contrib/4.6/m_1.0.0.tgz"))
 })
-
-test_that("get_candidates returns jobs; propagation_checks adds 3 columns", {
-    bbs <- data.frame(Package = c("a", "b"), Version = c("1.0.0", "2.0.0"),
-                      BBS_commit = c("aaaaaaa", "bbbbbbb"), Deprecated = FALSE)
-    for (type in c("source", "binary")) {
-        os <- if (type == "binary") "linux" else NA
-        x <- get_candidates(list(), os, type = type, jobs = jobs)
-        expect_true(all(names(x) %in% names(jobs)))
-        y <- propagation_checks(list(), os, type = type, commit = TRUE,
-                                jobs = jobs, bbs = bbs)
-        expect_setequal(setdiff(names(y), names(jobs)),
-                        c("propagates", "reason", "failure_url"))
-    }
-})

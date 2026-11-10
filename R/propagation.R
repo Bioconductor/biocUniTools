@@ -24,9 +24,9 @@ propagation_targets <- function() {
 #' Which Bioconductor packages propagate from R Universe
 #'
 #' @description
-#' Applies `propagation_checks()` with the rules `harvest.R` uses, requiring
-#' the same commit as BBS, for each of `targets` and every package of `types`
-#' in the branch's manifest.
+#' Uses `get_candidates()`, requiring the same commit as BBS, for each of
+#' `targets` and every package of `types` in the branch's manifest. A package
+#' propagates to a target if it is one of the target's candidates.
 #'
 #' @param branch character "devel" or "release"
 #' @param types character package types, from `bioc_pkg_types()$type`
@@ -39,11 +39,9 @@ propagation_targets <- function() {
 #' @returns data.frame with one row per package and columns Package, type,
 #'     Version, deprecated, uni_commit and bbs_commit (the commits R Universe
 #'     and BBS built), and, for each target id, a logical column whether it
-#'     propagates, `<id>_reason`, why not, `<id>_artifact`, the file to
-#'     download if it propagates, and `<id>_failure_url`, the R Universe job
-#'     that failed if it does not. A package with no job for a
-#'     target does not propagate, with reason "not built". Targets that do not
-#'     apply to a package's type are `NA`.
+#'     propagates, `<id>_artifact`, the file to download if it does, and
+#'     `<id>_job_url`, the target's R Universe job if it does not. Targets
+#'     that do not apply to a package's type are `NA`.
 #'
 #' @examples
 #' \dontrun{
@@ -70,24 +68,34 @@ propagation_status <- function(branch, types = bioc_pkg_types()$type,
     pkgs$bbs_commit <- bbs$BBS_commit[match(pkgs$Package, bbs$Package)]
 
     for (i in seq_len(nrow(targets))) {
-        checks <- propagation_checks(bu, os = targets$os[i],
-                                     arch = targets$arch[i],
-                                     type = targets$type[i], commit = TRUE,
-                                     jobs = jobs, bbs = bbs)
-        j <- match(pkgs$Package, checks$Package)
         id <- targets$id[i]
+        type <- targets$type[i]
+        os <- targets$os[i]
+        arch <- targets$arch[i]
+        candidates <- get_candidates(bu, os = os, arch = arch, type = type,
+                                     commit = TRUE, jobs = jobs, bbs = bbs)
+
+        # The target's own job, linked when a package does not propagate
+        target_jobs <- if (type == "source") {
+            jobs[jobs$job_type == "source", ]
+        } else {
+            binary_os <- get_binary_os(os)
+            filter_by_arch(jobs[jobs$job_type == "binary" &
+                                    jobs$job_os == binary_os, ],
+                           binary_os, arch)
+        }
+
         applies <- pkgs$type %in% targets$types[[i]]
-        pkgs[[id]] <- ifelse(applies, !is.na(j) & checks$propagates[j] %in% TRUE,
-                             NA)
-        pkgs[[paste0(id, "_reason")]] <- ifelse(
-            !applies, NA_character_,
-            ifelse(is.na(j), "not built", checks$reason[j]))
-        pkgs[[paste0(id, "_artifact")]] <- ifelse(pkgs[[id]] %in% TRUE,
-                                                  checks$artifact[j],
-                                                  NA_character_)
-        pkgs[[paste0(id, "_failure_url")]] <- ifelse(pkgs[[id]] %in% FALSE,
-                                                     checks$failure_url[j],
-                                                     NA_character_)
+        yes <- pkgs$Package %in% candidates$Package
+        pkgs[[id]] <- ifelse(applies, yes, NA)
+        pkgs[[paste0(id, "_artifact")]] <- ifelse(
+            applies & yes,
+            candidates$artifact[match(pkgs$Package, candidates$Package)],
+            NA_character_)
+        pkgs[[paste0(id, "_job_url")]] <- ifelse(
+            applies & !yes,
+            target_jobs$job_url[match(pkgs$Package, target_jobs$Package)],
+            NA_character_)
     }
     pkgs <- pkgs[order(pkgs$Package), , drop = FALSE]
     rownames(pkgs) <- NULL
@@ -166,15 +174,12 @@ propagation_table <- function(status) {
     link <- function(url, html)
         ifelse(is.na(url), html,
                sprintf('<a href="%s" target="_blank">%s</a>', url, html))
-    # "Yes" linked to the file, or "No" linked to the failing job, with the
-    # reasons
-    answer <- function(yes, reason, artifact, failure_url)
+    # "Yes" linked to the file, or "No" linked to the target's job
+    answer <- function(yes, artifact, job_url)
         dplyr::case_when(
             is.na(yes) ~ '<span class="text-body-secondary">&#8212;</span>',
             yes ~ link(artifact, pill("success", "Yes")),
-            .default = paste0(link(failure_url, pill("danger", "No")),
-                              '<br><small class="text-body-secondary">',
-                              htmltools::htmlEscape(reason), '</small>'))
+            .default = link(job_url, pill("danger", "No")))
     columns <- list(
         Package = reactable::colDef(name = "Package", html = TRUE,
                                     minWidth = 160),
@@ -186,9 +191,8 @@ propagation_table <- function(status) {
                                        minWidth = 110))
     for (i in seq_len(nrow(targets))) {
         id <- targets$id[i]
-        df[[id]] <- answer(status[[id]], status[[paste0(id, "_reason")]],
-                           status[[paste0(id, "_artifact")]],
-                           status[[paste0(id, "_failure_url")]])
+        df[[id]] <- answer(status[[id]], status[[paste0(id, "_artifact")]],
+                           status[[paste0(id, "_job_url")]])
         columns[[id]] <- reactable::colDef(name = targets$label[i],
                                            html = TRUE, minWidth = 130)
     }
