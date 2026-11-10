@@ -571,14 +571,24 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 
 #' Get candidate packages in R Universe based on criteria
 #'
-#' @description Filters binary or source packages that R Universe built by
-#' check results and, optionally, the same commit in BBS.
+#' @description
+#' Finds the packages R Universe built that can propagate to Bioconductor. All
+#' propagation criteria are in this function; each argument turns one on or
+#' off.
 #'
-#' Binary candidates are binaries for `os` and `arch` whose check passed,
-#' optionally with a passing source build (`vignettes`) and the same commit as
-#' BBS (`commit`). Source candidates have a passing source build and a passing
-#' Linux x86_64 `R CMD check`, optionally with the same commit as BBS
-#' (`commit`).
+#' Binary candidates are binaries for `os` and `arch` that pass:
+#' * `vignettes`: the source build (`R CMD build`, which builds vignettes)
+#'   passed
+#' * `commit`: R Universe built the same commit as BBS, and the binary passed
+#'   `R CMD check` and built
+#' * `unsupported_platforms`: the package does not declare the platform
+#'   unsupported
+#'
+#' Source candidates are source packages whose source build passed and whose
+#' `R CMD check` on Linux x86_64 passed, and, with `commit`, R Universe built
+#' the same commit as BBS.
+#'
+#' `check` is the results that pass.
 #'
 #' @param bu result of uni_for_bioc
 #' @param os character, for binaries
@@ -591,8 +601,11 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #'     platforms, for binaries
 #' @param check character results that pass
 #' @param jobs data.frame from `get_jobs()`. If `NULL` (default), downloaded.
+#' @param bbs data.frame of BBS commits with columns Package, Version, and
+#'     BBS_commit, used when `commit` is `TRUE`. If `NULL` (default), read with
+#'     `bbs_status()`.
 #'
-#' @returns data.frame of filtered candidate packages, with `artifact` the
+#' @returns data.frame of the jobs that propagate, with `artifact` the
 #'     download link
 #'
 #' @examples
@@ -606,13 +619,82 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
                            type = c("binary", "source"), vignettes = TRUE,
                            commit = FALSE, unsupported_platforms = TRUE,
-                           check = c("NOTE", "WARNING", "OK"), jobs = NULL) {
-    propagation_checks(bu, os = os, arch = arch, type = type,
-                       vignettes = vignettes, commit = commit,
-                       unsupported_platforms = unsupported_platforms,
-                       check = check, jobs = jobs) |>
-        dplyr::filter(propagates) |>
-        dplyr::select(-propagates, -reason, -failure_url)
+                           check = c("NOTE", "WARNING", "OK"), jobs = NULL,
+                           bbs = NULL) {
+    type <- match.arg(type)
+    if (is.null(jobs)) {
+        raw_universe_df <- get_raw_uni_df(bu$universe)
+        universe_df <- get_uni_df(raw_universe_df)
+        jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
+    }
+    key <- function(df) paste(df$Package, df$Version)
+
+    if (type == "source") {
+        candidates <- jobs |>
+            dplyr::filter(job_type == "source")
+
+        # The source build passed, so there is a source package
+        candidates <- candidates |>
+            dplyr::filter(jobs_check %in% check, !is.na(artifact))
+
+        # R CMD check passed on Linux x86_64
+        linux_jobs <- jobs |>
+            dplyr::filter(job_type == "binary", job_os == "linux") |>
+            filter_by_arch("linux", "x86_64")
+        linux_check <- linux_jobs$jobs_check[match(key(candidates),
+                                                   key(linux_jobs))]
+        candidates <- candidates[linux_check %in% check, ]
+    } else {
+        os <- get_binary_os(os)
+        candidates <- jobs |>
+            dplyr::filter(job_type == "binary", job_os == os)
+
+        if (!is.na(arch))
+            candidates <- candidates |>
+                filter_by_arch(os, arch)
+
+        # A Mac binary without compiled code works on both architectures;
+        # link arm64 to the arm64 folder, where R Universe also serves it
+        if (os == "mac" && arch %in% "arm64")
+            candidates$artifact <- .mac_arm64_artifact(candidates)
+
+        if (vignettes) {
+            source_jobs <- jobs |>
+                dplyr::filter(job_type == "source")
+            vignettes_check <- source_jobs$jobs_check[match(key(candidates),
+                                                            key(source_jobs))]
+            candidates <- candidates[vignettes_check %in% check, ]
+        }
+    }
+
+    if (commit) {
+        if (is.null(bbs))
+            bbs <- .bbs_commits(bu)
+
+        if (type == "binary")
+            candidates <- candidates |>
+                dplyr::filter(binaries_check %in% check,
+                              jobs_check %in% check,
+                              binaries_status == "success")
+
+        # R Universe built the same commit as BBS; packages not in BBS fail
+        bbs_commit <- bbs$BBS_commit[match(key(candidates), key(bbs))]
+        same_commit <- substr(candidates$RemoteSha, 1, 7) == bbs_commit
+        candidates <- candidates[same_commit %in% TRUE, ]
+    }
+
+    if (unsupported_platforms && type == "binary") {
+        candidates <- candidates |>
+            dplyr::filter(
+                !purrr::pmap_lgl(
+                    list(`Config/Bioconductor/UnsupportedPlatforms`,
+                         job_os,
+                         job_arch),
+                    is_unsupported_platform))
+    }
+
+    candidates |>
+        dplyr::arrange(Package)
 }
 
 #' Check which R Universe packages can propagate to Bioconductor
