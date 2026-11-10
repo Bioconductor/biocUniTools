@@ -27,8 +27,11 @@ BBS_commit, and Deprecated. If \code{NULL} (default), read with
 }
 \value{
 data.frame with one row per package and columns Package, type,
-Version, deprecated, and, for each target id, a logical column whether
-it propagates and \verb{<id>_reason}, why not. A package with no job for a
+Version, deprecated, uni_commit and bbs_commit (the commits R Universe
+and BBS built), and, for each target id, a logical column whether it
+propagates, \verb{<id>_reason}, why not, \verb{<id>_artifact}, the file to
+download if it propagates, and \verb{<id>_failure_url}, the R Universe job
+that failed if it does not. A package with no job for a
 target does not propagate, with reason "not built". Targets that do not
 apply to a package's type are \code{NA}.
 }

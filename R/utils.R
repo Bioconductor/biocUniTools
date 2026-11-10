@@ -612,7 +612,7 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
                        unsupported_platforms = unsupported_platforms,
                        check = check, jobs = jobs) |>
         dplyr::filter(propagates) |>
-        dplyr::select(-propagates, -reason)
+        dplyr::select(-propagates, -reason, -failure_url)
 }
 
 #' Check which R Universe packages can propagate to Bioconductor
@@ -634,7 +634,8 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
 #'     (default), read with `bbs_status()` for every package type.
 #'
 #' @returns data.frame of jobs with logical columns for each rule that applies,
-#'     `propagates`, and `reason`, the rules a package fails
+#'     `propagates`, `reason`, the rules a package fails, and `failure_url`,
+#'     the R Universe job of the first failing build or check
 #'
 #' @examples
 #' \dontrun{
@@ -670,9 +671,12 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
             dplyr::filter(job_type == "binary", job_os == "linux") |>
             filter_by_arch("linux", "x86_64") |>
             one_per_package()
+        linux_job <- match(key(rows), key(linux))
         rules <- list(
             source_ok = rows$jobs_check %in% check & !is.na(rows$artifact),
-            check_ok = linux$jobs_check[match(key(rows), key(linux))] %in% check)
+            check_ok = linux$jobs_check[linux_job] %in% check)
+        job_urls <- list(source_ok = rows$job_url,
+                         check_ok = linux$job_url[linux_job])
     } else {
         os <- get_binary_os(os)
         rows <- jobs |>
@@ -680,9 +684,11 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
         if (!is.na(arch))
             rows <- filter_by_arch(rows, os, arch)
         rules <- list()
+        source_job <- match(key(rows), key(source_jobs))
+        job_urls <- list(source_ok = source_jobs$job_url[source_job],
+                         check_ok = rows$job_url)
         if (vignettes)
-            rules$source_ok <- source_jobs$jobs_check[
-                match(key(rows), key(source_jobs))] %in% check
+            rules$source_ok <- source_jobs$jobs_check[source_job] %in% check
         if (commit)
             rules$check_ok <- rows$binaries_check %in% check &
                 rows$jobs_check %in% check &
@@ -716,6 +722,12 @@ propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
         failed <- names(rules)[!vapply(rules, `[`, logical(1), i)]
         paste(labels[failed], collapse = "; ")
     }, character(1))
+    # Link to the first failing job; the commit and platform rules have none
+    rows$failure_url <- NA_character_
+    for (rule in rev(intersect(c("source_ok", "check_ok"), names(rules)))) {
+        failed <- !rules[[rule]]
+        rows$failure_url[failed] <- job_urls[[rule]][failed]
+    }
     rows |>
         dplyr::arrange(Package)
 }

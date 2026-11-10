@@ -44,7 +44,8 @@ BBS_commit, and Deprecated, used when \code{commit} is \code{TRUE}. If \code{NUL
 }
 \value{
 data.frame of jobs with logical columns for each rule that applies,
-\code{propagates}, and \code{reason}, the rules a package fails
+\code{propagates}, \code{reason}, the rules a package fails, and \code{failure_url},
+the R Universe job of the first failing build or check
 }
 \description{
 Applies the rules of \code{get_candidates()} to every package and reports which

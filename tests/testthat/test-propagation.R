@@ -32,6 +32,10 @@ test_that("propagation_checks reports the rules a package fails", {
     expect_equal(x$propagates, c(TRUE, FALSE, FALSE))
     expect_equal(x$reason, c("", "linux check failed",
                              "linux check failed; commit differs from BBS"))
+    # "b" links to its failing linux job; "d" has no linux job
+    expect_equal(x$failure_url,
+                 c(NA, "https://github.com/r-universe/bioc/actions/runs/1/job/5",
+                   NA))
 })
 
 test_that("propagation_status marks binaries of data packages not applicable", {
@@ -46,6 +50,11 @@ test_that("propagation_status marks binaries of data packages not applicable", {
     expect_equal(st$source, c(TRUE, FALSE, FALSE))
     expect_equal(st$windows_x86_64, c(TRUE, TRUE, NA))
     expect_equal(st$deprecated, c(FALSE, TRUE, FALSE))
+    expect_equal(st$uni_commit, c("aaaaaaa", "bbbbbbb", "ddddddd"))
+    expect_equal(st$bbs_commit, c("aaaaaaa", "bbbbbbb", "zzzzzzz"))
+    expect_equal(st$source_artifact,
+                 c("https://bioc.r-universe.dev/src/contrib/a_1.0.0.tar.gz",
+                   NA, NA))
     skip_if_not_installed("reactable")
     expect_s3_class(propagation_table(st), "reactable")
 })

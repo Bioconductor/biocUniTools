@@ -13,14 +13,12 @@
 #' @export
 propagation_targets <- function() {
     data.frame(
-        id = c("source", "windows_x86_64", "windows_arm64", "macosx_arm64",
-               "macosx_x86_64"),
-        label = c("Source", "Windows x86_64", "Windows arm64", "macOS arm64",
-                  "macOS x86_64"),
-        type = c("source", "binary", "binary", "binary", "binary"),
-        os = c(NA, "windows", "windows", "macosx", "macosx"),
-        arch = c(NA, "x86_64", "arm64", "arm64", "x86_64"),
-        types = I(c(list(bioc_pkg_types()$type), rep(list("software"), 4))))
+        id = c("source", "windows_x86_64", "macosx_arm64", "macosx_x86_64"),
+        label = c("Source", "Windows x86_64", "macOS arm64", "macOS x86_64"),
+        type = c("source", "binary", "binary", "binary"),
+        os = c(NA, "windows", "macosx", "macosx"),
+        arch = c(NA, "x86_64", "arm64", "x86_64"),
+        types = I(c(list(bioc_pkg_types()$type), rep(list("software"), 3))))
 }
 
 #' Which Bioconductor packages propagate from R Universe
@@ -39,8 +37,11 @@ propagation_targets <- function() {
 #' @param targets data.frame from `propagation_targets()`
 #'
 #' @returns data.frame with one row per package and columns Package, type,
-#'     Version, deprecated, and, for each target id, a logical column whether
-#'     it propagates and `<id>_reason`, why not. A package with no job for a
+#'     Version, deprecated, uni_commit and bbs_commit (the commits R Universe
+#'     and BBS built), and, for each target id, a logical column whether it
+#'     propagates, `<id>_reason`, why not, `<id>_artifact`, the file to
+#'     download if it propagates, and `<id>_failure_url`, the R Universe job
+#'     that failed if it does not. A package with no job for a
 #'     target does not propagate, with reason "not built". Targets that do not
 #'     apply to a package's type are `NA`.
 #'
@@ -64,6 +65,9 @@ propagation_status <- function(branch, types = bioc_pkg_types()$type,
     pkgs$Version <- jobs$Version[match(pkgs$Package, jobs$Package)]
     pkgs$deprecated <- bbs$Deprecated[match(pkgs$Package, bbs$Package)] %in%
         TRUE
+    pkgs$uni_commit <- substr(jobs$RemoteSha[match(pkgs$Package, jobs$Package)],
+                              1, 7)
+    pkgs$bbs_commit <- bbs$BBS_commit[match(pkgs$Package, bbs$Package)]
 
     for (i in seq_len(nrow(targets))) {
         checks <- propagation_checks(bu, os = targets$os[i],
@@ -78,6 +82,12 @@ propagation_status <- function(branch, types = bioc_pkg_types()$type,
         pkgs[[paste0(id, "_reason")]] <- ifelse(
             !applies, NA_character_,
             ifelse(is.na(j), "not built", checks$reason[j]))
+        pkgs[[paste0(id, "_artifact")]] <- ifelse(pkgs[[id]] %in% TRUE,
+                                                  checks$artifact[j],
+                                                  NA_character_)
+        pkgs[[paste0(id, "_failure_url")]] <- ifelse(pkgs[[id]] %in% FALSE,
+                                                     checks$failure_url[j],
+                                                     NA_character_)
     }
     pkgs <- pkgs[order(pkgs$Package), , drop = FALSE]
     rownames(pkgs) <- NULL
@@ -141,38 +151,52 @@ propagation_table <- function(status) {
                           status$Package),
         type = types$label[match(status$type, types$type)],
         Version = status$Version,
+        uni_commit = status$uni_commit,
+        bbs_commit = status$bbs_commit,
         deprecated = ifelse(status$deprecated,
                             paste0('<span class="badge rounded-pill fw-normal ',
                                    'bg-secondary-subtle text-secondary-emphasis ',
                                    'border border-secondary-subtle">',
                                    'Deprecated</span>'),
                             ""))
-    # "Yes", or "No" and the reasons
-    answer <- function(yes, reason)
+    pill <- function(level, text)
+        sprintf(paste0('<span class="badge rounded-pill fw-normal ',
+                       'bg-%1$s-subtle text-%1$s-emphasis ',
+                       'border border-%1$s-subtle">%2$s</span>'), level, text)
+    link <- function(url, html)
+        ifelse(is.na(url), html,
+               sprintf('<a href="%s" target="_blank">%s</a>', url, html))
+    # "Yes" linked to the file, or "No" linked to the failing job, with the
+    # reasons
+    answer <- function(yes, reason, artifact, failure_url)
         dplyr::case_when(
             is.na(yes) ~ '<span class="text-body-secondary">&#8212;</span>',
-            yes ~ '<span class="text-success-emphasis">Yes</span>',
-            .default = sprintf(
-                paste0('<span class="text-danger-emphasis">No</span>',
-                       '<br><small class="text-body-secondary">%s</small>'),
-                htmltools::htmlEscape(reason)))
+            yes ~ link(artifact, pill("success", "Yes")),
+            .default = paste0(link(failure_url, pill("danger", "No")),
+                              '<br><small class="text-body-secondary">',
+                              htmltools::htmlEscape(reason), '</small>'))
     columns <- list(
         Package = reactable::colDef(name = "Package", html = TRUE,
                                     minWidth = 160),
         type = reactable::colDef(name = "Type", minWidth = 120),
         Version = reactable::colDef(name = "Version", minWidth = 90),
+        uni_commit = reactable::colDef(name = "R Universe", minWidth = 100),
+        bbs_commit = reactable::colDef(name = "BBS", minWidth = 90),
         deprecated = reactable::colDef(name = "Deprecated", html = TRUE,
                                        minWidth = 110))
     for (i in seq_len(nrow(targets))) {
         id <- targets$id[i]
-        df[[id]] <- answer(status[[id]], status[[paste0(id, "_reason")]])
+        df[[id]] <- answer(status[[id]], status[[paste0(id, "_reason")]],
+                           status[[paste0(id, "_artifact")]],
+                           status[[paste0(id, "_failure_url")]])
         columns[[id]] <- reactable::colDef(name = targets$label[i],
                                            html = TRUE, minWidth = 130)
     }
     reactable::reactable(
         df, columns = columns,
-        columnGroups = list(reactable::colGroup("Propagates to",
-                                                targets$id)),
+        columnGroups = list(
+            reactable::colGroup("Commit", c("uni_commit", "bbs_commit")),
+            reactable::colGroup("Propagates to", targets$id)),
         searchable = TRUE, filterable = TRUE, compact = TRUE, striped = TRUE,
         highlight = TRUE, showPageSizeOptions = TRUE, defaultPageSize = 50,
         pageSizeOptions = c(25, 50, 100, 500),
