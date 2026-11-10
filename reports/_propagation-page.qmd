@@ -1,0 +1,89 @@
+<!-- Shared body of each propagation page. Each page sets `branch` and
+     includes this file. -->
+
+```{r}
+#| include: false
+# Use a local biocUniTools checkout if BIOCUNITOOLS_SRC points to one, so
+# changes to its R/ show up without reinstalling
+src <- Sys.getenv("BIOCUNITOOLS_SRC")
+if (nzchar(src)) {
+    pkgload::load_all(src, quiet = TRUE)
+} else {
+    library(biocUniTools)
+}
+config <- yaml::read_yaml("../config.yml")
+data_file <- file.path("..", config$data_dir,
+                       sprintf("propagation-%s.rds", branch))
+has_data <- file.exists(data_file)
+if (has_data) {
+    status <- readRDS(data_file)
+    bu <- uni_for_bioc(branch)
+}
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (!has_data) {
+    cat("No data yet. Run",
+        "`biocUniTools::write_comparisons(\"reports/config.yml\")`.\n")
+} else {
+    cat(sprintf("# Propagation: Bioconductor %s (%s)\n\n", bu$bioc_version,
+                branch))
+    created <- attr(status, "created")
+    if (!is.null(created))
+        cat(sprintf('<p class="text-body-secondary">Updated %s</p>\n\n',
+                    format(created, "%Y-%m-%d %H:%M %Z")))
+    cat(sprintf(paste("Which of %s packages R Universe builds can propagate",
+                      "to Bioconductor, by the rules used to harvest them.",
+                      "Filter by Type to see one package type.\n\n"),
+                format(nrow(status), big.mark = ",")))
+}
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (has_data) cat("<details>\n<summary>Summary</summary>\n\n")
+```
+
+```{r}
+#| echo: false
+if (has_data) propagation_summary_table(status)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (has_data) cat("\n</details>\n")
+```
+
+<details>
+<summary>Legend</summary>
+
+A package propagates to a target when `biocUniTools::get_candidates()`, which
+has all the propagation criteria, selects it for that target. **Yes** links to
+the file that would be harvested. **No** links to the package's R Universe
+job for that target.
+
+- **Commit**: the commits R Universe and BBS built. They must be the same for
+  a package to propagate.
+- **Source** needs a passing R Universe source build (`R CMD build`, which
+  builds vignettes), a passing `R CMD check` on Linux x86_64, and the same
+  commit as BBS.
+- **Windows x86_64 and macOS binaries** need a passing source build, a binary
+  that passed `R CMD check` and built, the same commit as BBS, and a platform
+  the package supports.
+- Bioconductor only distributes binaries of software packages, so binaries
+  of other package types show &#8212;.
+- **Deprecated** packages can propagate; they are marked so they can be
+  skipped.
+
+</details>
+
+::: column-screen-inset
+```{r}
+#| echo: false
+if (has_data) propagation_table(status)
+```
+:::

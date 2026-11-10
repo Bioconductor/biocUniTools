@@ -13,6 +13,10 @@ platform: x86_64-linux-gnu
 os: linux
 arch: x86_64
 
+# Find which packages propagate to Bioconductor, by the rules used to harvest
+# them
+propagation: true
+
 # Download R Universe logs of failing packages and find the cause of errors
 errors: true
 

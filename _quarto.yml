@@ -38,8 +38,12 @@ website:
             href: reports/failing/devel.qmd
           - text: "release"
             href: reports/failing/release.qmd
-      - text: "Propagation status"
-        href: vignettes/index.qmd
+      - text: "Propagation"
+        menu:
+          - text: "devel"
+            href: reports/propagation/devel.qmd
+          - text: "release"
+            href: reports/propagation/release.qmd
 
 format:
   html:
