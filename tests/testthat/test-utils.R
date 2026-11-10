@@ -438,20 +438,23 @@ test_that("get_candidates vignette filter works", {
     # vignettes = TRUE (default) should filter on source check
     with_vignettes <- get_candidates(release, "windows", vignettes = TRUE)
     without_vignettes <- get_candidates(release, "windows", vignettes = FALSE)
-    
+
     # vignette filter should only reduce or maintain row count
     expect_lte(nrow(with_vignettes), nrow(without_vignettes))
-    
-    # all rows should have passing vignette check
-    expect_true(all(with_vignettes$vignettes_check %in% c("NOTE", "WARNING", "OK")))
+
+    # all candidates should have a passing source build
+    checks <- propagation_checks(release, "windows", vignettes = TRUE)
+    passed <- checks$vignettes_check[match(with_vignettes$Package,
+                                           checks$Package)]
+    expect_true(all(passed %in% c("NOTE", "WARNING", "OK")))
 })
 
 test_that("get_candidates vignette check respects check argument", {
-    ok_only <- get_candidates(release, "windows", vignettes = TRUE, check = "OK")
-    expect_true(all(ok_only$vignettes_check == "OK"))
+    ok_only <- get_candidates(release, "windows", vignettes = TRUE,
+                              check = "OK")
+    checks <- propagation_checks(release, "windows", vignettes = TRUE,
+                                 check = "OK")
+    passed <- checks$vignettes_check[match(ok_only$Package, checks$Package)]
+    expect_true(all(passed == "OK"))
 })
 
-test_that("get_candidates without vignettes has no Vignettes Check column", {
-    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE)
-    expect_false("Vignettes Check" %in% names(without_vignettes))
-})

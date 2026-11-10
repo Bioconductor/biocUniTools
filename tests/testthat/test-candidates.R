@@ -89,3 +89,13 @@ test_that("mac binaries for both architectures use each target's folder", {
     expect_equal(x86$artifact, paste0("https://bioc.r-universe.dev/bin/macosx/",
                                       "big-sur-x86_64/contrib/4.6/m_1.0.0.tgz"))
 })
+
+test_that("get_candidates returns jobs without the rule results", {
+    x <- get_candidates(list(), type = "source", jobs = jobs)
+    rule_columns <- c("propagates", "reason", "failure_url", "source_ok",
+                      "check_ok", "platform_ok", "commit_ok",
+                      "vignettes_check", "linux_check")
+    expect_false(any(rule_columns %in% names(x)))
+    y <- propagation_checks(list(), type = "source", jobs = jobs)
+    expect_true(all(c("linux_check", "propagates", "reason") %in% names(y)))
+})

@@ -614,7 +614,8 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
         dplyr::filter(propagates) |>
         dplyr::select(-dplyr::any_of(c("propagates", "reason", "failure_url",
                                        "source_ok", "check_ok", "platform_ok",
-                                       "commit_ok")))
+                                       "commit_ok", "vignettes_check",
+                                       "linux_check")))
 }
 
 #' Check which R Universe packages can propagate to Bioconductor
