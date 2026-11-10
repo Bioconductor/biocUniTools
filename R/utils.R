@@ -607,62 +607,120 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
                            type = c("binary", "source"), vignettes = TRUE,
                            commit = FALSE, unsupported_platforms = TRUE,
                            check = c("NOTE", "WARNING", "OK"), jobs = NULL) {
+    propagation_checks(bu, os = os, arch = arch, type = type,
+                       vignettes = vignettes, commit = commit,
+                       unsupported_platforms = unsupported_platforms,
+                       check = check, jobs = jobs) |>
+        dplyr::filter(propagates) |>
+        dplyr::select(-propagates, -reason)
+}
+
+#' Check which R Universe packages can propagate to Bioconductor
+#'
+#' @description
+#' Applies the rules of `get_candidates()` to every package and reports which
+#' rules each one fails. For binaries, a package propagates when its binary
+#' for `os` and `arch` passed `R CMD check` and built (`check_ok`), the source
+#' build passed (`source_ok`, if `vignettes`), R Universe built the same
+#' commit as BBS (`commit_ok`, if `commit`), and the platform is supported
+#' (`platform_ok`, if `unsupported_platforms`). For source packages, the
+#' source build passed (`source_ok`), `R CMD check` on Linux x86_64 passed
+#' (`check_ok`), and, if `commit`, the commit is the same as BBS
+#' (`commit_ok`).
+#'
+#' @inheritParams get_candidates
+#' @param bbs data.frame of BBS commits with columns Package, Version,
+#'     BBS_commit, and Deprecated, used when `commit` is `TRUE`. If `NULL`
+#'     (default), read with `bbs_status()` for every package type.
+#'
+#' @returns data.frame of jobs with logical columns for each rule that applies,
+#'     `propagates`, and `reason`, the rules a package fails
+#'
+#' @examples
+#' \dontrun{
+#' bu <- uni_for_bioc("devel")
+#' propagation_checks(bu, type = "source", commit = TRUE)
+#' }
+#'
+#' @export
+propagation_checks <- function(bu, os = NA_character_, arch = NA_character_,
+                               type = c("binary", "source"), vignettes = TRUE,
+                               commit = FALSE, unsupported_platforms = TRUE,
+                               check = c("NOTE", "WARNING", "OK"), jobs = NULL,
+                               bbs = NULL) {
     type <- match.arg(type)
     if (is.null(jobs)) {
         raw_universe_df <- get_raw_uni_df(bu$universe)
         universe_df <- get_uni_df(raw_universe_df)
         jobs <- get_jobs(universe_df, bu$r_version, bu$universe)
     }
-    if (type == "source")
-        return(.source_candidates(bu, jobs, commit, check))
+    if (commit && is.null(bbs))
+        bbs <- .bbs_commits(bu)
+    key <- function(df) paste(df$Package, df$Version)
+    one_per_package <- function(df)
+        dplyr::distinct(df, Package, Version, .keep_all = TRUE)
 
-    os <- get_binary_os(os)
-    candidates <- jobs |>
-        dplyr::filter(job_type == "binary", job_os == os)
+    source_jobs <- jobs |>
+        dplyr::filter(job_type == "source") |>
+        one_per_package()
 
-    if (!is.na(arch))
-        candidates <- candidates |>
-            filter_by_arch(os, arch)
-
-    if (vignettes) {
-        vignette_jobs <- jobs |>
-            dplyr::filter(job_type == "source") |>
-            dplyr::select(Package, Version, jobs_check) |>
-            dplyr::rename(vignettes_check = jobs_check)
-
-        candidates <- merge(candidates, vignette_jobs,
-                            by = c("Package", "Version"))
-
-        candidates <- candidates |>
-            dplyr::filter(vignettes_check %in% check)
+    if (type == "source") {
+        rows <- source_jobs
+        linux <- jobs |>
+            dplyr::filter(job_type == "binary", job_os == "linux") |>
+            filter_by_arch("linux", "x86_64") |>
+            one_per_package()
+        rules <- list(
+            source_ok = rows$jobs_check %in% check & !is.na(rows$artifact),
+            check_ok = linux$jobs_check[match(key(rows), key(linux))] %in% check)
+    } else {
+        os <- get_binary_os(os)
+        rows <- jobs |>
+            dplyr::filter(job_type == "binary", job_os == os)
+        if (!is.na(arch))
+            rows <- filter_by_arch(rows, os, arch)
+        rules <- list()
+        if (vignettes)
+            rules$source_ok <- source_jobs$jobs_check[
+                match(key(rows), key(source_jobs))] %in% check
+        if (commit)
+            rules$check_ok <- rows$binaries_check %in% check &
+                rows$jobs_check %in% check &
+                rows$binaries_status %in% "success"
+        if (unsupported_platforms)
+            rules$platform_ok <- !purrr::pmap_lgl(
+                list(rows$`Config/Bioconductor/UnsupportedPlatforms`,
+                     rows$job_os, rows$job_arch),
+                is_unsupported_platform)
     }
-
     if (commit) {
-        candidates <- merge(candidates, .bbs_commits(bu),
-                            by = c("Package", "Version"))
-
-        candidates <- candidates |>
-            dplyr::filter(binaries_check %in% check,
-                          jobs_check %in% check,
-                          binaries_status == "success") |>
-            dplyr::filter(BBS_commit == substr(RemoteSha, 1, 7))
+        i <- match(key(rows), key(bbs))
+        rows$BBS_commit <- bbs$BBS_commit[i]
+        rows$Deprecated <- bbs$Deprecated[i]
+        same <- substr(rows$RemoteSha, 1, 7) == rows$BBS_commit
+        # Packages not in BBS have no commit to compare, so they fail
+        rules$commit_ok <- !is.na(same) & same
     }
 
-    if (unsupported_platforms) {
-        candidates <- candidates |>
-            dplyr::filter(
-                !purrr::pmap_lgl(
-                    list(`Config/Bioconductor/UnsupportedPlatforms`,
-                         job_os,
-                         job_arch),
-                    is_unsupported_platform))
-    }
-
-    candidates |>
+    labels <- c(source_ok = "source build failed",
+                check_ok = if (type == "source") "linux check failed" else
+                    "check failed",
+                platform_ok = "unsupported platform",
+                commit_ok = "commit differs from BBS")
+    for (rule in names(rules))
+        rows[[rule]] <- rules[[rule]]
+    passed <- if (length(rules)) Reduce(`&`, rules) else
+        rep(TRUE, nrow(rows))
+    rows$propagates <- passed
+    rows$reason <- vapply(seq_len(nrow(rows)), function(i) {
+        failed <- names(rules)[!vapply(rules, `[`, logical(1), i)]
+        paste(labels[failed], collapse = "; ")
+    }, character(1))
+    rows |>
         dplyr::arrange(Package)
 }
 
-#' Commits BBS built for software packages
+#' Commits BBS built, for every package type
 #'
 #' @param bu result of uni_for_bioc
 #'
@@ -670,44 +728,12 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
 #'
 #' @noRd
 .bbs_commits <- function(bu) {
-    BiocPkgTools::biocBuildReport(version = bu$bioc_version,
-                                  pkgType = "software") |>
-        dplyr::rename(Package = pkg, Version = version,
-                      BBS_commit = git_last_commit) |>
-        dplyr::select(Package, Version, BBS_commit, Deprecated) |>
-        dplyr::distinct()
-}
-
-#' Source packages that pass, for `get_candidates()`
-#'
-#' @param bu result of uni_for_bioc
-#' @param jobs data.frame from `get_jobs()`
-#' @param commit logical whether to require the same commit as BBS
-#' @param check character results that pass
-#'
-#' @returns data.frame
-#'
-#' @noRd
-.source_candidates <- function(bu, jobs, commit, check) {
-    linux_checks <- jobs |>
-        dplyr::filter(job_type == "binary", job_os == "linux") |>
-        filter_by_arch("linux", "x86_64") |>
-        dplyr::distinct(Package, Version, .keep_all = TRUE) |>
-        dplyr::select(Package, Version, linux_check = jobs_check)
-
-    candidates <- jobs |>
-        dplyr::filter(job_type == "source", jobs_check %in% check,
-                      !is.na(artifact)) |>
-        dplyr::inner_join(linux_checks, by = c("Package", "Version")) |>
-        dplyr::filter(linux_check %in% check)
-
-    if (commit)
-        candidates <- candidates |>
-            dplyr::inner_join(.bbs_commits(bu), by = c("Package", "Version")) |>
-            dplyr::filter(BBS_commit == substr(RemoteSha, 1, 7))
-
-    candidates |>
-        dplyr::arrange(Package)
+    do.call(rbind, lapply(bioc_pkg_types()$type, function(type) {
+        bbs <- bbs_status(bu$bioc_branch, type)
+        data.frame(Package = bbs$Package, Version = bbs$Version,
+                   BBS_commit = substr(bbs$commit, 1, 7),
+                   Deprecated = bbs$deprecated)
+    }))
 }
 
 #' Get information about R Universe building a Bioconductor version

@@ -143,7 +143,8 @@ compare_summary <- function(cmp) {
 #' @param file character path to a YAML file with `branches`, `types`, and
 #'     `data_dir`. Optional: `platform` (BBS), `os` and `arch` (R Universe),
 #'     `errors` (default `true`), and `max_log_downloads`, the number of R
-#'     Universe logs to download per run across branches (default 400).
+#'     Universe logs to download per run across branches (default 400), and
+#'     `propagation` (default `true`).
 #'
 #' @returns list
 #'
@@ -151,7 +152,8 @@ compare_summary <- function(cmp) {
 .read_compare_config <- function(file) {
     config <- yaml::read_yaml(file)
     defaults <- list(platform = "x86_64-linux-gnu", os = "linux",
-                     arch = "x86_64", errors = TRUE, max_log_downloads = 400)
+                     arch = "x86_64", errors = TRUE, max_log_downloads = 400,
+                     propagation = TRUE)
     utils::modifyList(defaults, config)
 }
 
@@ -161,8 +163,9 @@ compare_summary <- function(cmp) {
 #' Saves one `compare-<branch>-<type>.rds` per branch and type and a
 #' `summary.rds` in `data_dir`. If the configuration has `errors: true`, also
 #' saves `errors-<branch>.rds` from `uni_errors()`, with R Universe logs cached
-#' in `data_dir/logs`. Reports read these files, so the data is downloaded
-#' once.
+#' in `data_dir/logs`. If it has `propagation: true`, also saves
+#' `propagation-<branch>.rds` from `propagation_status()`. Reports read these
+#' files, so the data is downloaded once.
 #'
 #' @param config character path to a YAML configuration. See
 #'     `reports/config.yml` on the `reports` branch of the biocUniTools
@@ -198,6 +201,20 @@ write_comparisons <- function(config) {
                                    sprintf("compare-%s-%s.rds", branch, type)))
             summaries[[paste(branch, type)]] <- compare_summary(cmp)
             cmps[[type]] <- cmp
+        }
+        if (isTRUE(config$propagation)) {
+            # BBS commits are in the comparisons, so they are not read again
+            bbs <- do.call(rbind, lapply(cmps, function(cmp) {
+                cmp <- cmp[!is.na(cmp$bbs_node), ]
+                data.frame(Package = cmp$Package, Version = cmp$bbs_version,
+                           BBS_commit = substr(cmp$bbs_commit, 1, 7),
+                           Deprecated = cmp$bbs_deprecated)
+            }))
+            status <- propagation_status(branch, types = config$types,
+                                         jobs = jobs, bbs = bbs)
+            attr(status, "created") <- Sys.time()
+            saveRDS(status, file.path(data_dir,
+                                      sprintf("propagation-%s.rds", branch)))
         }
         if (isTRUE(config$errors)) {
             errors <- uni_errors(
