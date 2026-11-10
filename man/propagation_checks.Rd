@@ -43,23 +43,19 @@ BBS_commit, and Deprecated, used when \code{commit} is \code{TRUE}. If \code{NUL
 (default), read with \code{bbs_status()} for every package type.}
 }
 \value{
-data.frame of jobs with the results the rules use
-(\code{vignettes_check}, the source build, for binaries; \code{linux_check} for
-source packages; \code{BBS_commit} and \code{Deprecated} if \code{commit}), logical
-columns for each rule that applies, \code{propagates}, \code{reason}, the rules a
+data.frame of jobs with \code{propagates}, \code{reason}, the rules a
 package fails, and \code{failure_url}, the R Universe job of the first
 failing build or check
 }
 \description{
 Applies the rules of \code{get_candidates()} to every package and reports which
 rules each one fails. For binaries, a package propagates when its binary
-for \code{os} and \code{arch} passed \verb{R CMD check} and built (\code{check_ok}), the source
-build passed (\code{source_ok}, if \code{vignettes}), R Universe built the same
-commit as BBS (\code{commit_ok}, if \code{commit}), and the platform is supported
-(\code{platform_ok}, if \code{unsupported_platforms}). For source packages, the
-source build passed (\code{source_ok}), \verb{R CMD check} on Linux x86_64 passed
-(\code{check_ok}), and, if \code{commit}, the commit is the same as BBS
-(\code{commit_ok}).
+for \code{os} and \code{arch} passed \verb{R CMD check} and built (if \code{commit}), the
+source build passed (if \code{vignettes}), R Universe built the same commit as
+BBS (if \code{commit}), and the platform is supported (if
+\code{unsupported_platforms}). For source packages, the source build passed,
+\verb{R CMD check} on Linux x86_64 passed, and, if \code{commit}, the commit is the
+same as BBS.
 }
 \examples{
 \dontrun{

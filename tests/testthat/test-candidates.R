@@ -90,12 +90,16 @@ test_that("mac binaries for both architectures use each target's folder", {
                                       "big-sur-x86_64/contrib/4.6/m_1.0.0.tgz"))
 })
 
-test_that("get_candidates returns jobs without the rule results", {
-    x <- get_candidates(list(), type = "source", jobs = jobs)
-    rule_columns <- c("propagates", "reason", "failure_url", "source_ok",
-                      "check_ok", "platform_ok", "commit_ok",
-                      "vignettes_check", "linux_check")
-    expect_false(any(rule_columns %in% names(x)))
-    y <- propagation_checks(list(), type = "source", jobs = jobs)
-    expect_true(all(c("linux_check", "propagates", "reason") %in% names(y)))
+test_that("get_candidates returns jobs; propagation_checks adds 3 columns", {
+    bbs <- data.frame(Package = c("a", "b"), Version = c("1.0.0", "2.0.0"),
+                      BBS_commit = c("aaaaaaa", "bbbbbbb"), Deprecated = FALSE)
+    for (type in c("source", "binary")) {
+        os <- if (type == "binary") "linux" else NA
+        x <- get_candidates(list(), os, type = type, jobs = jobs)
+        expect_true(all(names(x) %in% names(jobs)))
+        y <- propagation_checks(list(), os, type = type, commit = TRUE,
+                                jobs = jobs, bbs = bbs)
+        expect_setequal(setdiff(names(y), names(jobs)),
+                        c("propagates", "reason", "failure_url"))
+    }
 })

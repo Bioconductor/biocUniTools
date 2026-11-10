@@ -253,10 +253,14 @@ test_that("get_candidates commit filter works", {
     # commit filter should only reduce or maintain row count
     expect_lte(nrow(with_commit), nrow(without_commit))
 
-    # commit-filtered rows should all have matching commits
-    if (nrow(with_commit) > 0)
-        expect_true(all(with_commit$BBS_commit ==
-                            substr(with_commit$RemoteSha, 1, 7)))
+    # commit-filtered rows should all have the commit BBS built
+    if (nrow(with_commit) > 0) {
+        bbs <- biocUniTools:::.bbs_commits(devel)
+        bbs_commit <- bbs$BBS_commit[match(
+            paste(with_commit$Package, with_commit$Version),
+            paste(bbs$Package, bbs$Version))]
+        expect_true(all(bbs_commit == substr(with_commit$RemoteSha, 1, 7)))
+    }
 })
 
 test_that("get_candidates for sonoma includes arm64 and universal binaries", {
@@ -434,27 +438,32 @@ test_that("filter_by_arch passes all rows for windows", {
     expect_equal(nrow(result), 2)
 })
 
+# Source build results from R Universe, to check candidates against
+release_jobs <- get_jobs(get_uni_df(get_raw_uni_df(release$universe)),
+                         release$r_version, release$universe)
+source_check <- function(candidates) {
+    source_jobs <- release_jobs[release_jobs$job_type == "source", ]
+    source_jobs$jobs_check[match(candidates$Package, source_jobs$Package)]
+}
+
 test_that("get_candidates vignette filter works", {
     # vignettes = TRUE (default) should filter on source check
-    with_vignettes <- get_candidates(release, "windows", vignettes = TRUE)
-    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE)
+    with_vignettes <- get_candidates(release, "windows", vignettes = TRUE,
+                                     jobs = release_jobs)
+    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE,
+                                        jobs = release_jobs)
 
     # vignette filter should only reduce or maintain row count
     expect_lte(nrow(with_vignettes), nrow(without_vignettes))
 
     # all candidates should have a passing source build
-    checks <- propagation_checks(release, "windows", vignettes = TRUE)
-    passed <- checks$vignettes_check[match(with_vignettes$Package,
-                                           checks$Package)]
-    expect_true(all(passed %in% c("NOTE", "WARNING", "OK")))
+    expect_true(all(source_check(with_vignettes) %in%
+                        c("NOTE", "WARNING", "OK")))
 })
 
 test_that("get_candidates vignette check respects check argument", {
     ok_only <- get_candidates(release, "windows", vignettes = TRUE,
-                              check = "OK")
-    checks <- propagation_checks(release, "windows", vignettes = TRUE,
-                                 check = "OK")
-    passed <- checks$vignettes_check[match(ok_only$Package, checks$Package)]
-    expect_true(all(passed == "OK"))
+                              check = "OK", jobs = release_jobs)
+    expect_true(all(source_check(ok_only) == "OK"))
 })
 
