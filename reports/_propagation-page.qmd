@@ -62,12 +62,17 @@ if (has_data) cat("\n</details>\n")
 <summary>Legend</summary>
 
 A package propagates to a target when it passes every rule for that target.
-Otherwise the table says **No** and lists the rules it fails.
+**Yes** links to the file that would be harvested. Otherwise the table says
+**No** and lists the rules it fails; **No** links to the R Universe job that
+failed, when a build or check failed.
+
+- **Commit**: the commits R Universe and BBS built. They must be the same for
+  a package to propagate.
 
 - **Source** needs a passing R Universe source build (`R CMD build`, which
   builds vignettes), a passing `R CMD check` on Linux x86_64, and the same
   commit as BBS.
-- **Windows and macOS binaries** need a passing source build, a binary that
+- **Windows x86_64 and macOS binaries** need a passing source build, a binary that
   passed `R CMD check` and built, the same commit as BBS, and a platform the
   package supports.
 - Bioconductor only distributes binaries of software packages, so binaries
