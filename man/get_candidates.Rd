@@ -22,7 +22,8 @@ get_candidates(
 
 \item{os}{character, for binaries}
 
-\item{arch}{character (default NA_character_) x86_64 or arm64, for binaries}
+\item{arch}{character x86_64 or arm64, required for windows and macosx
+binaries}
 
 \item{type}{character "binary" (default) or "source"}
 
@@ -51,12 +52,12 @@ Finds the packages R Universe built that can propagate to Bioconductor. All
 propagation criteria are in this function; each argument turns one on or
 off.
 
-Binary candidates are binaries for \code{os} and \code{arch} that pass:
+Binary candidates are binaries for \code{os} and \code{arch} that passed
+\verb{R CMD check} and built, and pass:
 \itemize{
 \item \code{vignettes}: the source build (\verb{R CMD build}, which builds vignettes)
 passed
-\item \code{commit}: R Universe built the same commit as BBS, and the binary passed
-\verb{R CMD check} and built
+\item \code{commit}: R Universe built the same commit as BBS
 \item \code{unsupported_platforms}: the package does not declare the platform
 unsupported
 }

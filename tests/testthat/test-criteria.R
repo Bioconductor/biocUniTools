@@ -55,10 +55,16 @@ test_that("commit turns the commit criterion on and off", {
     expect_true("no_commit" %in% win(commit = FALSE))
 })
 
-test_that("commit also turns the binary check criterion on and off", {
-    # The binary check is only applied with commit = TRUE, as before
+test_that("the binary check applies whether or not commit is on", {
     expect_false("no_check" %in% win(commit = TRUE))
-    expect_true("no_check" %in% win(commit = FALSE))
+    expect_false("no_check" %in% win(commit = FALSE))
+})
+
+test_that("arch is required for windows and macosx binaries", {
+    expect_error(get_candidates(list(), "windows", jobs = jobs),
+                 "arch must be x86_64 or arm64")
+    expect_error(get_candidates(list(), "macosx", jobs = jobs),
+                 "arch must be x86_64 or arm64")
 })
 
 test_that("unsupported_platforms turns only the platform criterion on and off", {

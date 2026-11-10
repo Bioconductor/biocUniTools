@@ -468,8 +468,14 @@ get_jobs <- function(universe_df, r_version, universe) {
 #' function filters specifically for data observed in R Universe, which could
 #' change in the future.
 #' 
-#' * mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
-#' * linux/win default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
+#' * mac universal binaries: job_arch == 'arm64' & is.na(binaries_arch), for
+#'   packages without a mac x86_64 job
+#' * linux/win universal binaries: job_arch == 'x86_64' & is.na(binaries_arch),
+#'   for packages without an arm64 job
+#'
+#' Packages that need compilation have a job for each architecture, so a row
+#' without binaries_arch from them is a job that built no binary, not a
+#' universal binary, and is not used for the other architecture.
 #'
 #' @param df data.frame from get_jobs()
 #' @param os character
@@ -491,9 +497,17 @@ filter_by_arch <- function(df, os, arch = "x86_64") {
     if (is.na(arch))
         return(df)
 
+    # Packages that need compilation have a job for each architecture; only
+    # packages without one for `job_arch` can have a universal binary
+    has_job <- function(job_arch)
+        paste(df$Package, df$job_os) %in%
+            paste(df$Package, df$job_os)[df$job_arch %in% job_arch]
+
     if (os == "mac" && arch == "x86_64") {
         dplyr::filter(df,
-                      (binaries_arch == "x86_64") | (job_arch == "arm64" & is.na(binaries_arch)))
+                      (binaries_arch == "x86_64") |
+                          (job_arch == "arm64" & is.na(binaries_arch) &
+                               !has_job("x86_64")))
     } else if (os == "mac" && arch == "arm64") {
         dplyr::filter(df,
                       (binaries_arch == "aarch64") | (job_arch == "arm64" & is.na(binaries_arch)))
@@ -502,7 +516,9 @@ filter_by_arch <- function(df, os, arch = "x86_64") {
                       (binaries_arch == "x86_64") | (job_arch == "x86_64" & is.na(binaries_arch)))
     } else if (os %in% c("linux", "win") && arch == "arm64") {
         dplyr::filter(df,
-                      (binaries_arch == "aarch64") | (job_arch == "x86_64" & is.na(binaries_arch)))
+                      (binaries_arch == "aarch64") |
+                          (job_arch == "x86_64" & is.na(binaries_arch) &
+                               !has_job("arm64")))
     } else {
         df
     }
@@ -576,11 +592,11 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #' propagation criteria are in this function; each argument turns one on or
 #' off.
 #'
-#' Binary candidates are binaries for `os` and `arch` that pass:
+#' Binary candidates are binaries for `os` and `arch` that passed
+#' `R CMD check` and built, and pass:
 #' * `vignettes`: the source build (`R CMD build`, which builds vignettes)
 #'   passed
-#' * `commit`: R Universe built the same commit as BBS, and the binary passed
-#'   `R CMD check` and built
+#' * `commit`: R Universe built the same commit as BBS
 #' * `unsupported_platforms`: the package does not declare the platform
 #'   unsupported
 #'
@@ -592,7 +608,8 @@ is_unsupported_platform <- function(unsupported_str, os, arch) {
 #'
 #' @param bu result of uni_for_bioc
 #' @param os character, for binaries
-#' @param arch character (default NA_character_) x86_64 or arm64, for binaries
+#' @param arch character x86_64 or arm64, required for windows and macosx
+#'     binaries
 #' @param type character "binary" (default) or "source"
 #' @param vignettes logical (default TRUE) Check status of source / vignettes,
 #'     for binaries
@@ -622,6 +639,9 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
                            check = c("NOTE", "WARNING", "OK"), jobs = NULL,
                            bbs = NULL) {
     type <- match.arg(type)
+    if (type == "binary" && get_binary_os(os) %in% c("mac", "win") &&
+        is.na(arch))
+        stop("arch must be x86_64 or arm64 for ", os, " binaries")
     if (is.null(jobs)) {
         raw_universe_df <- get_raw_uni_df(bu$universe)
         universe_df <- get_uni_df(raw_universe_df)
@@ -659,6 +679,12 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
         if (os == "mac" && arch %in% "arm64")
             candidates$artifact <- .mac_arm64_artifact(candidates)
 
+        # The binary passed R CMD check and built
+        candidates <- candidates |>
+            dplyr::filter(binaries_check %in% check,
+                          jobs_check %in% check,
+                          binaries_status == "success")
+
         if (vignettes) {
             vignettes_check <- source_jobs$jobs_check[match(key(candidates),
                                                             key(source_jobs))]
@@ -669,12 +695,6 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
     if (commit) {
         if (is.null(bbs))
             bbs <- .bbs_commits(bu)
-
-        if (type == "binary")
-            candidates <- candidates |>
-                dplyr::filter(binaries_check %in% check,
-                              jobs_check %in% check,
-                              binaries_status == "success")
 
         # R Universe built the same commit as BBS; packages not in BBS fail
         bbs_commit <- bbs$BBS_commit[match(key(candidates), key(bbs))]

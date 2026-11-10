@@ -231,24 +231,24 @@ test_that("get_candidates gets R Universe data", {
 
 test_that("get_candidates filters on check status", {
     # without commit filter, check status is not filtered
-    candidates <- get_candidates(devel, "windows")
+    candidates <- get_candidates(devel, "windows", "x86_64")
     expect_gt(nrow(candidates), 0)
     
     # with commit filter, check status is filtered
-    candidates_commit <- get_candidates(devel, "windows", commit = TRUE)
+    candidates_commit <- get_candidates(devel, "windows", "x86_64", commit = TRUE)
     expect_true(all(candidates_commit$binaries_check %in% c("NOTE", "WARNING", "OK")))
     expect_true(all(candidates_commit$jobs_check %in% c("NOTE", "WARNING", "OK")))
     expect_true(all(candidates_commit$binaries_status == "success"))
     
     # restrict to OK only
-    ok_only <- get_candidates(devel, "windows", commit = TRUE, check = "OK")
+    ok_only <- get_candidates(devel, "windows", "x86_64", commit = TRUE, check = "OK")
     expect_true(all(ok_only$binaries_check == "OK"))
     expect_true(all(ok_only$jobs_check == "OK"))
 })
 
 test_that("get_candidates commit filter works", {
-    without_commit <- get_candidates(devel, "windows", commit = FALSE)
-    with_commit    <- get_candidates(devel, "windows", commit = TRUE)
+    without_commit <- get_candidates(devel, "windows", "x86_64", commit = FALSE)
+    with_commit    <- get_candidates(devel, "windows", "x86_64", commit = TRUE)
 
     # commit filter should only reduce or maintain row count
     expect_lte(nrow(with_commit), nrow(without_commit))
@@ -448,9 +448,9 @@ source_check <- function(candidates) {
 
 test_that("get_candidates vignette filter works", {
     # vignettes = TRUE (default) should filter on source check
-    with_vignettes <- get_candidates(release, "windows", vignettes = TRUE,
+    with_vignettes <- get_candidates(release, "windows", "x86_64", vignettes = TRUE,
                                      jobs = release_jobs)
-    without_vignettes <- get_candidates(release, "windows", vignettes = FALSE,
+    without_vignettes <- get_candidates(release, "windows", "x86_64", vignettes = FALSE,
                                         jobs = release_jobs)
 
     # vignette filter should only reduce or maintain row count
@@ -462,8 +462,34 @@ test_that("get_candidates vignette filter works", {
 })
 
 test_that("get_candidates vignette check respects check argument", {
-    ok_only <- get_candidates(release, "windows", vignettes = TRUE,
+    ok_only <- get_candidates(release, "windows", "x86_64", vignettes = TRUE,
                               check = "OK", jobs = release_jobs)
     expect_true(all(source_check(ok_only) == "OK"))
 })
 
+
+test_that("filter_by_arch uses universal binaries only for packages without the other arch's job", {
+    # "pure" has one universal binary from its arm64 job; "compiled" has jobs
+    # for both architectures and its arm64 job built no binary
+    df <- data.frame(
+        Package = c("pure", "compiled", "compiled"),
+        job_os = "mac",
+        job_arch = c("arm64", "arm64", "x86_64"),
+        binaries_arch = c(NA, NA, "x86_64"))
+    result <- filter_by_arch(df, "mac", "x86_64")
+    expect_equal(result$Package, c("pure", "compiled"))
+    expect_equal(result$job_arch, c("arm64", "x86_64"))
+    # the compiled package's failed arm64 job is still its own arm64 row
+    expect_equal(nrow(filter_by_arch(df, "mac", "arm64")), 2)
+})
+
+test_that("filter_by_arch windows arm64 uses x86_64 universal binaries only for packages without an arm64 job", {
+    df <- data.frame(
+        Package = c("pure", "compiled", "compiled"),
+        job_os = "win",
+        job_arch = c("x86_64", "x86_64", "arm64"),
+        binaries_arch = c(NA, NA, "aarch64"))
+    result <- filter_by_arch(df, "win", "arm64")
+    expect_equal(result$Package, c("pure", "compiled"))
+    expect_equal(result$job_arch, c("x86_64", "arm64"))
+})

@@ -48,9 +48,8 @@ test_that("get_candidates keeps only binaries for type binary", {
     x <- get_candidates(list(), "linux", "x86_64", vignettes = FALSE,
                         jobs = jobs)
     expect_true(all(x$job_type == "binary"))
-    expect_equal(x$Package, c("a", "b"))
-    # "b" failed its check, so there is nothing to download
-    expect_true(is.na(x$artifact[x$Package == "b"]))
+    # "b" failed its linux check, so it is not a candidate
+    expect_equal(x$Package, "a")
 })
 
 test_that("get_candidates source needs the source build and linux check", {
