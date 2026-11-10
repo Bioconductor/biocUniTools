@@ -9,7 +9,6 @@ Description: A package of tools for working Bioconductor universes.
 License: Artistic-2.0
 Depends: R (>= 4.6.0)
 Imports:
-    BiocPkgTools,
     dplyr,
     htmltools,
     httr2,
@@ -21,7 +20,6 @@ Imports:
 Suggests:
     curl,
     knitr,
-    kableExtra,
     logger,
     quarto,
     reactable,

@@ -21,9 +21,15 @@ Some builds can have arch-specific and universal binaries. This
 function filters specifically for data observed in R Universe, which could
 change in the future.
 \itemize{
-\item mac universal binaries: job_arch == 'arm64' & !is.na(binaries_arch)
-\item linux/win default binaries: job_arch == 'x86_64' & !is.na(binaries_arch)
+\item mac universal binaries: job_arch == 'arm64' & is.na(binaries_arch), for
+packages without a mac x86_64 job
+\item linux/win universal binaries: job_arch == 'x86_64' & is.na(binaries_arch),
+for packages without an arm64 job
 }
+
+Packages that need compilation have a job for each architecture, so a row
+without binaries_arch from them is a job that built no binary, not a
+universal binary, and is not used for the other architecture.
 }
 \examples{
 bu <- uni_for_bioc("devel")
