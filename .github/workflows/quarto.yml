@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [devel]
   schedule:
-    - cron: "30 16 * * *" # 16:30 UTC
+    - cron: "15 17 * * *" # 17:15 UTC
   workflow_dispatch:
 
 name: quarto
