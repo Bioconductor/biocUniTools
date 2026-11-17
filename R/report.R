@@ -438,7 +438,8 @@ compare_bar_set <- function(cmp, table_id = "compare-table") {
 
 #' Buttons for how a comparison page compares results
 #'
-#' @description Bootstrap toggle buttons to count WARNING as OK, count TIMEOUT
+#' @description Bootstrap toggle buttons, gray when off and filled with a
+#' check mark when on, to count WARNING as OK, count TIMEOUT
 #' and skipped as ERROR, compare only packages built from the same commit, and
 #' show only packages whose results differ. The table of `compare_table()` and
 #' the bars of `compare_bar_set()` follow the buttons.
@@ -462,10 +463,14 @@ compare_controls <- function(table_id = "compare-table") {
             htmltools::tags$input(type = "checkbox", class = "btn-check",
                                   id = id, autocomplete = "off",
                                   `data-setting` = setting),
-            htmltools::tags$label(class = "btn btn-sm btn-outline-primary",
-                                  `for` = id, label))
+            htmltools::tags$label(
+                class = "btn btn-sm btn-outline-secondary", `for` = id,
+                htmltools::tags$i(class = "bi bi-check-lg",
+                                  `aria-hidden` = "true"),
+                label))
     }
     htmltools::tagList(
+        htmltools::tags$style(htmltools::HTML(.compare_controls_css)),
         htmltools::div(
             class = "compare-controls d-flex flex-wrap gap-2 mb-2",
             `data-table` = table_id,
@@ -475,6 +480,23 @@ compare_controls <- function(table_id = "compare-table") {
             button("only_differ", "Only different results")),
         htmltools::tags$script(htmltools::HTML(.compare_controls_js)))
 }
+
+# Off: gray outline. On: filled with the theme's primary color and a check
+# mark. Uses Bootstrap's button variables.
+.compare_controls_css <- "
+.compare-controls .btn {
+  --bs-btn-color: var(--bs-secondary-color);
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-hover-bg: var(--bs-tertiary-bg);
+  --bs-btn-hover-color: var(--bs-body-color);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-border-color: var(--bs-primary);
+}
+.compare-controls .btn .bi { display: none; margin-right: 0.25rem; }
+.compare-controls .btn-check:checked + .btn .bi { display: inline-block; }
+"
 
 # Shows the bars and table columns for the switches, and filters the table.
 # Hidden columns filter_<id> and filter_commit hold "yes", "no", or "na".

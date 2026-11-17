@@ -13,7 +13,8 @@ compare_controls(table_id = "compare-table")
 htmltools tags
 }
 \description{
-Bootstrap toggle buttons to count WARNING as OK, count TIMEOUT
+Bootstrap toggle buttons, gray when off and filled with a
+check mark when on, to count WARNING as OK, count TIMEOUT
 and skipped as ERROR, compare only packages built from the same commit, and
 show only packages whose results differ. The table of \code{compare_table()} and
 the bars of \code{compare_bar_set()} follow the buttons.
