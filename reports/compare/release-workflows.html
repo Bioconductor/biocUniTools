@@ -46,7 +46,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-f35a81a4717690815b2013502477d714.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8d3ad9c781c51ccd60b292c95058b2c2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -210,37 +210,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output-display">
 
-<p class="text-body-secondary">Updated 2026-11-17 06:45 UTC</p>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div class="mb-3">
-<div class="d-flex justify-content-between">
-<span class="fw-semibold">Commits</span>
-<span>28 packages in both R Universe and the BBS; 0 differ</span>
-</div>
-<div class="progress-stacked compare-bar">
-<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
-<div class="progress-bar bar-same"></div>
-</div>
-</div>
-</div>
-<div class="mb-3">
-<div class="d-flex justify-content-between">
-<span class="fw-semibold">Results (R CMD build)</span>
-<span>28 packages in both R Universe and the BBS; 5 differ</span>
-</div>
-<div class="progress-stacked compare-bar">
-<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
-<div class="progress-bar bar-same"></div>
-</div>
-<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
-<div class="progress-bar bar-differ"></div>
-</div>
-</div>
-</div>
-<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+<p class="text-body-secondary">Updated 2026-11-17 17:24 UTC</p>
 </div>
 </div>
 <div class="cell">
@@ -274,11 +244,309 @@ Legend
 </summary>
 <ul>
 <li><strong>Same result</strong>: BBS <code>R CMD build</code> and R Universe source <code>R CMD build</code> (the shaded columns) agree. NOTE is treated as OK; WARNING(S) are treated the same.</li>
+<li><strong>Buttons above the table</strong>: <em>WARNING counts as OK</em> and <em>TIMEOUT and skipped count as ERROR</em> change which results agree. <em>Only the same commit</em> leaves out packages BBS and R Universe built from different commits, in the results bar and the table. <em>Only different results</em> shows only packages whose results differ. The bars follow the buttons too.</li>
 <li><strong>Status</strong>: R Universe’s overall result for the package: success or failure.</li>
 <li><strong>Source build</strong>: R Universe <code>R CMD build</code> of the source package, which builds vignettes.</li>
 <li><strong>Binary check</strong>: <code>R CMD check</code> associated with the binary.</li>
 </ul>
 </details>
+<div class="cell">
+<div class="cell-output-display">
+<div class="compare-variants" data-table="compare-table">
+<div class="compare-variant" data-variant="w0t0c0">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w0t0c1" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS with the same commit; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w1t0c0" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w1t0c1" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS with the same commit; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w0t1c0" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w0t1c1" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS with the same commit; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w1t1c0" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+<div class="compare-variant" data-variant="w1t1c1" hidden="">
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Commits</span>
+<span>28 packages in both R Universe and the BBS; 0 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 100.00%" title="Same: 28">
+<div class="progress-bar bar-same"></div>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between">
+<span class="fw-semibold">Results (R CMD build)</span>
+<span>28 packages in both R Universe and the BBS with the same commit; 5 differ</span>
+</div>
+<div class="progress-stacked compare-bar">
+<div class="progress" role="progressbar" aria-label="Same" style="width: 82.14%" title="Same: 23">
+<div class="progress-bar bar-same"></div>
+</div>
+<div class="progress" role="progressbar" aria-label="Differ" style="width: 17.86%" title="Differ: 5">
+<div class="progress-bar bar-differ"></div>
+</div>
+</div>
+</div>
+<p class="small text-body-secondary">BBS only: 0. R Universe only: 0. R Universe check differs from binary check: 0.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<style>
+.compare-controls .btn {
+  --bs-btn-bg: var(--bs-secondary-bg);
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-border-color: var(--bs-secondary-bg);
+  --bs-btn-hover-bg: var(--bs-border-color);
+  --bs-btn-hover-color: var(--bs-body-color);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-border-color: var(--bs-primary);
+}
+.compare-controls .btn .bi { display: none; margin-right: 0.25rem; }
+.compare-controls .btn-check:checked + .btn .bi { display: inline-block; }
+</style>
+<div class="compare-controls d-flex flex-wrap gap-2 mb-2" data-table="compare-table">
+<input type="checkbox" class="btn-check" id="compare-table-warning_ok" autocomplete="off" data-setting="warning_ok">
+<label class="btn btn-sm btn-outline-secondary" for="compare-table-warning_ok">
+<i class="bi bi-check-lg" aria-hidden="true"></i>
+WARNING counts as OK
+</label>
+<input type="checkbox" class="btn-check" id="compare-table-timeout_error" autocomplete="off" data-setting="timeout_error">
+<label class="btn btn-sm btn-outline-secondary" for="compare-table-timeout_error">
+<i class="bi bi-check-lg" aria-hidden="true"></i>
+TIMEOUT and skipped count as ERROR
+</label>
+<input type="checkbox" class="btn-check" id="compare-table-same_commit" autocomplete="off" data-setting="same_commit">
+<label class="btn btn-sm btn-outline-secondary" for="compare-table-same_commit">
+<i class="bi bi-check-lg" aria-hidden="true"></i>
+Only the same commit
+</label>
+<input type="checkbox" class="btn-check" id="compare-table-only_differ" autocomplete="off" data-setting="only_differ">
+<label class="btn btn-sm btn-outline-secondary" for="compare-table-only_differ">
+<i class="bi bi-check-lg" aria-hidden="true"></i>
+Only different results
+</label>
+</div>
+<script>
+(function() {
+  if (window.compareControls) return;
+  window.compareControls = true;
+  const ids = ['w0t0', 'w1t0', 'w0t1', 'w1t1'];
+  document.addEventListener('change', function(event) {
+    const controls = event.target.closest('.compare-controls');
+    if (!controls) return;
+    const table = controls.dataset.table;
+    const on = s => controls.querySelector(`[data-setting=${s}]`).checked;
+    const id = 'w' + (on('warning_ok') ? 1 : 0) + 't' + (on('timeout_error') ? 1 : 0);
+    const variant = id + 'c' + (on('same_commit') ? 1 : 0);
+    document.querySelectorAll(`.compare-variants[data-table=${table}] .compare-variant`)
+      .forEach(el => {
+      el.hidden = el.dataset.variant !== variant;
+    });
+    if (typeof Reactable === 'undefined') return;
+    const hidden = ids.filter(x => x !== id).map(x => 'result_' + x)
+      .concat(ids.map(x => 'filter_' + x), ['filter_commit']);
+    Reactable.setHiddenColumns(table, hidden);
+    ids.forEach(x => Reactable.setFilter(table, 'filter_' + x, undefined));
+    if (on('only_differ')) Reactable.setFilter(table, 'filter_' + id, 'no');
+    Reactable.setFilter(table, 'filter_commit', on('same_commit') ? 'yes' : undefined);
+  });
+})();
+</script>
+</div>
+</div>
 <div class="column-screen-inset">
 <div class="cell">
 <div class="cell-output-display">
