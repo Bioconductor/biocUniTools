@@ -46,11 +46,6 @@ if (has_data) compare_header(cmp)
 
 ```{r}
 #| echo: false
-if (has_data) compare_bar_set(cmp)
-```
-
-```{r}
-#| echo: false
 if (has_data) compare_details(cmp)
 ```
 
@@ -70,6 +65,11 @@ if (has_data) compare_details(cmp)
 - **Binary check**: `R CMD check` associated with the binary.
 
 </details>
+
+```{r}
+#| echo: false
+if (has_data) compare_bar_set(cmp)
+```
 
 ```{r}
 #| echo: false
