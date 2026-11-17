@@ -438,8 +438,8 @@ compare_bar_set <- function(cmp, table_id = "compare-table") {
 
 #' Buttons for how a comparison page compares results
 #'
-#' @description Bootstrap toggle buttons, gray when off and filled with a
-#' check mark when on, to count WARNING as OK, count TIMEOUT
+#' @description Bootstrap toggle buttons, light gray when off and filled with
+#' a check mark when on, to count WARNING as OK, count TIMEOUT
 #' and skipped as ERROR, compare only packages built from the same commit, and
 #' show only packages whose results differ. The table of `compare_table()` and
 #' the bars of `compare_bar_set()` follow the buttons.
@@ -481,13 +481,14 @@ compare_controls <- function(table_id = "compare-table") {
         htmltools::tags$script(htmltools::HTML(.compare_controls_js)))
 }
 
-# Off: gray outline. On: filled with the theme's primary color and a check
+# Off: light gray, like btn-light. On: filled with the theme's primary color and a check
 # mark. Uses Bootstrap's button variables.
 .compare_controls_css <- "
 .compare-controls .btn {
-  --bs-btn-color: var(--bs-secondary-color);
-  --bs-btn-border-color: var(--bs-border-color);
-  --bs-btn-hover-bg: var(--bs-tertiary-bg);
+  --bs-btn-bg: var(--bs-secondary-bg);
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-border-color: var(--bs-secondary-bg);
+  --bs-btn-hover-bg: var(--bs-border-color);
   --bs-btn-hover-color: var(--bs-body-color);
   --bs-btn-hover-border-color: var(--bs-border-color);
   --bs-btn-active-bg: var(--bs-primary);
