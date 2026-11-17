@@ -118,8 +118,8 @@
 #' Interactive table of a comparison
 #'
 #' @description Has a "Same result" column for each setting of
-#' `.result_settings()`. Only the default (`w0t0`) is shown; `compare_controls()`
-#' switches between them and filters rows.
+#' `.result_settings()`. Only the default (`w0t0`) is shown; the buttons of
+#' `compare_controls()` switch between them and filter rows.
 #'
 #' @param cmp data.frame from `compare_builds()`
 #' @param element_id character id of the table, used by `compare_controls()`
@@ -402,54 +402,77 @@ compare_bars <- function(cmp, warning_ok = FALSE, timeout_error = FALSE,
                      paste(only, diverged)))
 }
 
-#' Switches for how a comparison page compares results
+#' Bars for every setting of a comparison page
 #'
-#' @description Switches to count WARNING as OK, count TIMEOUT and skipped as
-#' ERROR, compare only packages built from the same commit, and show only
-#' packages whose results differ. The bars and the table of `compare_table()`
-#' follow the switches. Everything is computed when the page is made, so the
-#' switches work on a static page.
+#' @description `compare_bars()` for each combination of `warning_ok`,
+#' `timeout_error`, and `same_commit`. Only the default is shown;
+#' `compare_controls()` shows the one matching its buttons. Everything is
+#' computed when the page is made, so the buttons work on a static page.
 #'
 #' @param cmp data.frame from `compare_builds()`
 #' @param table_id character `element_id` of `compare_table()` on the page
 #'
-#' @returns htmltools tags: the switches and the bars for each combination
+#' @returns htmltools tags
 #'
 #' @examples
 #' \dontrun{
 #' cmp <- compare_builds("devel", "books")
-#' htmltools::tagList(compare_controls(cmp), compare_table(cmp))
+#' htmltools::tagList(compare_bar_set(cmp), compare_controls(),
+#'                    compare_table(cmp))
 #' }
 #'
 #' @export
-compare_controls <- function(cmp, table_id = "compare-table") {
+compare_bar_set <- function(cmp, table_id = "compare-table") {
     settings <- .result_settings()
-    switch_ <- function(setting, label)
-        htmltools::div(
-            class = "form-check form-switch form-check-inline",
-            htmltools::tags$input(class = "form-check-input", type = "checkbox",
-                                  role = "switch", autocomplete = "off",
-                                  id = paste0(table_id, "-", setting),
-                                  `data-setting` = setting),
-            htmltools::tags$label(class = "form-check-label",
-                                  `for` = paste0(table_id, "-", setting),
-                                  label))
     bars <- lapply(seq_len(nrow(settings)), function(i)
         lapply(c(FALSE, TRUE), function(same_commit)
             htmltools::div(
                 class = "compare-variant",
-                `data-variant` = paste0(settings$id[i], "c", as.integer(same_commit)),
+                `data-variant` = paste0(settings$id[i], "c",
+                                        as.integer(same_commit)),
                 hidden = if (settings$id[i] != "w0t0" || same_commit) NA,
                 compare_bars(cmp, settings$warning_ok[i],
                              settings$timeout_error[i], same_commit))))
+    htmltools::div(class = "compare-variants", `data-table` = table_id, bars)
+}
+
+#' Buttons for how a comparison page compares results
+#'
+#' @description Bootstrap toggle buttons to count WARNING as OK, count TIMEOUT
+#' and skipped as ERROR, compare only packages built from the same commit, and
+#' show only packages whose results differ. The table of `compare_table()` and
+#' the bars of `compare_bar_set()` follow the buttons.
+#'
+#' @param table_id character `element_id` of `compare_table()` on the page
+#'
+#' @returns htmltools tags
+#'
+#' @examples
+#' \dontrun{
+#' cmp <- compare_builds("devel", "books")
+#' htmltools::tagList(compare_bar_set(cmp), compare_controls(),
+#'                    compare_table(cmp))
+#' }
+#'
+#' @export
+compare_controls <- function(table_id = "compare-table") {
+    button <- function(setting, label) {
+        id <- paste0(table_id, "-", setting)
+        htmltools::tagList(
+            htmltools::tags$input(type = "checkbox", class = "btn-check",
+                                  id = id, autocomplete = "off",
+                                  `data-setting` = setting),
+            htmltools::tags$label(class = "btn btn-sm btn-outline-primary",
+                                  `for` = id, label))
+    }
     htmltools::tagList(
         htmltools::div(
-            class = "compare-controls mb-3", `data-table` = table_id,
-            switch_("warning_ok", "WARNING counts as OK"),
-            switch_("timeout_error", "TIMEOUT and skipped count as ERROR"),
-            switch_("same_commit", "Only the same commit"),
-            switch_("only_differ", "Only different results")),
-        htmltools::div(class = "compare-variants", `data-table` = table_id, bars),
+            class = "compare-controls d-flex flex-wrap gap-2 mb-2",
+            `data-table` = table_id,
+            button("warning_ok", "WARNING counts as OK"),
+            button("timeout_error", "TIMEOUT and skipped count as ERROR"),
+            button("same_commit", "Only the same commit"),
+            button("only_differ", "Only different results")),
         htmltools::tags$script(htmltools::HTML(.compare_controls_js)))
 }
 

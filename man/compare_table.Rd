@@ -16,8 +16,8 @@ reactable htmlwidget
 }
 \description{
 Has a "Same result" column for each setting of
-\code{.result_settings()}. Only the default (\code{w0t0}) is shown; \code{compare_controls()}
-switches between them and filters rows.
+\code{.result_settings()}. Only the default (\code{w0t0}) is shown; the buttons of
+\code{compare_controls()} switch between them and filter rows.
 }
 \examples{
 \dontrun{

@@ -2,29 +2,27 @@
 % Please edit documentation in R/report.R
 \name{compare_controls}
 \alias{compare_controls}
-\title{Switches for how a comparison page compares results}
+\title{Buttons for how a comparison page compares results}
 \usage{
-compare_controls(cmp, table_id = "compare-table")
+compare_controls(table_id = "compare-table")
 }
 \arguments{
-\item{cmp}{data.frame from \code{compare_builds()}}
-
 \item{table_id}{character \code{element_id} of \code{compare_table()} on the page}
 }
 \value{
-htmltools tags: the switches and the bars for each combination
+htmltools tags
 }
 \description{
-Switches to count WARNING as OK, count TIMEOUT and skipped as
-ERROR, compare only packages built from the same commit, and show only
-packages whose results differ. The bars and the table of \code{compare_table()}
-follow the switches. Everything is computed when the page is made, so the
-switches work on a static page.
+Bootstrap toggle buttons to count WARNING as OK, count TIMEOUT
+and skipped as ERROR, compare only packages built from the same commit, and
+show only packages whose results differ. The table of \code{compare_table()} and
+the bars of \code{compare_bar_set()} follow the buttons.
 }
 \examples{
 \dontrun{
 cmp <- compare_builds("devel", "books")
-htmltools::tagList(compare_controls(cmp), compare_table(cmp))
+htmltools::tagList(compare_bar_set(cmp), compare_controls(),
+                   compare_table(cmp))
 }
 
 }

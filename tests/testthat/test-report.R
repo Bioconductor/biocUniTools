@@ -36,14 +36,23 @@ test_that("compare_bars counts results with each setting", {
                  "1 packages in both R Universe and the BBS with the same commit; 1 differ")
 })
 
-test_that("compare_controls makes bars for every setting", {
-    html <- as.character(compare_controls(report_cmp(), "t1"))
+test_that("compare_bar_set makes bars for every setting", {
+    html <- as.character(compare_bar_set(report_cmp(), "t1"))
     for (v in c("w0t0c0", "w1t0c0", "w0t1c1", "w1t1c1"))
         expect_match(html, sprintf('data-variant="%s"', v))
     # Only the default bars are shown
     shown <- regmatches(html, gregexpr('class="compare-variant"[^>]*>', html))[[1]]
+    expect_equal(length(shown), 8)
     expect_equal(sum(!grepl("hidden", shown)), 1)
     expect_match(shown[!grepl("hidden", shown)], "w0t0c0")
+    expect_match(html, 'data-table="t1"')
+})
+
+test_that("compare_controls makes a toggle button for every setting", {
+    html <- as.character(compare_controls("t1"))
+    for (s in c("warning_ok", "timeout_error", "same_commit", "only_differ"))
+        expect_match(html, sprintf('id="t1-%s"', s))
+    expect_match(html, 'class="btn-check"')
     expect_match(html, 'data-table="t1"')
 })
 
