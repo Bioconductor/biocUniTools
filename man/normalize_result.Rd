@@ -4,10 +4,15 @@
 \alias{normalize_result}
 \title{Put BBS and R Universe results on a common scale}
 \usage{
-normalize_result(result)
+normalize_result(result, warning_ok = FALSE, timeout_error = FALSE)
 }
 \arguments{
 \item{result}{character}
+
+\item{warning_ok}{logical. If \code{TRUE}, \code{WARNING} counts as \code{OK}.}
+
+\item{timeout_error}{logical. If \code{TRUE}, \code{TIMEOUT} and \code{skipped} count as
+\code{ERROR}.}
 }
 \value{
 character
@@ -25,5 +30,7 @@ Anything else (e.g., \code{TIMEOUT}, \code{skipped}, \code{CANCELLED}) is kept a
 }
 \examples{
 normalize_result(c("NOTE", "WARNINGS", "FAIL", "TIMEOUT"))
+normalize_result(c("WARNINGS", "TIMEOUT"), warning_ok = TRUE,
+                 timeout_error = TRUE)
 
 }

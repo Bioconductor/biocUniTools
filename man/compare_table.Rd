@@ -4,16 +4,20 @@
 \alias{compare_table}
 \title{Interactive table of a comparison}
 \usage{
-compare_table(cmp)
+compare_table(cmp, element_id = "compare-table")
 }
 \arguments{
 \item{cmp}{data.frame from \code{compare_builds()}}
+
+\item{element_id}{character id of the table, used by \code{compare_controls()}}
 }
 \value{
 reactable htmlwidget
 }
 \description{
-Interactive table of a comparison
+Has a "Same result" column for each setting of
+\code{.result_settings()}. Only the default (\code{w0t0}) is shown; the buttons of
+\code{compare_controls()} switch between them and filter rows.
 }
 \examples{
 \dontrun{
