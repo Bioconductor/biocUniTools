@@ -45,3 +45,23 @@ test_that("compare_summary counts matches and differences", {
     expect_equal(c(s$results_match, s$results_differ), c(2, 0))
     expect_equal(s$check_diverged, 1)
 })
+
+test_that("normalize_result can count WARNING as OK", {
+    expect_equal(normalize_result(c("WARNINGS", "WARNING", "NOTE", "TIMEOUT"),
+                                  warning_ok = TRUE),
+                 c("OK", "OK", "OK", "TIMEOUT"))
+})
+
+test_that("normalize_result can count TIMEOUT and skipped as ERROR", {
+    expect_equal(normalize_result(c("TIMEOUT", "skipped", "FAIL", "WARNING",
+                                    NA), timeout_error = TRUE),
+                 c("ERROR", "ERROR", "ERROR", "WARNING", NA))
+})
+
+test_that(".result_match follows the settings", {
+    cmp <- data.frame(bbs_result = c("WARNINGS", "skipped", "OK"),
+                      uni_result = c("OK", "ERROR", NA))
+    expect_equal(.result_match(cmp), c(FALSE, FALSE, NA))
+    expect_equal(.result_match(cmp, warning_ok = TRUE), c(TRUE, FALSE, NA))
+    expect_equal(.result_match(cmp, timeout_error = TRUE), c(FALSE, TRUE, NA))
+})

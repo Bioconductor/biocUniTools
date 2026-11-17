@@ -11,19 +11,43 @@
 #' Anything else (e.g., `TIMEOUT`, `skipped`, `CANCELLED`) is kept as is.
 #'
 #' @param result character
+#' @param warning_ok logical. If `TRUE`, `WARNING` counts as `OK`.
+#' @param timeout_error logical. If `TRUE`, `TIMEOUT` and `skipped` count as
+#'     `ERROR`.
 #'
 #' @returns character
 #'
 #' @examples
 #' normalize_result(c("NOTE", "WARNINGS", "FAIL", "TIMEOUT"))
+#' normalize_result(c("WARNINGS", "TIMEOUT"), warning_ok = TRUE,
+#'                  timeout_error = TRUE)
 #'
 #' @export
-normalize_result <- function(result) {
-    dplyr::case_match(result,
-                      c("OK", "NOTE") ~ "OK",
-                      c("WARNING", "WARNINGS") ~ "WARNING",
-                      c("ERROR", "FAIL") ~ "ERROR",
-                      .default = result)
+normalize_result <- function(result, warning_ok = FALSE,
+                             timeout_error = FALSE) {
+    result <- dplyr::case_match(result,
+                                c("OK", "NOTE") ~ "OK",
+                                c("WARNING", "WARNINGS") ~ "WARNING",
+                                c("ERROR", "FAIL") ~ "ERROR",
+                                .default = result)
+    if (warning_ok)
+        result[result %in% "WARNING"] <- "OK"
+    if (timeout_error)
+        result[result %in% c("TIMEOUT", "skipped")] <- "ERROR"
+    result
+}
+
+#' Whether BBS and R Universe results agree
+#'
+#' @param cmp data.frame from `compare_builds()`
+#' @inheritParams normalize_result
+#'
+#' @returns logical, `NA` if either result is missing
+#'
+#' @noRd
+.result_match <- function(cmp, warning_ok = FALSE, timeout_error = FALSE) {
+    normalize_result(cmp$bbs_result, warning_ok, timeout_error) ==
+        normalize_result(cmp$uni_result, warning_ok, timeout_error)
 }
 
 #' Compare BBS and R Universe builds

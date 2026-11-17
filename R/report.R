@@ -100,9 +100,29 @@
         .default = '<span class="text-body-secondary">&#8212;</span>')
 }
 
+#' Settings for comparing results
+#'
+#' @description Each combination of `warning_ok` and `timeout_error` (see
+#' `normalize_result()`) has an id, e.g., `w1t0`, used to name table columns
+#' and to show the matching bars.
+#'
+#' @returns data.frame with columns id, warning_ok, and timeout_error
+#'
+#' @noRd
+.result_settings <- function() {
+    s <- expand.grid(warning_ok = c(FALSE, TRUE), timeout_error = c(FALSE, TRUE))
+    s$id <- sprintf("w%dt%d", s$warning_ok, s$timeout_error)
+    s[, c("id", "warning_ok", "timeout_error")]
+}
+
 #' Interactive table of a comparison
 #'
+#' @description Has a "Same result" column for each setting of
+#' `.result_settings()`. Only the default (`w0t0`) is shown; `compare_controls()`
+#' switches between them and filters rows.
+#'
 #' @param cmp data.frame from `compare_builds()`
+#' @param element_id character id of the table, used by `compare_controls()`
 #'
 #' @returns reactable htmlwidget
 #'
@@ -112,7 +132,7 @@
 #' }
 #'
 #' @export
-compare_table <- function(cmp) {
+compare_table <- function(cmp, element_id = "compare-table") {
     if (!requireNamespace("reactable", quietly = TRUE))
         stop("Install 'reactable' to use compare_table()")
     workflows <- identical(unique(cmp$type), "workflows")
@@ -120,7 +140,6 @@ compare_table <- function(cmp) {
         Package = cmp$Package,
         where = cmp$where,
         commit_match = .mark(cmp$commit_match),
-        result_match = .mark(cmp$result_match),
         bbs_commit = cmp$bbs_commit,
         uni_commit = substr(cmp$uni_commit, 1, 7),
         bbs_install = .badge(cmp$bbs_install,
@@ -140,6 +159,16 @@ compare_table <- function(cmp) {
                                    'border border-secondary-subtle">',
                                    'Deprecated</span>'),
                             ""))
+    # "Same result" for each setting, and hidden yes/no copies to filter on
+    settings <- .result_settings()
+    raw <- function(x) ifelse(is.na(x), "na", ifelse(x, "yes", "no"))
+    for (i in seq_len(nrow(settings))) {
+        match <- .result_match(cmp, settings$warning_ok[i],
+                               settings$timeout_error[i])
+        df[[paste0("result_", settings$id[i])]] <- .mark(match)
+        df[[paste0("filter_", settings$id[i])]] <- raw(match)
+    }
+    df$filter_commit <- raw(cmp$commit_match)
     df$Package <- sprintf('<a href="%s" target="_blank">%s</a>',
                           .landing_url(cmp$Package, cmp$type[1],
                                        cmp$branch[1]),
@@ -148,12 +177,21 @@ compare_table <- function(cmp) {
     html <- function(name, ...)
         reactable::colDef(name = name, html = TRUE, ...)
     compared <- list(class = "compared")
-    columns <- list(
+    # Exact match, so "no" does not also match "na"
+    exact <- reactable::JS(
+        "function(rows, id, value) { return rows.filter(r => r.values[id] === value) }")
+    hidden <- function()
+        reactable::colDef(show = FALSE, searchable = FALSE,
+                          filterMethod = exact)
+    result_cols <- paste0("result_", settings$id)
+    filter_cols <- c(paste0("filter_", settings$id), "filter_commit")
+    columns <- c(list(
         Package = html("Package", minWidth = 180, sticky = "left"),
         where = reactable::colDef(name = "Built by", minWidth = 120),
-        commit_match = html("Same commit"),
-        result_match = html("Same result"),
-        deprecated = html("Deprecated"),
+        commit_match = html("Same commit")),
+        stats::setNames(lapply(settings$id, function(id)
+            html("Same result", show = id == "w0t0")), result_cols),
+        list(        deprecated = html("Deprecated"),
         bbs_commit = reactable::colDef(name = "Commit"),
         bbs_install = html("Install"),
         bbs_build = do.call(html, c(list("Build"), if (workflows) compared)),
@@ -164,14 +202,15 @@ compare_table <- function(cmp) {
                                            if (workflows) compared)),
         uni_check = do.call(html, c(list("Check"), if (!workflows) compared)),
         uni_binary_check = html("Binary check"),
-        uni_bioccheck = html("BiocCheck"))
+        uni_bioccheck = html("BiocCheck")),
+        stats::setNames(lapply(filter_cols, function(x) hidden()), filter_cols))
 
     reactable::reactable(
         df[, names(columns)],
         columns = columns,
         columnGroups = list(
             reactable::colGroup("Comparison",
-                                c("where", "commit_match", "result_match")),
+                                c("where", "commit_match", result_cols)),
             reactable::colGroup("BBS", c("deprecated", "bbs_commit",
                                          "bbs_install",
                                          "bbs_build", "bbs_check")),
@@ -184,7 +223,7 @@ compare_table <- function(cmp) {
         pageSizeOptions = c(25, 50, 100, 500),
         defaultColDef = reactable::colDef(minWidth = 90,
                                           headerClass = "rt-header"),
-        class = "compare-table")
+        class = "compare-table", elementId = element_id)
 }
 
 #' Interactive table of comparison summaries
@@ -301,6 +340,9 @@ compare_details <- function(cmp) {
 #' and results: same (light teal), differ (dark teal), and not compared (gray).
 #'
 #' @param cmp data.frame from `compare_builds()`
+#' @inheritParams normalize_result
+#' @param same_commit logical. If `TRUE`, the results bar only counts packages
+#'     both systems built from the same commit.
 #'
 #' @returns htmltools tags
 #'
@@ -310,8 +352,14 @@ compare_details <- function(cmp) {
 #' }
 #'
 #' @export
-compare_bars <- function(cmp) {
+compare_bars <- function(cmp, warning_ok = FALSE, timeout_error = FALSE,
+                         same_commit = FALSE) {
     s <- compare_summary(cmp)
+    results <- cmp
+    results$result_match <- .result_match(cmp, warning_ok, timeout_error)
+    if (same_commit)
+        results <- results[results$commit_match %in% TRUE, , drop = FALSE]
+    r <- compare_summary(results)
     fmt <- function(x) format(x, big.mark = ",")
     result <- if (cmp$type[1] == "workflows")
         "Results (R CMD build)" else
@@ -324,30 +372,112 @@ compare_bars <- function(cmp) {
                        title = sprintf("%s: %s", label, fmt(n)),
                        htmltools::div(class = paste("progress-bar", class)))
     }
-    bar <- function(name, same, differ) {
-        unknown <- s$both - same - differ
+    bar <- function(name, both, same, differ, which) {
+        unknown <- both - same - differ
         htmltools::div(
             class = "mb-3",
             htmltools::div(
                 class = "d-flex justify-content-between",
                 htmltools::span(class = "fw-semibold", name),
-                htmltools::span(sprintf(
-                    "%s packages in both R Universe and the BBS; %s differ",
-                    fmt(s$both), fmt(differ)))),
+                htmltools::span(sprintf("%s packages in both R Universe and the BBS%s; %s differ",
+                                        fmt(both), which, fmt(differ)))),
             htmltools::div(
                 class = "progress-stacked compare-bar",
-                segment(same, s$both, "bar-same", "Same"),
-                segment(differ, s$both, "bar-differ", "Differ"),
-                segment(unknown, s$both, "bar-unknown",
+                segment(same, both, "bar-same", "Same"),
+                segment(differ, both, "bar-differ", "Differ"),
+                segment(unknown, both, "bar-unknown",
                         "Not compared")))
     }
+    # compare_summary() has a row per branch and type; empty if no packages
+    n <- function(x) if (length(x)) x else 0
     only <- sprintf("BBS only: %s. R Universe only: %s.",
                     fmt(s$bbs_only), fmt(s$universe_only))
     diverged <- sprintf("R Universe check differs from binary check: %s.",
                         fmt(s$check_diverged))
     htmltools::tagList(
-        bar("Commits", s$commits_match, s$commits_differ),
-        bar(result, s$results_match, s$results_differ),
+        bar("Commits", s$both, s$commits_match, s$commits_differ, ""),
+        bar(result, n(r$both), n(r$results_match), n(r$results_differ),
+            if (same_commit) " with the same commit" else ""),
         htmltools::p(class = "small text-body-secondary",
                      paste(only, diverged)))
 }
+
+#' Switches for how a comparison page compares results
+#'
+#' @description Switches to count WARNING as OK, count TIMEOUT and skipped as
+#' ERROR, compare only packages built from the same commit, and show only
+#' packages whose results differ. The bars and the table of `compare_table()`
+#' follow the switches. Everything is computed when the page is made, so the
+#' switches work on a static page.
+#'
+#' @param cmp data.frame from `compare_builds()`
+#' @param table_id character `element_id` of `compare_table()` on the page
+#'
+#' @returns htmltools tags: the switches and the bars for each combination
+#'
+#' @examples
+#' \dontrun{
+#' cmp <- compare_builds("devel", "books")
+#' htmltools::tagList(compare_controls(cmp), compare_table(cmp))
+#' }
+#'
+#' @export
+compare_controls <- function(cmp, table_id = "compare-table") {
+    settings <- .result_settings()
+    switch_ <- function(setting, label)
+        htmltools::div(
+            class = "form-check form-switch form-check-inline",
+            htmltools::tags$input(class = "form-check-input", type = "checkbox",
+                                  role = "switch", autocomplete = "off",
+                                  id = paste0(table_id, "-", setting),
+                                  `data-setting` = setting),
+            htmltools::tags$label(class = "form-check-label",
+                                  `for` = paste0(table_id, "-", setting),
+                                  label))
+    bars <- lapply(seq_len(nrow(settings)), function(i)
+        lapply(c(FALSE, TRUE), function(same_commit)
+            htmltools::div(
+                class = "compare-variant",
+                `data-variant` = paste0(settings$id[i], "c", as.integer(same_commit)),
+                hidden = if (settings$id[i] != "w0t0" || same_commit) NA,
+                compare_bars(cmp, settings$warning_ok[i],
+                             settings$timeout_error[i], same_commit))))
+    htmltools::tagList(
+        htmltools::div(
+            class = "compare-controls mb-3", `data-table` = table_id,
+            switch_("warning_ok", "WARNING counts as OK"),
+            switch_("timeout_error", "TIMEOUT and skipped count as ERROR"),
+            switch_("same_commit", "Only the same commit"),
+            switch_("only_differ", "Only different results")),
+        htmltools::div(class = "compare-variants", `data-table` = table_id, bars),
+        htmltools::tags$script(htmltools::HTML(.compare_controls_js)))
+}
+
+# Shows the bars and table columns for the switches, and filters the table.
+# Hidden columns filter_<id> and filter_commit hold "yes", "no", or "na".
+.compare_controls_js <- "
+(function() {
+  if (window.compareControls) return;
+  window.compareControls = true;
+  const ids = ['w0t0', 'w1t0', 'w0t1', 'w1t1'];
+  document.addEventListener('change', function(event) {
+    const controls = event.target.closest('.compare-controls');
+    if (!controls) return;
+    const table = controls.dataset.table;
+    const on = s => controls.querySelector(`[data-setting=${s}]`).checked;
+    const id = 'w' + (on('warning_ok') ? 1 : 0) + 't' + (on('timeout_error') ? 1 : 0);
+    const variant = id + 'c' + (on('same_commit') ? 1 : 0);
+    document.querySelectorAll(`.compare-variants[data-table=${table}] .compare-variant`)
+      .forEach(el => {
+      el.hidden = el.dataset.variant !== variant;
+    });
+    if (typeof Reactable === 'undefined') return;
+    const hidden = ids.filter(x => x !== id).map(x => 'result_' + x)
+      .concat(ids.map(x => 'filter_' + x), ['filter_commit']);
+    Reactable.setHiddenColumns(table, hidden);
+    ids.forEach(x => Reactable.setFilter(table, 'filter_' + x, undefined));
+    if (on('only_differ')) Reactable.setFilter(table, 'filter_' + id, 'no');
+    Reactable.setFilter(table, 'filter_commit', on('same_commit') ? 'yes' : undefined);
+  });
+})();
+"

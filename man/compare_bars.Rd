@@ -4,10 +4,23 @@
 \alias{compare_bars}
 \title{Bars showing how many packages match in both systems}
 \usage{
-compare_bars(cmp)
+compare_bars(
+  cmp,
+  warning_ok = FALSE,
+  timeout_error = FALSE,
+  same_commit = FALSE
+)
 }
 \arguments{
 \item{cmp}{data.frame from \code{compare_builds()}}
+
+\item{warning_ok}{logical. If \code{TRUE}, \code{WARNING} counts as \code{OK}.}
+
+\item{timeout_error}{logical. If \code{TRUE}, \code{TIMEOUT} and \code{skipped} count as
+\code{ERROR}.}
+
+\item{same_commit}{logical. If \code{TRUE}, the results bar only counts packages
+both systems built from the same commit.}
 }
 \value{
 htmltools tags
