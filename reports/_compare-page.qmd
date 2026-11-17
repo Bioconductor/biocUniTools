@@ -46,11 +46,6 @@ if (has_data) compare_header(cmp)
 
 ```{r}
 #| echo: false
-if (has_data) compare_bars(cmp)
-```
-
-```{r}
-#| echo: false
 if (has_data) compare_details(cmp)
 ```
 
@@ -59,12 +54,27 @@ if (has_data) compare_details(cmp)
 
 - **Same result**: `r compared` (the shaded columns) agree. NOTE is treated
   as OK; WARNING(S) are treated the same.
+- **Buttons above the table**: *WARNING counts as OK* and *TIMEOUT and skipped count as
+  ERROR* change which results agree. *Only the same commit* leaves out
+  packages BBS and R Universe built from different commits, in the results bar
+  and the table. *Only different results* shows only packages whose results
+  differ. The bars follow the buttons too.
 - **Status**: R Universe's overall result for the package: success or failure.
 - **Source build**: R Universe `R CMD build` of the source package, which
   builds vignettes.
 - **Binary check**: `R CMD check` associated with the binary.
 
 </details>
+
+```{r}
+#| echo: false
+if (has_data) compare_bar_set(cmp)
+```
+
+```{r}
+#| echo: false
+if (has_data) compare_controls()
+```
 
 ::: column-screen-inset
 ```{r}
