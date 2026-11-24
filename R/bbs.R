@@ -70,7 +70,8 @@ bbs_report_url <- function(branch, type = "software") {
 #' @param branch character "devel" or "release"
 #' @param type character one of `bioc_pkg_types()$type`
 #'
-#' @returns data.frame with columns node, os, arch, platform, r_version
+#' @returns data.frame with columns node, os, arch, platform, r_version, or
+#'     `NULL` with a message if the report is not available yet
 #'
 #' @examples
 #' bbs_nodes("devel", "software")
@@ -78,7 +79,11 @@ bbs_report_url <- function(branch, type = "software") {
 #' @export
 bbs_nodes <- function(branch, type = "software") {
     report_url <- bbs_report_url(branch, type)
-    nodes <- unique(.read_bbs_status_db(report_url)$node)
+    status_db <- .bbs_try(.read_bbs_status_db(report_url), "build status",
+                          report_url)
+    if (is.null(status_db))
+        return(NULL)
+    nodes <- unique(status_db$node)
     do.call(rbind, lapply(nodes, .bbs_node_info, report_url = report_url))
 }
 
@@ -127,6 +132,43 @@ bbs_nodes <- function(branch, type = "software") {
     meat[which(meat[, "PackageStatus"] == "Deprecated"), "Package"]
 }
 
+#' Read part of a build report that may not exist yet
+#'
+#' @description A new Bioconductor version's reports appear as its builds
+#' finish, e.g., after a release, so a file may be missing for a day or more.
+#' Reports what is missing with a message and returns `default` instead of
+#' failing.
+#'
+#' @param expr expression that reads the file
+#' @param what character name of what is read, for the message
+#' @param report_url character from `bbs_report_url()`
+#' @param default value to return if it cannot be read
+#'
+#' @noRd
+.bbs_try <- function(expr, what, report_url, default = NULL) {
+    # Reading a missing URL warns and then errors, so handle both
+    missing <- function(e) {
+        message("BBS ", what, " is not available at ", report_url, ": ",
+                conditionMessage(e))
+        default
+    }
+    tryCatch(expr, error = missing, warning = missing)
+}
+
+#' A bbs_status() result without packages
+#'
+#' @param report_url character from `bbs_report_url()`
+#'
+#' @noRd
+.bbs_empty <- function(report_url) {
+    chr <- character()
+    data.frame(Package = chr, Version = chr, type = chr, bioc_version = chr,
+               node = chr, Maintainer = chr, deprecated = logical(),
+               commit = chr, commit_date = as.POSIXct(chr), install = chr,
+               build = chr, check = chr, build_bin = chr, url = chr) |>
+        structure(node_info = NULL, report_url = report_url)
+}
+
 #' Get Bioconductor Build System (BBS) results for a build node
 #'
 #' @description
@@ -142,7 +184,10 @@ bbs_nodes <- function(branch, type = "software") {
 #'     building on `platform`.
 #'
 #' @returns data.frame with attributes `node_info` (see `bbs_nodes()`) and
-#'     `report_url`
+#'     `report_url`. If the report or the node is not available yet, e.g.,
+#'     right after a release, a message says so and the data.frame has no
+#'     rows. If a file with commits, deprecated packages, or node details is
+#'     missing, a message says so and those columns are `NA`.
 #'
 #' @examples
 #' \dontrun{
@@ -155,14 +200,22 @@ bbs_status <- function(branch, type = "software",
     report_url <- bbs_report_url(branch, type)
     bu <- uni_for_bioc(branch)
 
-    status_db <- .read_bbs_status_db(report_url)
-    nodes <- do.call(rbind, lapply(unique(status_db$node), .bbs_node_info,
-                                   report_url = report_url))
+    status_db <- .bbs_try(.read_bbs_status_db(report_url), "build status",
+                          report_url)
+    if (is.null(status_db))
+        return(.bbs_empty(report_url))
+    nodes <- do.call(rbind, lapply(unique(status_db$node), function(n)
+        .bbs_try(.bbs_node_info(report_url, n), paste(n, "node info"),
+                 report_url, default = data.frame(node = n, os = NA, arch = NA,
+                                                  platform = NA,
+                                                  r_version = NA))))
     if (is.null(node)) {
         node <- nodes$node[nodes$platform %in% platform]
-        if (length(node) != 1)
-            stop("Expected 1 node for platform '", platform, "', found ",
-                 length(node))
+        if (length(node) != 1) {
+            message("Expected 1 BBS node for platform '", platform, "' at ",
+                    report_url, ", found ", length(node))
+            return(.bbs_empty(report_url))
+        }
     }
 
     stages <- c(install = "install", buildsrc = "build", checksrc = "check",
@@ -174,12 +227,21 @@ bbs_status <- function(branch, type = "software",
     for (s in setdiff(stages, names(results)))
         results[[s]] <- NA_character_
 
-    .read_bbs_info(report_url) |>
+    chr <- character()
+    info <- .bbs_try(.read_bbs_info(report_url), "report.tgz", report_url,
+                     default = data.frame(Package = chr, Version = chr,
+                                          Maintainer = chr, commit = chr,
+                                          commit_date = as.POSIXct(chr)))
+    deprecated <- .bbs_try(.read_bbs_deprecated(report_url), "meat-index.dcf",
+                           report_url, default = NA_character_)
+
+    info |>
         dplyr::right_join(results, by = "Package") |>
         dplyr::mutate(
             type = type,
             bioc_version = bu$bioc_version,
-            deprecated = Package %in% .read_bbs_deprecated(report_url),
+            deprecated = if (anyNA(deprecated)) NA else
+                Package %in% deprecated,
             url = file.path(report_url, Package, "")) |>
         dplyr::select(Package, Version, type, bioc_version, node, Maintainer,
                       deprecated, commit, commit_date, install, build, check,

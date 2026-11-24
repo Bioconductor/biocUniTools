@@ -24,7 +24,10 @@ building on \code{platform}.}
 }
 \value{
 data.frame with attributes \code{node_info} (see \code{bbs_nodes()}) and
-\code{report_url}
+\code{report_url}. If the report or the node is not available yet, e.g.,
+right after a release, a message says so and the data.frame has no
+rows. If a file with commits, deprecated packages, or node details is
+missing, a message says so and those columns are \code{NA}.
 }
 \description{
 Returns one row per package with the version and commit the BBS used and the
