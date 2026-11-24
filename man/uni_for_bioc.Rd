@@ -7,10 +7,20 @@
 uni_for_bioc(branch)
 }
 \arguments{
-\item{branch}{character Bioconductor branch: "devel" or "release"}
+\item{branch}{character Bioconductor branch, "devel" or "release", or
+version, e.g., "3.25"}
+}
+\value{
+list with bioc_version, bioc_branch, universe, and r_version (R
+x.y)
 }
 \description{
-Get information about R Universe building a Bioconductor version
+The Bioconductor versions R Universe builds are set in
+Bioconductor's \code{config.yaml} by \code{r_universe_release_version} and
+\code{r_universe_devel_version}, separately from the website's versions, so R
+Universe can move to a new release first. The R version is the one
+\code{r_ver_for_bioc_ver} lists for that Bioconductor version. The \code{bioc}
+universe builds devel and \code{bioc-release} builds release.
 }
 \examples{
 bu <- uni_for_bioc("devel")
