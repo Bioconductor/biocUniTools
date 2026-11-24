@@ -418,11 +418,17 @@ get_uni_df <- function(raw_df) {
 
 get_jobs <- function(universe_df, r_version, universe) {
 
+    # R Universe leaves out fields no package in the request sets
     if (!"binaries_distro" %in% names(universe_df))
         universe_df$binaries_distro <- NA_character_
+    if (!"Config/Bioconductor/UnsupportedPlatforms" %in% names(universe_df))
+        universe_df$`Config/Bioconductor/UnsupportedPlatforms` <- NA_character_
     failed <- c("FAIL", "ERROR", "CANCELLED")
-    in_repo <- function(url, file)
+    # One link per file; url can be one folder for all files
+    in_repo <- function(url, file) {
+        url <- rep_len(url, length(file))
         ifelse(is.na(url), NA_character_, file.path(url, file))
+    }
 
     # Packages without an explicit binaries_arch have universal binaries
     binary_rows <- universe_df |>

@@ -34,9 +34,10 @@ uni_df <- data.frame(
 jobs <- get_jobs(uni_df, "4.6.1", "bioc")
 
 test_that("get_jobs links source and linux binary packages", {
-    src <- jobs[jobs$job_type == "source" & jobs$Package == "a", ]
+    src <- jobs[jobs$job_type == "source", ]
     expect_equal(src$artifact,
-                 "https://bioc.r-universe.dev/src/contrib/a_1.0.0.tar.gz")
+                 c("https://bioc.r-universe.dev/src/contrib/a_1.0.0.tar.gz",
+                   "https://bioc.r-universe.dev/src/contrib/b_2.0.0.tar.gz"))
     lin <- jobs[jobs$job_os == "linux" & jobs$job_type == "binary" &
                     jobs$Package == "a", ]
     expect_equal(lin$artifact,
@@ -87,4 +88,11 @@ test_that("mac binaries for both architectures use each target's folder", {
                                       "sonoma-arm64/contrib/4.6/m_1.0.0.tgz"))
     expect_equal(x86$artifact, paste0("https://bioc.r-universe.dev/bin/macosx/",
                                       "big-sur-x86_64/contrib/4.6/m_1.0.0.tgz"))
+})
+
+test_that("get_candidates works when no package sets UnsupportedPlatforms", {
+    df <- uni_df[, names(uni_df) != "Config/Bioconductor/UnsupportedPlatforms"]
+    x <- get_candidates(list(), "linux", "x86_64", vignettes = FALSE,
+                        jobs = get_jobs(df, "4.6.1", "bioc"))
+    expect_equal(x$Package, "a")
 })
