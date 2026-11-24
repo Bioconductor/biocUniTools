@@ -17,5 +17,7 @@ test_that("bioc_manifest reads package names from a local manifest", {
                file.path(dir, "devel", "workflows.txt"))
     withr::local_options(
         biocUniTools.manifest_url = file.path(dir, "{git_branch}/{type}.txt"))
+    local_mocked_bindings(uni_for_bioc = function(branch)
+        list(bioc_branch = branch, bioc_version = "3.24"))
     expect_equal(bioc_manifest("devel", "workflows"), c("a", "b"))
 })

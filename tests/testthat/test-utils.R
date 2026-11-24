@@ -1,6 +1,3 @@
-devel <- biocUniTools::uni_for_bioc("devel")
-release <- biocUniTools::uni_for_bioc("release")
-
 test_that("r_xy_ver gives x.y", {
     expect_equal(r_xy_ver("4.6.3"), "4.6")
     expect_equal(r_xy_ver("40.623.33333"), "40.623")
@@ -200,7 +197,7 @@ test_that("is_unsupported_platforms filters os-arch", {
 })
 
 test_that("get_candidates gets R Universe data", {
-    bu <- uni_for_bioc("devel")
+    bu <- uni_branch("devel")
     # windows
     pkgs <- get_candidates(bu,  "windows", "x86_64")
     expect_gt(nrow(pkgs), 0)
@@ -215,7 +212,7 @@ test_that("get_candidates gets R Universe data", {
     expect_equal(dplyr::pull(pkg, artifact), url)
     
     # macosx x86_64
-    bu <- uni_for_bioc("release")
+    bu <- uni_branch("release")
     pkgs <- get_candidates(bu, "macosx", arch = "x86_64")
     expect_gt(nrow(pkgs), 0)
     
@@ -230,6 +227,7 @@ test_that("get_candidates gets R Universe data", {
 })
 
 test_that("get_candidates filters on check status", {
+    devel <- uni_branch("devel")
     # without commit filter, check status is not filtered
     candidates <- get_candidates(devel, "windows", "x86_64")
     expect_gt(nrow(candidates), 0)
@@ -247,6 +245,7 @@ test_that("get_candidates filters on check status", {
 })
 
 test_that("get_candidates commit filter works", {
+    devel <- uni_branch("devel")
     without_commit <- get_candidates(devel, "windows", "x86_64", commit = FALSE)
     with_commit    <- get_candidates(devel, "windows", "x86_64", commit = TRUE)
 
@@ -264,14 +263,16 @@ test_that("get_candidates commit filter works", {
 })
 
 test_that("get_candidates for sonoma includes arm64 and universal binaries", {
+    devel <- uni_branch("devel")
     arm_candidates <- get_candidates(devel, "macosx", arch = "arm64", commit = TRUE)
     expect_true("BiocVersion" %in% arm_candidates$Package)
     expect_true("rtracklayer" %in% arm_candidates$Package)
 })
 
 test_that("uni_for_bioc gets correct universe", {
+    skip_if_no_network()
     bu <- uni_for_bioc("release")
-    expect_equal(bu$r_version, release$r_version)
+    expect_match(bu$r_version, "^[0-9]+\\.[0-9]+")
     expect_equal(bu$bioc_branch, "release")
     expect_equal(bu$universe, "bioc-release")
 })
@@ -439,19 +440,19 @@ test_that("filter_by_arch passes all rows for windows", {
 })
 
 # Source build results from R Universe, to check candidates against
-release_jobs <- get_jobs(get_uni_df(get_raw_uni_df(release$universe)),
-                         release$r_version, release$universe)
 source_check <- function(candidates) {
-    source_jobs <- release_jobs[release_jobs$job_type == "source", ]
+    jobs <- release_jobs()
+    source_jobs <- jobs[jobs$job_type == "source", ]
     source_jobs$jobs_check[match(candidates$Package, source_jobs$Package)]
 }
 
 test_that("get_candidates vignette filter works", {
+    release <- uni_branch("release")
     # vignettes = TRUE (default) should filter on source check
     with_vignettes <- get_candidates(release, "windows", "x86_64", vignettes = TRUE,
-                                     jobs = release_jobs)
+                                     jobs = release_jobs())
     without_vignettes <- get_candidates(release, "windows", "x86_64", vignettes = FALSE,
-                                        jobs = release_jobs)
+                                        jobs = release_jobs())
 
     # vignette filter should only reduce or maintain row count
     expect_lte(nrow(with_vignettes), nrow(without_vignettes))
@@ -462,8 +463,9 @@ test_that("get_candidates vignette filter works", {
 })
 
 test_that("get_candidates vignette check respects check argument", {
+    release <- uni_branch("release")
     ok_only <- get_candidates(release, "windows", "x86_64", vignettes = TRUE,
-                              check = "OK", jobs = release_jobs)
+                              check = "OK", jobs = release_jobs())
     expect_true(all(source_check(ok_only) == "OK"))
 })
 

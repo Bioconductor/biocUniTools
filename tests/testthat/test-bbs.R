@@ -1,10 +1,10 @@
 test_that("bbs_report_url fills in version and type", {
     withr::local_options(biocUniTools.bbs_url = "x/{version}/{type}")
-    bu <- uni_for_bioc("devel")
+    local_mocked_bindings(uni_for_bioc = function(branch)
+        list(bioc_branch = branch, bioc_version = "3.24"))
     expect_equal(bbs_report_url("devel", "data-experiment"),
-                 paste0("x/", bu$bioc_version, "/data-experiment"))
-    expect_equal(bbs_report_url("devel", "software"),
-                 paste0("x/", bu$bioc_version, "/bioc"))
+                 "x/3.24/data-experiment")
+    expect_equal(bbs_report_url("devel", "software"), "x/3.24/bioc")
 })
 
 test_that(".read_bbs_status_db parses package, node, stage, and result", {
