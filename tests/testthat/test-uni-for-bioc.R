@@ -29,7 +29,15 @@ test_that("uni_for_bioc accepts version numbers", {
     expect_error(uni_for_bioc("3.23"), "builds Bioconductor 3.24 \\(release\\)")
 })
 
-test_that("uni_for_bioc stops without an R version for the Bioconductor version", {
+test_that("uni_for_bioc follows the pattern when config.yaml has no R version", {
     local_bioc_config(r_versions = list("3.24" = "4.6"))
-    expect_error(uni_for_bioc("devel"), "no R version for Bioconductor 3.25")
+    expect_equal(uni_for_bioc("devel")$r_version, "4.7")
+})
+
+test_that(".r_for_bioc uses two Bioconductor versions per R version", {
+    expect_equal(vapply(c("3.11", "3.12", "3.21", "3.22", "3.23", "3.24",
+                          "3.25", "3.26", "3.27"), .r_for_bioc, ""),
+                 c("4.0", "4.0", "4.5", "4.5", "4.6", "4.6", "4.7", "4.7",
+                   "4.8"), ignore_attr = TRUE)
+    expect_error(.r_for_bioc("3.10"), "No R version")
 })
