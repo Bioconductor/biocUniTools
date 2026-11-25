@@ -12,7 +12,8 @@ bbs_nodes(branch, type = "software")
 \item{type}{character one of \code{bioc_pkg_types()$type}}
 }
 \value{
-data.frame with columns node, os, arch, platform, r_version
+data.frame with columns node, os, arch, platform, r_version, or
+\code{NULL} with a message if the report is not available yet
 }
 \description{
 Get the build nodes of a build report

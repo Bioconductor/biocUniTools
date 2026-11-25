@@ -65,3 +65,11 @@ test_that(".result_match follows the settings", {
     expect_equal(.result_match(cmp, warning_ok = TRUE), c(TRUE, FALSE, NA))
     expect_equal(.result_match(cmp, timeout_error = TRUE), c(FALSE, TRUE, NA))
 })
+
+test_that("compare_builds works without BBS results", {
+    x <- compare_builds("devel", "software", bbs = .bbs_empty("x"), uni = uni,
+                        downloads = NULL)
+    expect_equal(x$Package, c("a", "b", "d"))
+    expect_equal(x$where, rep("universe only", 3))
+    expect_true(all(is.na(x$result_match)))
+})
