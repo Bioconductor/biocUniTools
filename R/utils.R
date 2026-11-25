@@ -762,31 +762,79 @@ get_candidates <- function(bu, os = NA_character_, arch = NA_character_,
     }))
 }
 
+#' Bioconductor's configuration
+#'
+#' @description Read from `https://bioconductor.org/config.yaml`, or from the
+#' `biocUniTools.config_url` option.
+#'
+#' @returns list
+#'
+#' @noRd
+.bioc_config <- function()
+    yaml::read_yaml(getOption("biocUniTools.config_url",
+                              "https://bioconductor.org/config.yaml"))
+
+#' R version for a Bioconductor version
+#'
+#' @description Each R version is used by two Bioconductor versions, starting
+#' with an odd one: 3.21 and 3.22 use R 4.5, 3.23 and 3.24 use R 4.6, and 3.25
+#' and 3.26 use R 4.7. This holds from Bioconductor 3.11 (R 4.0).
+#'
+#' @param bioc_version character Bioconductor x.y version, 3.11 or later
+#'
+#' @returns character R x.y version
+#'
+#' @noRd
+.r_for_bioc <- function(bioc_version) {
+    parts <- as.integer(strsplit(bioc_version, ".", fixed = TRUE)[[1]])
+    if (parts[1] != 3 || parts[2] < 11)
+        stop("No R version for Bioconductor ", bioc_version)
+    sprintf("4.%d", (parts[2] - 11) %/% 2)
+}
+
 #' Get information about R Universe building a Bioconductor version
 #'
-#' @param branch character Bioconductor branch: "devel" or "release"
+#' @description The Bioconductor versions R Universe builds are set in
+#' Bioconductor's `config.yaml` by `r_universe_release_version` and
+#' `r_universe_devel_version`, separately from the website's versions, so R
+#' Universe can move to a new release first. The R version is the one
+#' `r_ver_for_bioc_ver` lists for that Bioconductor version or, if it is not
+#' listed yet, follows Bioconductor's pattern: two Bioconductor versions per R
+#' version, e.g., 3.25 and 3.26 use R 4.7. The `bioc`
+#' universe builds devel and `bioc-release` builds release.
+#'
+#' @param branch character Bioconductor branch, "devel" or "release", or
+#'     version, e.g., "3.25"
+#'
+#' @returns list with bioc_version, bioc_branch, universe, and r_version (R
+#'     x.y)
 #'
 #' @examples
 #' bu <- uni_for_bioc("devel")
 #' 
 #' @export
 uni_for_bioc <- function(branch) {
-    bioc_yaml <- yaml::read_yaml("https://bioconductor.org/config.yaml")
-    stopifnot(branch %in% c(bioc_yaml$versions, "release", "devel"))
+    config <- .bioc_config()
+    devel <- config$r_universe_devel_version
+    release <- config$r_universe_release_version
 
-    if (branch %in% c("devel", bioc_yaml$devel_version)) {
-        bioc_version <- bioc_yaml$devel_version
+    if (branch %in% c("devel", devel)) {
+        bioc_version <- devel
         bioc_branch <- "devel"
         universe <- "bioc"
-        r_version <- bioc_yaml$r_version_associated_with_devel
-    } else if (branch %in% c("release", bioc_yaml$release_version)) {
-        bioc_version <- bioc_yaml$release_version
+    } else if (branch %in% c("release", release)) {
+        bioc_version <- release
         bioc_branch <- "release"
         universe <- "bioc-release"
-        r_version <- bioc_yaml$r_version_associated_with_release
     } else
-        stop("Must be the devel or release branch")
-    
+        stop("R Universe builds Bioconductor ", release, " (release) and ",
+             devel, " (devel), not ", branch)
+
+    # config.yaml may not list a new version yet
+    r_version <- config$r_ver_for_bioc_ver[[bioc_version]]
+    if (is.null(r_version))
+        r_version <- .r_for_bioc(bioc_version)
+
     list(bioc_version = bioc_version,
          bioc_branch = bioc_branch,
          universe = universe,

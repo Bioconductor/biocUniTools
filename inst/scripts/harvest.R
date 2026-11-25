@@ -7,8 +7,8 @@ library(biocUniTools)
 # Usage: Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] [OS] [ARCH]
 #        Rscript harvest.R [TEST_REMOVAL] [BIOC_VERSION] source
 # Example: Rscript harvest.R TRUE devel macosx arm64
-# Example: Rscript harvest.R FALSE 3.23 windows arm64
-# Example: Rscript harvest.R FALSE 3.23 linux x86_64
+# Example: Rscript harvest.R FALSE 3.24 windows arm64
+# Example: Rscript harvest.R FALSE 3.24 linux x86_64
 # Example: Rscript harvest.R FALSE devel source
 #
 # Binaries must pass R CMD check and the source build, and have the same
@@ -26,11 +26,8 @@ if (length(args) < 3)
 stopifnot(args[1] %in% c("TRUE", "FALSE"))
 TEST_REMOVAL <- as.logical(args[1])
 
-bu <- tryCatch(
-    uni_for_bioc(args[2]),
-    error = function(x) {
-        stop(args[2], " not a current or valid Bioconductor version")
-    })
+# Stops if R Universe does not build this version
+bu <- uni_for_bioc(args[2])
 BIOC_VERSION <- bu$bioc_version
 
 stopifnot(args[3] %in% c("windows", "linux", "macosx", "source"))
